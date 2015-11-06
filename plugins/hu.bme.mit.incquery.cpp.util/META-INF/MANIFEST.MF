@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Util
+Bundle-SymbolicName: hu.bme.mit.cpp.util
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: INCQUERYLABS
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: hu.bme.mit.cpp.util.fs,
+ hu.bme.mit.cpp.util.util
+Require-Bundle: com.google.guava,
+ org.eclipse.xtend.lib,
+ org.eclipse.emf.ecore;bundle-version="2.11.0"
+

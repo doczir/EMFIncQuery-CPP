@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	  <extension
+        point="org.eclipse.ui.menus">
+     <menuContribution
+           allPopups="false"
+           locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
+        <menu
+              label="Generate query code...">
+           <command
+                 commandId="com.incquerylabs.xtumlrt.patternlanguage.ui.generateRuntime"
+                 style="push">
+              <visibleWhen>
+                 <with
+                       variable="selection">
+                    <iterate
+                          ifEmpty="false">
+                       <reference
+                             definitionId="com.incquerylabs.xtumlrt.gen.ui.testEiqExtension">
+                       </reference>
+                    </iterate>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="com.incquerylabs.xtumlrt.patternlanguage.ui.generateIterator"
+                 style="push">
+              <visibleWhen>
+                 <with
+                       variable="selection">
+                    <iterate
+                          ifEmpty="false">
+                       <reference
+                             definitionId="com.incquerylabs.xtumlrt.gen.ui.testEiqExtension">
+                       </reference>
+                    </iterate>
+                 </with>
+              </visibleWhen>
+           </command>
+        </menu>
+     </menuContribution>
+  </extension>
+  <extension
+        point="org.eclipse.core.expressions.definitions">
+     <definition
+           id="com.incquerylabs.xtumlrt.gen.ui.testEiqExtension">
+        <adapt
+              type="org.eclipse.core.resources.IResource">
+           <test
+                 property="org.eclipse.core.resources.extension"
+                 value="eiq">
+           </test>
+        </adapt>
+     </definition>
+  </extension>
+  <extension
+        point="org.eclipse.ui.commands">
+     <command
+           defaultHandler="com.incquerylabs.xtumlrt.patternlanguage.ui.GeneratorExecutableExtensionFactory:com.incquerylabs.xtumlrt.patternlanguage.ui.handler.RuntimeGeneratorHandler"
+           id="com.incquerylabs.xtumlrt.patternlanguage.ui.generateRuntime"
+           name="Runtime based">
+     </command>
+     <command
+           defaultHandler="com.incquerylabs.xtumlrt.patternlanguage.ui.GeneratorExecutableExtensionFactory:com.incquerylabs.xtumlrt.patternlanguage.ui.handler.IteratorGeneratorHandler"
+           id="com.incquerylabs.xtumlrt.patternlanguage.ui.generateIterator"
+           name="Iterator based">
+     </command>
+  </extension>
+</plugin>
