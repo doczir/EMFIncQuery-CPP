@@ -39,7 +39,7 @@
   <setupTask
       xsi:type="projects:ProjectsImportTask">
     <sourceLocator
-        rootFolder="{git.clone.localsearch-cpp.location}"/>
+        rootFolder="${git.clone.localsearch-cpp.location}"/>
   </setupTask>
   <setupTask
       xsi:type="setup.targlets:TargletTask">
