@@ -1,9 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: EMDW Localsearch Generator
+Bundle-Name: Localsearch C++ Generator
 Bundle-SymbolicName: hu.bme.mit.incquery.localsearch.cpp;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: IncQuery Labs Ltd.
 Export-Package: hu.bme.mit.incquery.localsearch.cpp.generator,
  hu.bme.mit.incquery.localsearch.cpp.generator.api,
  hu.bme.mit.incquery.localsearch.cpp.generator.internal,

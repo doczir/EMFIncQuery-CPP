@@ -9,7 +9,7 @@
         <menu
               label="Generate query code...">
            <command
-                 commandId="com.incquerylabs.xtumlrt.patternlanguage.ui.generateRuntime"
+                 commandId="hu.bme.mit.incquery.localsearch.cpp.ui.generateRuntime"
                  style="push">
               <visibleWhen>
                  <with
@@ -17,14 +17,14 @@
                     <iterate
                           ifEmpty="false">
                        <reference
-                             definitionId="com.incquerylabs.xtumlrt.gen.ui.testEiqExtension">
+                             definitionId="hu.bme.mit.incquery.localsearch.cpp.ui.testEiqExtension">
                        </reference>
                     </iterate>
                  </with>
               </visibleWhen>
            </command>
            <command
-                 commandId="com.incquerylabs.xtumlrt.patternlanguage.ui.generateIterator"
+                 commandId="hu.bme.mit.incquery.localsearch.cpp.ui.generateIterator"
                  style="push">
               <visibleWhen>
                  <with
@@ -32,7 +32,7 @@
                     <iterate
                           ifEmpty="false">
                        <reference
-                             definitionId="com.incquerylabs.xtumlrt.gen.ui.testEiqExtension">
+                             definitionId="hu.bme.mit.incquery.localsearch.cpp.ui.testEiqExtension">
                        </reference>
                     </iterate>
                  </with>
@@ -44,7 +44,7 @@
   <extension
         point="org.eclipse.core.expressions.definitions">
      <definition
-           id="com.incquerylabs.xtumlrt.gen.ui.testEiqExtension">
+           id="hu.bme.mit.incquery.localsearch.cpp.ui.testEiqExtension">
         <adapt
               type="org.eclipse.core.resources.IResource">
            <test
@@ -57,13 +57,13 @@
   <extension
         point="org.eclipse.ui.commands">
      <command
-           defaultHandler="com.incquerylabs.xtumlrt.patternlanguage.ui.GeneratorExecutableExtensionFactory:com.incquerylabs.xtumlrt.patternlanguage.ui.handler.RuntimeGeneratorHandler"
-           id="com.incquerylabs.xtumlrt.patternlanguage.ui.generateRuntime"
+           defaultHandler="hu.bme.mit.incquery.localsearch.cpp.ui.GeneratorExecutableExtensionFactory:hu.bme.mit.incquery.localsearch.cpp.ui.handler.RuntimeGeneratorHandler"
+           id="hu.bme.mit.incquery.localsearch.cpp.ui.generateRuntime"
            name="Runtime based">
      </command>
      <command
-           defaultHandler="com.incquerylabs.xtumlrt.patternlanguage.ui.GeneratorExecutableExtensionFactory:com.incquerylabs.xtumlrt.patternlanguage.ui.handler.IteratorGeneratorHandler"
-           id="com.incquerylabs.xtumlrt.patternlanguage.ui.generateIterator"
+           defaultHandler="hu.bme.mit.incquery.localsearch.cpp.ui.GeneratorExecutableExtensionFactory:hu.bme.mit.incquery.localsearch.cpp.ui.handler.IteratorGeneratorHandler"
+           id="hu.bme.mit.incquery.localsearch.cpp.ui.generateIterator"
            name="Iterator based">
      </command>
   </extension>
