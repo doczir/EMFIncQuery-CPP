@@ -1,0 +1,49 @@
+package hu.bme.mit.cpp.localsearch.school.query
+
+import "http://school.ecore"
+
+pattern schools(school) {
+	School(school);
+}
+
+pattern teachers(teacher) {
+	Teacher(teacher);
+}
+
+pattern students(student) {
+	Student(student);
+}
+
+pattern teachersOfSchool(teacher, school) {
+	School.teachers(school, teacher);
+}
+
+pattern coursesOfTeacher(course, teacher) {
+	Teacher.courses(teacher, course);
+}
+
+@Bind(parameters={teacher})
+@Bind(parameters={teacher, schoolClass})
+pattern classesOfTeacher(teacher, schoolClass) {
+	find coursesOfTeacher(course, teacher);
+	Course.schoolClass(course, schoolClass);
+}
+
+//pattern teacherWithoutClasses(teacher) {
+//	find teachers(teacher);
+//	neg find classesOfTeacher(teacher, _);
+//}
+
+@Bind(parameters={school})
+@Bind(parameters={student})
+@Bind(parameters={student, school})
+pattern studentsOfSchool(student, school) {
+	Student.schoolClass.courses.school(student, school);
+}
+
+//pattern mutualFriendsInOneSchool(studentA, studentB) {
+//	find studentsOfSchool(studentA, school);
+//	find studentsOfSchool(studentB, school);
+//	Student.friendsWith(studentA, studentB);
+//	Student.friendsWith(studentB, studentA);
+//}

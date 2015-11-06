@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><?eclipse version="3.0"?><!--
+--><plugin>
+  <extension id="hu.bme.mit.cpp.localsearch.school.query.Queries" point="org.eclipse.incquery.runtime.queryspecification">
+    <group group="org.eclipse.incquery.runtime.extensibility.SingletonExtensionFactory:hu.bme.mit.cpp.localsearch.school.query.Queries" id="hu.bme.mit.cpp.localsearch.school.query.Queries"/>
+  </extension>
+  <extension point="org.eclipse.emf.ecore.generated_package">
+    <!-- @generated school -->
+    <package class="school.SchoolPackage" genModel="model/school.genmodel" uri="http://school.ecore"/>
+  </extension>
+</plugin>
