@@ -53,7 +53,9 @@
       <requirement
           name="org.eclipse.sdk.feature.group"/>
       <requirement
-          name="org.eclipse.incquery.runtime.localsearch.feature.feature.group"/>
+          name="org.eclipse.incquery.runtime.localsearch.feature.source.feature.group"/>
+      <requirement
+          name="org.eclipse.incquery.sdk.feature.source.feature.group"/>
       <repositoryList
           name="Mars">
         <repository
@@ -61,7 +63,7 @@
         <repository
             url="https://hudson.eclipse.org/incquery/job/incquery-master/lastSuccessfulBuild/artifact/update-site-extra/"/>
         <repository
-            url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
+            url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/milestones/"/>
         <repository
             url="http://download.eclipse.org/releases/mars"/>
       </repositoryList>
@@ -76,13 +78,15 @@
     <requirement
         name="org.eclipse.sdk.feature.group"/>
     <requirement
-        name="org.eclipse.incquery.runtime.localsearch.feature.feature.group"/>
+        name="org.eclipse.incquery.runtime.localsearch.feature.source.feature.group"/>
+    <requirement
+        name="org.eclipse.incquery.sdk.feature.source.feature.group"/>
     <repository
         url="http://download.eclipse.org/modeling/mdt/papyrus/updates/releases/mars"/>
     <repository
         url="https://hudson.eclipse.org/incquery/job/incquery-master/lastSuccessfulBuild/artifact/update-site-extra/"/>
     <repository
-        url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
+        url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/milestones/"/>
     <repository
         url="http://download.eclipse.org/releases/mars"/>
   </setupTask>
@@ -116,15 +120,6 @@
         <operand
             xsi:type="predicates:LocationPredicate"
             pattern=".*/tests/.*"/>
-        <operand
-            xsi:type="predicates:OrPredicate">
-          <operand
-              xsi:type="predicates:RepositoryPredicate"
-              project="com.incquerylabs.emdw.parent"/>
-          <operand
-              xsi:type="predicates:RepositoryPredicate"
-              project="com.incquerylabs.emdw.common.parent"/>
-        </operand>
       </predicate>
     </workingSet>
     <workingSet
