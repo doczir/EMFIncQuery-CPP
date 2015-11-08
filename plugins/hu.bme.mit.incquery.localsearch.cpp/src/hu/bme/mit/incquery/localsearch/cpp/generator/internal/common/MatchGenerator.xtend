@@ -1,5 +1,6 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.common
 
+import com.google.common.collect.ImmutableList
 import hu.bme.mit.cpp.util.util.CppHelper
 import hu.bme.mit.cpp.util.util.NamespaceHelper
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.IGenerator
@@ -7,6 +8,7 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
 import java.util.Set
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EDataType
+import org.eclipse.incquery.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
 
 class MatchGenerator implements IGenerator {
@@ -38,6 +40,7 @@ class MatchGenerator implements IGenerator {
 				EDataType: if(it.name.toLowerCase.contains("string")) includes += new Include("string", true)
 			}
 		]
+		includes += new Include("functional", true)
 	}
 
 	override compile() '''
@@ -53,25 +56,76 @@ class MatchGenerator implements IGenerator {
 			namespace «namespaceFragment» {
 		«ENDFOR»
 		
+		«val keyVariables = ImmutableList.copyOf(matchingFrame.keyVariables.sortBy[name])»
+		
 		struct «matchName» {
 			
-			«FOR param : matchingFrame.keyVariables.sortBy[name]»
-				«val type = matchingFrame.getVariableStrictType(param)»
-				«val typeHelper = CppHelper::getTypeHelper(type)»
-				«IF type instanceof EClass»
-					«typeHelper.FQN»* «param.name»;
-				«ELSEIF type instanceof EDataType»
-					«typeHelper.FQN» «param.name»; 
-				«ENDIF»
-			«ENDFOR»
+			«fields(keyVariables)»
+			
+			«equals(keyVariables)»
+			
 		};
 		
 		«FOR namespaceFragment : implementationNamespace.toList.reverseView»
 			} /* namespace «namespaceFragment» */
-		«ENDFOR»	
+		«ENDFOR»
+		
+		«hash(keyVariables)»
 		
 		«guard.end»
 	'''
+	
+	private def fields(Iterable<PVariable> variables) {
+		'''
+		«FOR variable : variables»
+			«val type = matchingFrame.getVariableStrictType(variable)»
+			«val typeHelper = CppHelper::getTypeHelper(type)»
+			«IF type instanceof EClass»
+				«typeHelper.FQN»* «variable.name»;
+			«ELSEIF type instanceof EDataType»
+				«typeHelper.FQN» «variable.name»; 
+			«ENDIF»
+		«ENDFOR»
+		'''
+	}
+	
+	private def equals(Iterable<PVariable> variables) {
+		'''
+		bool operator==(const «matchName»& other) const {
+			return 
+				«FOR variable : variables SEPARATOR "&&"»
+					«variable.toEquals»
+				«ENDFOR»
+			;
+		}
+		'''
+	}
+	
+	private def toEquals(PVariable variable) {
+		'''«variable.name» == other.«variable.name»'''
+	}
+	
+	private def hash(Iterable<PVariable> variables) {
+		'''
+		namespace std {
+		
+		template<> struct hash<«qualifiedName»> {
+			unsigned operator()(const «qualifiedName»& match) const {
+				return 
+					«FOR variable : variables SEPARATOR '^'»
+						«variable.toHash»
+					«ENDFOR»
+				;
+			}
+		};
+				
+		}
+		'''
+	}
+	
+	private def toHash(PVariable variable) {
+		'''std::hash<decltype(match.«variable.name»)>()(match.«variable.name»)'''
+	}
 
 	def getInclude() {
 		new Include('''Localsearch/«queryName»/«fileName»''')

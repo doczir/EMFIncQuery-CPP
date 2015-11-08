@@ -32,14 +32,18 @@ class SearchOperationGenerator extends BaseGenerator {
 	Function<CharSequence, CharSequence> matchFoundHandler
 
 	val LinkedList<SearchOperationStub> operationsQueue
-	val Map<PVariable, String> variableNameCache
+	val Map<String, String> variablePurgedNameCache
+	val Map<String, String> variableNameCache
+	val Map<String, Integer> variableNameCounter
 
 	new(Collection<SearchOperationStub> operations, MatchGenerator matchGenerator) {
 		this.operations = operations;
 		this.matchGenerator = matchGenerator
 
 		this.operationsQueue = newLinkedList
+		this.variablePurgedNameCache = newHashMap
 		this.variableNameCache = newHashMap
+		this.variableNameCounter = newHashMap
 	}
 
 	override initialize() {
@@ -48,19 +52,22 @@ class SearchOperationGenerator extends BaseGenerator {
 	}
 
 	override compile() {
+		variableNameCache.clear
+		variableNameCounter.clear
 		compileNext
 	}
 
 	def dispatch compileOperation(CheckInstanceOfStub operation) '''
-		if(_classHelper->is_super_type(«operation.variable.purgedName»->get_type_id(), «operation.key.type.typeName»::type_id)) {
-			«operation.key.type.typeName»«IF operation.key.type instanceof EClass»*«ENDIF» «operation.variable.purgedName» = «operation.variable.typedVariable(operation, operation.key)»;
+		if(_classHelper->is_super_type(«operation.variable.cppName»->get_type_id(), «operation.key.type.typeName»::type_id)) {
+			«val typedVar = operation.variable.typedVariable(operation, operation.key)»
+			«operation.key.type.typeName»«IF operation.key.type instanceof EClass»*«ENDIF» «operation.variable.incrementName» = «typedVar»;
 			«compileNext»
 		}
 	'''
 
 	def dispatch compileOperation(CheckSingleNavigationStub operation) '''
-		«val tarName = operation.target.purgedName»
-		«val srcName = operation.source.purgedName»
+		«val tarName = operation.target.cppName»
+		«val srcName = operation.source.cppName»
 		«val relName = operation.key.name»
 		if(«srcName»->«relName» == «tarName») {
 			«compileNext»
@@ -68,8 +75,8 @@ class SearchOperationGenerator extends BaseGenerator {
 	'''
 
 	def dispatch compileOperation(CheckMultiNavigationStub operation) '''
-		«val tarName = operation.target.purgedName»
-		«val srcName = operation.source.purgedName»
+		«val tarName = operation.target.cppName»
+		«val srcName = operation.source.cppName»
 		«val relName = operation.key.name»
 		auto& data = «srcName»->«relName»; 
 		if(std::find(data.begin(), data.end(), «tarName») != data.end()) {
@@ -97,23 +104,23 @@ class SearchOperationGenerator extends BaseGenerator {
 	def dispatch compileOperation(ExtendInstanceOfStub operation) '''
 		«val type = operation.matchingFrame.getVariableStrictType(operation.variable)»
 		«val typeHelper = CppHelper::getTypeHelper(type)»
-		«val varName = operation.variable.purgedName»
+		«val varName = operation.variable.cppName»
 		for(auto&& «varName» : («typeHelper.FQN»::_instances)) {
 			«compileNext»
 		}
 	'''
 
 	def dispatch compileOperation(ExtendSingleNavigationStub operation) '''
-		«val tarName = operation.target.purgedName»
-		«val srcName = operation.source.purgedName»
+		«val tarName = operation.target.cppName»
+		«val srcName = operation.source.cppName»
 		«val relName = operation.key.name»
 		auto «tarName» = «srcName»->«relName»;
 		«compileNext»
 	'''
 
 	def dispatch compileOperation(ExtendMultiNavigationStub operation) '''
-		«val tarName = operation.target.purgedName»
-		«val srcName = operation.source.purgedName»
+		«val tarName = operation.target.cppName»
+		«val srcName = operation.source.cppName»
 		«val relName = operation.key.name»
 		for(auto&& «tarName» : «srcName»->«relName») {
 			«compileNext»
@@ -127,10 +134,10 @@ class SearchOperationGenerator extends BaseGenerator {
 	'''
 
 	def createMatch() '''
-		«matchGenerator.matchName» match;
+		«matchGenerator.qualifiedName» match;
 		«FOR keyVar : matchGenerator.matchingFrame.keyVariables»
 			«val variableType = matchGenerator.matchingFrame.getVariableStrictType(keyVar)»
-			match.«keyVar.name» = «keyVar.name.castTo(variableType)»;
+			match.«keyVar.name» = «keyVar.cppName.castTo(variableType)»;
 		«ENDFOR»
 		
 		«matchFoundHandler.apply("match")»
@@ -142,15 +149,27 @@ class SearchOperationGenerator extends BaseGenerator {
 		else
 			createMatch
 	}
+	
+	def getCppName(PVariable variable) {
+		getCachedData(variableNameCache, variable.name) [
+			variable.purgedName
+		]
+	}
+	
+	def incrementName(PVariable variable) {
+		val name = variable.purgedName
+		val count = getCachedData(variableNameCounter, variable.name) [
+			0
+		]
+		val postfixedName = '''«name»_«count»'''
+		variableNameCache.put(variable.name, postfixedName)
+		return postfixedName
+	}
 
 	def getPurgedName(PVariable variable) {
-		if(!variableNameCache.containsKey(variable)) {
-			val name = generatePurgedName(variable)
-			variableNameCache.put(variable, name)
-			return name
-		} else {
-			return variableNameCache.get(variable)
-		}
+		getCachedData(variablePurgedNameCache, variable.name) [
+			generatePurgedName(variable)
+		]
 	}
 	
 	def generatePurgedName(PVariable variable) {
@@ -170,21 +189,30 @@ class SearchOperationGenerator extends BaseGenerator {
 		}  else 
 			return halfPurgedName
 	}
+	
+	private def <Key, Value> getCachedData(Map<Key, Value> cache, Key key, (Key) => Value supplier) {
+		if(!cache.containsKey(key)) {
+			val value = supplier.apply(key)
+			cache.put(key, value)
+			return value
+		}
+		return cache.get(key)
+	}
 
-	def typeName(EClassifier type) {
+	private def typeName(EClassifier type) {
 		CppHelper::getTypeHelper(type).FQN
 	}
 
-	def castTo(String variable, EClassifier type) {
+	private def castTo(String variable, EClassifier type) {
 		'''static_cast<«type.typeName»«IF type instanceof EClass»*«ENDIF»>(«variable»)'''
 	}
 
 	private def typedVariable(PVariable variable, AbstractSearchOperationStub operation, EClassifier expectedType) {
 		val varType = operation.matchingFrame.getVariableLooseType(variable)
 		if (varType != expectedType) {
-			variable.purgedName.castTo(expectedType)
+			variable.cppName.castTo(expectedType)
 		} else {
-			variable.purgedName
+			variable.cppName
 		}
 	}
 	

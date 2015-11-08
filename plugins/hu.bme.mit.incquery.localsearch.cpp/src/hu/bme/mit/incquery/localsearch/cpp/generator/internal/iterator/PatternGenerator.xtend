@@ -45,14 +45,14 @@ class PatternGenerator extends BaseGenerator {
 	
 	def compileSimple() '''
 «««		get_all	
-		std::deque< «matchGenerator.qualifiedName»> get_all_«CaseFormat::LOWER_CAMEL.to(CaseFormat::LOWER_UNDERSCORE, pattern.name)»() {
+		std::unordered_set< «matchGenerator.qualifiedName»> get_all_«CaseFormat::LOWER_CAMEL.to(CaseFormat::LOWER_UNDERSCORE, pattern.name)»() {
 			using Localsearch::Matcher::ISearchContext;
 			using «matchGenerator.qualifiedName»;
 				
-			std::deque<«matchGenerator.matchName»> matches;
+			std::unordered_set<«matchGenerator.matchName»> matches;
 			
 			«searchOperationsGenerator.initialize()»
-			«searchOperationsGenerator.matchFoundHandler = ['''matches.push_back(«it»);''']»
+			«searchOperationsGenerator.matchFoundHandler = ['''matches.insert(«it»);''']»
 			
 			«searchOperationsGenerator.compile()»
 			
@@ -76,14 +76,14 @@ class PatternGenerator extends BaseGenerator {
 	
 	def compileBound() '''
 «««		get_all
-		std::deque< «matchGenerator.qualifiedName»> get_all_«CaseFormat::LOWER_CAMEL.to(CaseFormat::LOWER_UNDERSCORE, pattern.name)»(«paramList») {
+		std::unordered_set< «matchGenerator.qualifiedName»> get_all_«CaseFormat::LOWER_CAMEL.to(CaseFormat::LOWER_UNDERSCORE, pattern.name)»(«paramList») {
 			using Localsearch::Matcher::ISearchContext;
 			using «matchGenerator.qualifiedName»;
 			
-			std::deque<«matchGenerator.matchName»> matches;
+			std::unordered_set<«matchGenerator.matchName»> matches;
 			
 			«searchOperationsGenerator.initialize()»
-			«searchOperationsGenerator.matchFoundHandler = ['''matches.push_back(«it»);''']»
+			«searchOperationsGenerator.matchFoundHandler = ['''matches.insert(«it»);''']»
 			
 			«searchOperationsGenerator.compile()»
 			

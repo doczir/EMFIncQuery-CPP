@@ -60,7 +60,7 @@ class PatternGenerator extends BaseGenerator {
 	}
 
 	def compileSimple() '''
-		std::deque< «matchGenerator.qualifiedName»> get_all_«CaseFormat::LOWER_CAMEL.to(CaseFormat::LOWER_UNDERSCORE, pattern.name)»() {
+		std::unordered_set< «matchGenerator.qualifiedName»> get_all_«CaseFormat::LOWER_CAMEL.to(CaseFormat::LOWER_UNDERSCORE, pattern.name)»() {
 			using ::Localsearch::Matcher::ISearchContext;
 			using ::Localsearch::Plan::SearchPlan;
 			using ::Localsearch::Plan::SearchPlanExecutor;
@@ -70,7 +70,7 @@ class PatternGenerator extends BaseGenerator {
 			using namespace ::Localsearch::Operations::Check;
 			using namespace ::Localsearch::Operations::Extend;
 			
-			std::deque<«matchGenerator.matchName»> matches;
+			std::unordered_set<«matchGenerator.matchName»> matches;
 			ISearchContext isc(_classHelper);
 			
 			SearchPlan< «frameGenerator.frameName»> sp;
@@ -89,7 +89,7 @@ class PatternGenerator extends BaseGenerator {
 				«FOR keyVariable : matchGenerator.matchingFrame.keyVariables»
 					match.«keyVariable.name» = static_cast<«matchGenerator.matchingFrame.getVariableStrictType(keyVariable).toTypeName»>(frame.«frameGenerator.getParamName(matchGenerator.matchingFrame.getVariablePosition(keyVariable))»);
 				«ENDFOR»
-				matches.push_back(match);
+				matches.insert(match);
 			}
 			return matches;
 		}
@@ -105,7 +105,7 @@ class PatternGenerator extends BaseGenerator {
 			using namespace ::Localsearch::Operations::Check;
 			using namespace ::Localsearch::Operations::Extend;
 			
-			std::deque<«matchGenerator.matchName»> matches;
+			std::unordered_set<«matchGenerator.matchName»> matches;
 			ISearchContext isc(_classHelper);
 			
 			SearchPlan<«frameGenerator.frameName»> sp;
@@ -133,7 +133,7 @@ class PatternGenerator extends BaseGenerator {
 
 	def compileBound() '''
 		«val boundVariables = (pattern as BoundPatternStub).boundVariables»
-		std::deque< «matchGenerator.qualifiedName»> get_all_«CaseFormat::LOWER_CAMEL.to(CaseFormat::LOWER_UNDERSCORE, pattern.name)»(«paramList») {
+		std::unordered_set< «matchGenerator.qualifiedName»> get_all_«CaseFormat::LOWER_CAMEL.to(CaseFormat::LOWER_UNDERSCORE, pattern.name)»(«paramList») {
 			using ::Localsearch::Matcher::ISearchContext;
 			using ::Localsearch::Plan::SearchPlan;
 			using ::Localsearch::Plan::SearchPlanExecutor;
@@ -143,7 +143,7 @@ class PatternGenerator extends BaseGenerator {
 			using namespace ::Localsearch::Operations::Check;
 			using namespace ::Localsearch::Operations::Extend;
 			
-			std::deque<«matchGenerator.matchName»> matches;
+			std::unordered_set<«matchGenerator.matchName»> matches;
 			ISearchContext isc(_classHelper);
 			
 			SearchPlan<«frameGenerator.frameName»> sp;
@@ -165,7 +165,7 @@ class PatternGenerator extends BaseGenerator {
 				«FOR keyVariable : matchGenerator.matchingFrame.keyVariables»
 					match.«keyVariable.name» = static_cast<«matchGenerator.matchingFrame.getVariableStrictType(keyVariable).toTypeName»>(frame.«frameGenerator.getParamName(matchGenerator.matchingFrame.getVariablePosition(keyVariable))»);
 				«ENDFOR»
-				matches.push_back(match);
+				matches.insert(match);
 			}
 			
 			return matches;
@@ -182,7 +182,7 @@ class PatternGenerator extends BaseGenerator {
 			using namespace ::Localsearch::Operations::Check;
 			using namespace ::Localsearch::Operations::Extend;
 			
-			std::deque<«matchGenerator.matchName»> matches;
+			std::unordered_set<«matchGenerator.matchName»> matches;
 			ISearchContext isc(_classHelper);
 			
 			SearchPlan<«frameGenerator.frameName»> sp;

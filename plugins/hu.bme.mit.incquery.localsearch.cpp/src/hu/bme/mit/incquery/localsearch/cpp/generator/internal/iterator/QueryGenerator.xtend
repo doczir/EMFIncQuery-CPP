@@ -34,7 +34,7 @@ class QueryGenerator extends BaseGenerator {
 			initialize()
 		]
 
-		includes += new Include("deque", true)
+		includes += new Include("unordered_set", true)
 		includes += new Include("algorithm", true)
 
 		includes += new Include("Localsearch/Util/ClassHelper.h")
