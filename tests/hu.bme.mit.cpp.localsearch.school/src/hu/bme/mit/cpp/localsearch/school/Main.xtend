@@ -1,10 +1,11 @@
 package hu.bme.mit.cpp.localsearch.school
 
 import com.google.common.base.Stopwatch
-import hu.bme.mit.cpp.localsearch.school.query.util.StudentsOfSchoolQuerySpecification
+import hu.bme.mit.cpp.localsearch.school.query.util.MutualFriendsInOneSchoolQuerySpecification
 import java.util.Collection
 import java.util.List
 import java.util.Random
+import java.util.concurrent.TimeUnit
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
@@ -19,9 +20,12 @@ import org.eclipse.incquery.runtime.emf.EMFScope
 import org.eclipse.incquery.runtime.extensibility.QueryBackendRegistry
 import org.eclipse.incquery.runtime.localsearch.matcher.integration.LocalSearchBackend
 import org.eclipse.incquery.runtime.localsearch.matcher.integration.LocalSearchBackendFactory
+import org.eclipse.incquery.runtime.localsearch.matcher.integration.LocalSearchHintKeys
 import org.eclipse.incquery.runtime.matchers.backend.QueryEvaluationHint
 import school.SchoolFactory
-import java.util.concurrent.TimeUnit
+import hu.bme.mit.cpp.localsearch.school.query.util.CoursesOfTeacherQuerySpecification
+import hu.bme.mit.cpp.localsearch.school.query.util.StudentsQuerySpecification
+import hu.bme.mit.cpp.localsearch.school.query.util.SchoolsWithMutualFriendsQuerySpecification
 
 class Main {
 
@@ -75,8 +79,8 @@ class Main {
 		
 		schoolSet.resources.clear
 		
+		val schoolResource = schoolSet.createResource(URI::createPlatformResourceURI("BUTE.school", true))		
 		for (i : 0 ..< size) {
-			val schoolResource = schoolSet.createResource(URI::createPlatformResourceURI("BUTE.school", true))
 			val school = createSchool => [
 				name = "Budapest Institute of Technology and Economics" + i
 			]
@@ -137,45 +141,56 @@ class Main {
 		for(patternSpecification : patterns) {
 			println('''Preparing query: «patternSpecification.fullyQualifiedName»''')		
 			
-			val hint = new QueryEvaluationHint(LocalSearchBackend, newHashMap)
+			val hint = new QueryEvaluationHint(LocalSearchBackend, #{
+				LocalSearchHintKeys::USE_BASE_INDEX -> false				
+			})
 			
 			val sw = Stopwatch::createUnstarted
-			var Collection<? extends IPatternMatch> matches 
+			var Collection<? extends IPatternMatch> matches
+			var deltaMem = 0.0; 
 			for(i : 1..runs) {
+				for(j : 0 ..< 10)
+					System.gc
+				val memStart = Runtime.runtime.totalMemory - Runtime.runtime.freeMemory
+				sw.start
 				val engine = AdvancedIncQueryEngine::createUnmanagedEngine(new EMFScope(schoolSet))
+
+				val matcher = engine.getMatcher(patternSpecification /*,hint*/)
+				val match = matcher.oneArbitraryMatch
 				
-				sw.start				
-				val matcher = AdvancedIncQueryEngine.from(engine).getMatcher(patternSpecification, hint)
-				matches = matcher.allMatches
 				sw.stop
+				val memEnd = Runtime.runtime.totalMemory - Runtime.runtime.freeMemory
+				deltaMem = memEnd - memStart;
 				engine.dispose
-//				if(i % (runs/10) == 0)
-//					println('''querying {«(i as float) / runs * 100.0f»%}''')
+				//if(i % (runs/10) == 0) {
+					//System::out.print('''querying {«(i as float) / runs * 100.0f»%}''' + '\r')
+				//}
 			}
 			
 			println('''Elapsed time: «sw.elapsed(TimeUnit::MICROSECONDS) / runs» us''')
-			println(matches.size)	
+			println('''Memory usage: «(deltaMem / runs) / 1024» kb''')
+			//println(matches.size)
+			for(i : 0 ..< 10)
+				System.gc
 		}
 		
 	}
 	
 	def void run(int levels, int runs, List<IQuerySpecification<? extends IncQueryMatcher<? extends IPatternMatch>>> patterns) {
-		for(i : 0..<levels) {
+		for(i : 5..<levels) {
 			initModel(Math.pow(2, i) as int)
-			query(runs, #[StudentsOfSchoolQuerySpecification::instance])
+			query(runs, #[SchoolsWithMutualFriendsQuerySpecification::instance])
 		}
 	}
 
 	def static void main(String[] args) {
-		QueryBackendRegistry.getInstance().registerQueryBackendFactory(LocalSearchBackend,
-			new LocalSearchBackendFactory());
+//		QueryBackendRegistry.getInstance().registerQueryBackendFactory(LocalSearchBackend,
+//			new LocalSearchBackendFactory());
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new EcoreResourceFactoryImpl);
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("school", new XMIResourceFactoryImpl);
 		
 		val main = new Main
 		main.init
-		main.run(6, 100, #[])
-		
+		main.run(6, 1, #[])		
 	}
-
 }

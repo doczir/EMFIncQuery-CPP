@@ -1,0 +1,203 @@
+\documentclass[12pt,a4paper,oneside]{report}             % Single-side
+%\documentclass[11pt,a4paper,twoside,openright]{report}  % Duplex
+
+%\PassOptionsToPackage{chapternumber=Huordinal}{magyar.ldf}
+\usepackage{t1enc}
+\usepackage[latin2]{inputenc}
+%\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumerate}
+\usepackage[thmmarks]{ntheorem}
+\usepackage{graphics}
+\usepackage{epsfig}
+\usepackage{listings}
+\usepackage{color}
+%\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{anysize}
+\usepackage[english]{babel}
+\usepackage{sectsty}
+\usepackage{setspace}  % Ettol a tablazatok, abrak, labjegyzetek maradnak 1-es
+% sorkozzel!
+\usepackage[hang]{caption}
+\usepackage{hyperref}
+\usepackage{pdfpages} %import pdf
+
+%--------------------------------------------------------------------------------------
+% Main variables
+%--------------------------------------------------------------------------------------
+\newcommand{\vikszerzo}{RÛbert L·szlÛ DÛczi}
+\newcommand{\vikkonzulens}{dr.~Istv·n Zolt·n R·th}
+\newcommand{\vikcim}{Search-based Query Evaluation over Object Hierarchies}
+\newcommand{\viktanszek}{Department of Measurement and Information Systems}
+\newcommand{\vikdoktipus}{MSC Thesis}
+
+%--------------------------------------------------------------------------------------
+% Page layout setup
+%--------------------------------------------------------------------------------------
+% we need to redefine the pagestyle plain
+% another possibility is to use the body of this command without \fancypagestyle
+% and use \pagestyle{fancy} but in that case the special pages
+% (like the ToC, the References, and the Chapter pages)remain in plane style
+
+\pagestyle{plain}
+\setlength{\parindent}{0pt} % √°ttekinthet√µbb, angol nyelv√ª dokumentumokban jellemz√µ
+\setlength{\parskip}{8pt plus 3pt minus 3pt} % √°ttekinthet√µbb, angol nyelv√ª dokumentumokban jellemz√µ
+%\setlength{\parindent}{12pt} % magyar nyelv√ª dokumentumokban jellemz√µ
+%\setlength{\parskip}{0pt}    % magyar nyelv√ª dokumentumokban jellemz√µ
+
+\marginsize{35mm}{25mm}{15mm}{15mm} % anysize package
+\setcounter{secnumdepth}{0}
+\sectionfont{\large\upshape\bfseries}
+\setcounter{secnumdepth}{2}
+\singlespacing
+\frenchspacing
+
+%--------------------------------------------------------------------------------------
+%	Setup hyperref package
+%--------------------------------------------------------------------------------------
+\hypersetup{
+    bookmarks=true,            % show bookmarks bar?
+    unicode=false,             % non-Latin characters in Acrobat‚Äôs bookmarks
+    pdftitle={\vikcim},        % title
+    pdfauthor={\vikszerzo},    % author
+    pdfsubject={\vikdoktipus}, % subject of the document
+    pdfcreator={\vikszerzo},   % creator of the document
+    pdfproducer={Producer},    % producer of the document
+    pdfkeywords={keywords},    % list of keywords
+    pdfnewwindow=true,         % links in new window
+    colorlinks=true,           % false: boxed links; true: colored links
+    linkcolor=black,           % color of internal links
+    citecolor=black,           % color of links to bibliography
+    filecolor=black,           % color of file links
+    urlcolor=black             % color of external links
+}
+
+%--------------------------------------------------------------------------------------
+% Set up listings
+%--------------------------------------------------------------------------------------
+\lstset{
+	basicstyle=\scriptsize\ttfamily, % print whole listing small
+	keywordstyle=\color{blue},%\bfseries\underbar, % underlined bold black keywords
+	identifierstyle=, 					% nothing happens
+	commentstyle=\color{green}, % white comments
+	stringstyle=\scriptsize\sffamily, 			% typewriter type for strings
+	showstringspaces=false,     % no special string spaces
+	tabsize=2,
+	aboveskip=3pt,
+	belowskip=3pt,
+	columns=fixed,
+	backgroundcolor=\color{lightgray},
+	literate={´}{{\flqq}}1 {ª}{{\frqq}}1
+} 		
+
+%--------------------------------------------------------------------------------------
+% Define IncQuery Pattern Language
+%--------------------------------------------------------------------------------------
+\lstdefinelanguage{IQPL} {
+morekeywords={import, pattern, find, neg, check, count, package},
+sensitive=true,
+%morecomment=[l]{//},
+%morecomment=[s]{/*}{*/}
+}
+
+\lstdefinelanguage{Xtend}{
+morekeywords={cached,case,def,default,extension,false,import,val,var,new,null,private,create,switch,this,true,reexport,around,if,then,else,context},
+keywordstyle=[2]{\textbf},
+morecomment=[l]{//}, 
+morecomment=[s]{/*}{*/}, 
+morestring=[b]",
+tabsize=4
+}
+
+
+%--------------------------------------------------------------------------------------
+%	Some new commands and declarations
+%--------------------------------------------------------------------------------------
+\newcommand{\code}[1]{{\upshape\ttfamily\scriptsize\indent #1}}
+
+% define references
+\newcommand{\figref}[1]{\ref{fig:#1}.}
+\renewcommand{\eqref}[1]{(\ref{eq:#1})}
+\newcommand{\listref}[1]{\ref{listing:#1}.}
+\newcommand{\sectref}[1]{\ref{sect:#1}}
+\newcommand{\tabref}[1]{\ref{tab:#1}.}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+%\DeclareMathOperator*[1]{\floor}{arg\,max}
+\DeclareMathOperator{\sign}{sgn}
+\DeclareMathOperator{\rot}{rot}
+\definecolor{lightgray}{rgb}{0.95,0.95,0.95}
+
+\author{\vikszerzo}
+\title{\viktitle}
+\includeonly{
+	titlepage,%
+	declaration,%
+	abstract,%
+	introduction,%
+	chapter1,%
+	chapter2,%
+	chapter3,%
+	chapter4,%
+	chapter5,%
+	chapter6,%
+	chapter7,%
+	chapter8,%
+	acknowledgement,%
+	appendices,%
+}
+%--------------------------------------------------------------------------------------
+%	Setup captions
+%--------------------------------------------------------------------------------------
+\captionsetup[figure]{
+%labelsep=none,
+%font={footnotesize,it},
+%justification=justified,
+width=.75\textwidth,
+aboveskip=10pt}
+
+\renewcommand{\captionlabelfont}{\small\bf}
+\renewcommand{\captionfont}{\footnotesize\it}
+
+%--------------------------------------------------------------------------------------
+%   Custom commands
+%--------------------------------------------------------------------------------------
+
+\def\CPP{C\texttt{++}}
+\def\Java{Java}
+\def\EMF{EMF}
+\def\EIQ{EMF-IncQuery}
+
+%--------------------------------------------------------------------------------------
+% Table of contents and the main text
+%--------------------------------------------------------------------------------------
+\begin{document}
+\singlespacing
+
+\pagenumbering{arabic}
+\onehalfspacing
+\includepdf{feladatkiiras}
+\include{titlepage}
+\tableofcontents\vfill
+\include{declaration}
+\include{abstract}
+\include{introduction}
+\include{chapter1}
+\include{chapter2}
+\include{chapter3}
+\include{chapter4}
+\include{chapter5}
+\include{chapter6}
+\include{chapter7}
+\include{chapter8}
+
+%\bibliography{mybib}
+%\addcontentsline{toc}{chapter}{Bibliography}
+%\bibliographystyle{plain}
+
+%\include{appendices}
+
+\label{page:last}
+\end{document}
