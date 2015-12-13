@@ -20,7 +20,7 @@ a \Java{} based modeling tool and code generation facility for building applicat
 on structured models. The specification of the model is written in \emph{XML
 Metadata Interchange} (\emph{XMI}), which is an \emph{OMG} standard for
 exchanging XML based metadata. Using the tools provided by \EMF{}, it is
-possible to generate \Java{} code and facilities from a modell specifiaction
+possible to generate \Java{} code and facilities from a model specification
 written in XMI. The generated code contains \Java{} classes representing the
 model elements while the facilities include a basic model editor.
 
@@ -34,7 +34,7 @@ important modeling concept.
   instances of the types defined in the metamodel
 \end{itemize}
 
-\EMF{} uses \emph{ECore} as it's main modeling language, which is a partial but most commonly aknowledged implementation of the OMG's
+\EMF{} uses \emph{ECore} as it's main modeling language, which is a partial but most commonly acknowledged implementation of the OMG's
 \emph{MetaObject Facility} (MOF) standard. It is a metamodel describing how a
 user defined metamodel, which is an instance model of ECore, should look. The
 relationship of ECore, user defined metamodel and instance model of the user
@@ -47,9 +47,9 @@ defined metamodel is described in figure \figref{ECore-Metamodel-Rel}.
 \label{fig:ECore-Metamodel-Rel}
 \end{figure}
 
-On the image it is clearly visible that the concepts metamodel and instancemodel
+On the image it is clearly visible that the concepts metamodel and instance model
 all depend on the perspective. From the perspective of ECore, ECore is a
-metamodel while an ecore based user defined model is it's instance model. From
+metamodel while an ECore based user defined model is it's instance model. From
 the perspective of the user defined metamodel, it is a metamodel, while it's
 instance is an instance model.
 
@@ -62,8 +62,8 @@ A metamodel is built using the following components (as described in ECore):
 \begin{itemize}
   \item \emph{EClass} - Represents a class which can have attributes, references
   and operations. The instance model will consist of the instances of EClasses.
-  \item \emph{EAttribute} - Describes an attribbute which has a name and a type.
-  For example an EClass can have an attribbute \emph{Name} which has a type of
+  \item \emph{EAttribute} - Describes an attribute which has a name and a type.
+  For example an EClass can have an attribute \emph{Name} which has a type of
   \emph{String}.  
   \item \emph{EDataType} - Represents a user defined type. These are mostly used
   if none of the types described in ECore is suitable. EDataTypes allow for a
@@ -82,9 +82,9 @@ A metamodel is built using the following components (as described in ECore):
 \end{itemize}
 
 The \EMF{} code generator is capable of generating the \Java{} classes from the
-ECore model. Each java class representing the EClasses defined in the ECore
+ECore model. Each Java class representing the EClasses defined in the ECore
 model extends the EObject \EMF base class. This class provides a powerful
-reflective API, whith which it is possible to generically access the data of an
+reflective API, with which it is possible to generically access the data of an
 EClass instance without knowing it's type. In addition it is also possible to
 register listeners for notification on model events, like a new model element
 appearing, a model element disappearing or a property getting changed.
@@ -116,7 +116,7 @@ can have multiple teachers, years and courses. A year represents a school year,
 has a starting date and contains several school classes. Each school class
 has an identifying code and a single homeroom teacher, while each teacher can
 only be the homeroom teacher of one class. A school class can have multiple
-courses, while a course can only be tought to a single class. Each course has a
+courses, while a course can only be taught to a single class. Each course has a
 single teacher. A course can be either regular course which has a subject and a
 weight, a specialization course which has a specialization in addition or a
 limited capacity course which has a capacity. A school class has several
@@ -131,7 +131,7 @@ metamodel, most reference has an opposite reference, meaning it can be navigated
 \end{figure}
 
 Figure \figref{InstanceModel} depicts an instance model of the school metamodel.
-The root of the model is a school instance with the name Budapest Univesity of
+The root of the model is a school instance with the name Budapest University of
 Technology and Economics. It has two year instances, 2010 and 2011.
 One year has 2 while the other has 1 school class. The school has 4 courses of
 which one is a limited capacity course and another one is a specialization
@@ -139,7 +139,7 @@ course. Each course has a teacher and all of those teachers homeroom a class.
 
 \pagebreak
 
-Image \figref{InstanceModel_Eclipse} shows the same instancemodel, but as seen
+Image \figref{InstanceModel_Eclipse} shows the same instance model, but as seen
 inside the eclipse editor generated by EMF. The structure is clearly visible,
 however the additional detail like references and attributes can not be
 determined from it. There is a separate properties view that allows editing of
@@ -215,7 +215,7 @@ Listing \listref{PatternCallIQPLExample} shows examples of calling positive and
 negative pattern calls. In this example \emph{coursesOfTeacher} is called in a
 positive manner from \emph{classesOfTeacher}. This basicly means copying the
 body of \emph{coursesOfTeacher} in \emph{classesOfTeacher} while switching the
-internal parameters to the local ones. The thirs pattern,
+internal parameters to the local ones. The third pattern,
 \emph{teacherWithoutClass}, uses negative pattern call, which means the called
 pattern must not have a match with the provided parameters.
 
@@ -242,7 +242,7 @@ pattern teacherWithoutSpecializationCourse(teacher) {
 
 The following listing (\listref{AdvancedIQPLExamples}) shows examples to some of
 the advanced pattern language features. The first query shows the usage of check
-expressions. These allow simple java-like expressions resulting in a boolean to
+expressions. These allow simple Java-like expressions resulting in a boolean to
 run within a query. The second pattern is an example of a disjunction where if
 one of the bodies match the model that means a valid result.
 
@@ -268,7 +268,7 @@ relevant.
 \subsection{\EIQ{} API}
 
 \EIQ{} provides an easy to use API to use the queries defined using the pattern
-language. The API consits of classes provided by \EIQ{} and the generated code.
+language. The API consists of classes provided by \EIQ{} and the generated code.
 For each pattern definition, the following classes will be generated:
 
 \begin{itemize}
@@ -382,9 +382,9 @@ def genCppGreeting(String... names) ```
 	#include <iostream>
 
 	int main(int, char**) {
-		«FOR name : names»
-		std::cout << "Hello «name»!" << std::endl;
-		«ENDFOR»
+		ï¿½FOR name : namesï¿½
+		std::cout << "Hello ï¿½nameï¿½!" << std::endl;
+		ï¿½ENDFORï¿½
 	}
 ```
 \end{lstlisting}

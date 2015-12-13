@@ -1,9 +1,14 @@
 \chapter{Localsearch Runtime}
+
+This chapter's aim is to familiarize the user with the resulting apis, describe
+the challeenges encountered during development and provide solutions to some of
+them. In addition, this chapter provides an example of the full workflow for
+developing queries over a model and executing them.
+
 \section{EMF to \CPP{} generation} \label{sect:CppObjectModel}
 
-This chapter focuses on the ECore metamodel used to describe the class hierarchy
-of the generated code and the structure of the generated code. This chapter also
-discusses several issues related to the usage of \CPP{} and their solutions.
+This section focuses on the ECore metamodel used to describe the class hierarchy
+of the generated code and the structure of the generated code.
 
 %----------------------------------------------------------------------------
 \subsection{Metamodel}\label{sec:Metamodel}
@@ -11,70 +16,61 @@ discusses several issues related to the usage of \CPP{} and their solutions.
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=145mm, keepaspectratio]{figures/ecore_diagram.png}
-\caption{The ECore Class diagram metamodel.}
+\includegraphics[width=160mm, keepaspectratio]{figures/ecore_diagram.png}
+\caption{The ECore Class diagram metamodel}
 \label{fig:metamodel}
 \end{figure}
 
 The metamodel (as seen on figure \figref{metamodel}) is a simplified version of
-an UML class diagram. The root of it is \emph{Model} that can contain
-definitions of \emph{PrimitiveType}s and \emph{Package}s. Primitive types are
-types native to a language like \emph{int}, \emph{string} etc. Packages allow
-the classes to be structured in a hierarchical manner. Every package can contain
-other packages or \emph{UMLClass}es. An UMLClass may contain
-\emph{Relationship}s and \emph{Argument}s. A relationship can be either
-\emph{Association} or \emph{Generalization}, of which a generalization
-symbolizes inheritance while an association means the classes refer to each
-other. A generalization refers to it's super UMLClass, while an association has
-a source and a target UMLClass. Arguments are values of specified primitive
-types. Arguments and associations inherits from \emph{MultiplicityElement}, this
-allows their multiplicity to be specified (e.g. [0..1], [0..*]). Most elements
-of the model inherit from \emph{NamedElement}, this gives them a string
-\emph{name} identifier. This model allows for the creation of basic class
-diagrams that support most necessary features.
+the ECore metamodel. Ecore is a reference implementation of OMG's MOF
+standard. It allows expressing other models while it is its own metamodel,
+meaning ECore is defined using its own concepts. The root of ECore is
+\emph{EPackage}, which is a simple container for organization purposes. It
+may contain other EPackages or \emph{EClassifiers}, which can either
+be an \emph{EClass} or an \emph{EDataType}. An EDataType are primitive types
+like integer, string or enum, which corresponds to \emph{EEnum}. An EEnum may
+contain multiple literals represented by \emph{EEnumLiteral}. An EClass serve as
+a class in object oriented programming (OOP). It can be a regular class, an
+abstract class or an interface, corresponding to the respective meaning in OOP.
+An EClass contains EStructuralFeatures. An EStructuralFeature may either be an
+\emph{EReference}, an \emph{EAttribute} or an \emph{EOperation}. An EReference
+is an association between two EClasses, which may be a containment reference
+meaning the source of the reference contains the value of the actual object or
+objects referenced. Each EReference may possess an \emph{eOpposite} if there is
+an EReference in the opposite direction. An EAttribute represents a simple
+primitive type attribute for a EClass, like an integer, string, boolean etc. An
+EOperation corresponds to a function declaration. Defining a function is not
+directly supported by the metamodel.
 
 %----------------------------------------------------------------------------
 \subsection{Generated code structure}\label{sect:GeneratedCodeStructure}
 %----------------------------------------------------------------------------
 
 To talk about the generated code structure, it is necessary to have an actual
-class diagram for example, this class diagram is shown on figure
-\figref{InstanceModel}.
-
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=65mm, keepaspectratio]{figures/instance_model.png}
-\caption{An example class diagram.}
-\label{fig:InstanceModel}
-\end{figure}
-
-The model defines one primitive type, which is the \CPP{} \emph{string}. It has
-a single package \emph{Test}, which contains all the classes. Classes \emph{Foo}
-and \emph{Bar} both have a \emph{Name} attribute and an \emph{R1} association
-between them. The class \emph{SpecFoo} inherits from \emph{Foo}.
-
-The structure of the generated code can be seen on figure
-\figref{GenCodeStruct}.
+model to generate the code from. For this purpose, I used the previously
+introduced school model shown on figure \figref{School_Metamodel}. The structure
+of the generated code can be seen on figure \figref{GenCodeStruct}.
 
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=40mm, keepaspectratio]{figures/gen_code_struct.png}
-\caption{The generated code structure.}
+\caption{The generated code structure}
 \label{fig:GenCodeStruct}
 \end{figure}
 
-The model get generated into a folder named accordingly inside the src-gen
-folder of the project. For every package a folder and two header files are
-created. The \emph{def} header file contains includes to classes inside the
-package, while the \emph{def} header contains the one liner definitions of said
-classes. The folder created for the package contains header and source files for
-each class and, if there are any, the above explained files for packages. To
-help with compilation, a makefile also gets generated. The root folder has the
-makefile itself, which then includes the rule files in the folders recursively.
-This way the users only job is to create the main file and the code can be
-easily compiled. Another way to use the generated code would be to simply
-include the rule file in the user's own make file in another project. This gives
-great flexibility to anyone using a make based build tool.
+The model school got generated into a folder named accordingly inside the
+cpp-gen folder of the project. For every EPackage  a folder and two header files
+are created. The header file postfixed with \emph{def} contains includes to
+the definition of the classes inside the package, while the one postfixed with
+\emph{decl} contains the declaration of said classes. The folder created for the
+package contains header and source files for each EClass and, if there are any,
+the above explained files for contained EPackages. To help with compilation, a
+makefile also gets generated. The root model folder has the makefile itself,
+which then includes the rule files in the folders recursively. This way the
+users only job is to create the main file and the code can be easily compiled.
+Another way to use the generated code would be to simply include the rule file
+in the user's own makefile in another project. This gives great flexibility to
+anyone using a make based build tool.
 
 \section{Runtime Library}
 
@@ -132,7 +128,7 @@ all other alternatives.
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=70mm, keepaspectratio]{figures/wrapper_structure.png}
-\caption{The structure of the wrapper object.}
+\caption{The structure of the wrapper object}
 \label{fig:wrapper_structure}
 \end{figure}
 
@@ -143,7 +139,7 @@ template method to get the value contained cast to the proper type and a pointer
 object's construction can be seen as below.
 
 \begin{lstlisting}[frame=single,float=!ht,language=C++, caption=Constructing a
-wrapper object.] template<typename T>
+wrapper object] template<typename T>
 LSObject(const T& value, int type) :
 	_ptr(new Holder<T>(value)), type(type) {
 }
@@ -154,7 +150,7 @@ reference to the value, be it pointer or actual value. The second parameter
 \emph{type} contains the type information for the value. 
 
 \begin{lstlisting}[frame=single,float=!ht,language=C++, caption=Retrieving
-correctly typed object.]
+correctly typed object]
 template<typename T>
 inline T& LSObject::get() const {
     return static_cast<Holder<T>&>(*this->_ptr).value;
@@ -169,7 +165,7 @@ implementation can be seen below:
 The usage of the wrapper class is shown in listing \listref{wrapper_usage}.
 
 \begin{lstlisting}[frame=single,float=!ht,language=C++,
-label=listing:wrapper_usage, caption=Wrapper object usage.]
+label=listing:wrapper_usage, caption=Wrapper object usage]
 Foo f;
 f.Name = "Foo1";
 LSObject ls_f(f, 0);
@@ -195,7 +191,7 @@ contains the declaration of a navigation class, which shows how complicated
 class declarations can get using this approach.
 
 \begin{lstlisting}[frame=single,float=!ht,language=C++,
-label=listing:template_example, caption=Template based approach example.]
+label=listing:template_example, caption=Template based approach example]
 template<typename SrcType, typename TrgType, typename Collection, 
 		typename Member, typename MatchingFrame>
 class NavigateMultiAssociation
@@ -292,7 +288,7 @@ supports them.
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=50mm, keepaspectratio]{figures/simple_class.png}
-\caption{Example class structure.}
+\caption{Example class structure}
 \label{fig:simple_class}
 \end{figure}
 
@@ -308,7 +304,7 @@ such solution can be seen in the following example (expanding uppon the
 previous code sample):
 
 \begin{lstlisting}[frame=single,language=C++, label=listing:type_id,
-caption=Type identifier for classes.]
+caption=Type identifier for classes]
 class Foo  {
 public:
 	Foo() {
@@ -331,11 +327,12 @@ public:
 In this example, the \emph{\texttt{type\_id}} is generated. This might cause
 issues if the code is generated in multiple sessions. This can be solved with a
 class that has a growing id for each of it's instance, and a bit of template
-metaprogramming. A simplified solution can be seen below:
+metaprogramming. A simplified solution can be seen in listing
+\listref{unique_number}.
 
 \begin{lstlisting}[frame=single,float=!ht,language=C++,
 label=listing:unique_number, caption=Unique number generation for type
-identifiers.]
+identifiers]
 class unique_number { 
 public:
 	unique_number(): cur_id(max_id++) {}
@@ -352,11 +349,9 @@ struct type_number {
 
 class Foo  {
 	...
-	
 	virtual unsigned short get_type_id() const {
         return type_number<Foo>::number;
     }
-    
 	...
 };
 \end{lstlisting}
@@ -520,7 +515,7 @@ class diagram can be seen on figure \figref{runtime}.
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=150mm, keepaspectratio]{figures/runtime_diagram.png}
-\caption{The runtime library.}
+\caption{The runtime library}
 \label{fig:runtime}
 \end{figure}
 
@@ -759,7 +754,7 @@ The first step of the workflow is determining the required queries and writing
 them. The scenario is that the \CPP{} program requires a query to determine the
 school a student goes to in an efficient manner. To do this, an \emph{.eiq} file
 must be created in the project on the source path. The contents of the
-\emph{.eiq} will be described in listing \listref{example_school_eiq}
+\emph{.eiq} will be described in listing \listref{example_school_eiq}.
 
 \begin{lstlisting}[frame=single,float=!ht,language=IQPL,
 label=listing:example_school_eiq, caption=The \emph{.eiq} file for the example
@@ -801,7 +796,7 @@ project, some modifications might be required. The makefile defines the
 the proper runtime library path. If the makefile is properly configured, the
 easiest way to use the generated code is by creating a \emph{main.cpp} file in
 the \emph{cpp-gen} folder containing the user code. In this example the contents
-of the \emph{main.cpp} file can be seen in listing \listref{example_school_cpp}
+of the \emph{main.cpp} file can be seen in listing \listref{example_school_cpp}.
 
 \begin{lstlisting}[frame=single,float=!ht,language=C++,
 label=listing:example_school_cpp, caption=Fragment of the \emph{main.cpp}

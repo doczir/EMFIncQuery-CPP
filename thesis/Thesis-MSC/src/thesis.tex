@@ -118,11 +118,11 @@ tabsize=4
 \newcommand{\code}[1]{{\upshape\ttfamily\scriptsize\indent #1}}
 
 % define references
-\newcommand{\figref}[1]{\ref{fig:#1}.}
+\newcommand{\figref}[1]{\ref{fig:#1}}
 \renewcommand{\eqref}[1]{(\ref{eq:#1})}
-\newcommand{\listref}[1]{\ref{listing:#1}.}
+\newcommand{\listref}[1]{\ref{listing:#1}}
 \newcommand{\sectref}[1]{\ref{sect:#1}}
-\newcommand{\tabref}[1]{\ref{tab:#1}.}
+\newcommand{\tabref}[1]{\ref{tab:#1}}
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 %\DeclareMathOperator*[1]{\floor}{arg\,max}
@@ -143,8 +143,6 @@ tabsize=4
 	chapter4,%
 	chapter5,%
 	chapter6,%
-	chapter7,%
-	chapter8,%
 	acknowledgement,%
 	appendices,%
 }
@@ -190,8 +188,6 @@ aboveskip=10pt}
 \include{chapter4}
 \include{chapter5}
 \include{chapter6}
-\include{chapter7}
-\include{chapter8}
 
 %\bibliography{mybib}
 %\addcontentsline{toc}{chapter}{Bibliography}
