@@ -29,7 +29,7 @@ introduced pattern \emph{specializationCoursesOfTeacher}
 (\listref{PatternCallIQPLExample}). On the pattern body graph, there are three
 pattern variables, \emph{teacher}, \emph{course} and \emph{C}. The variable
 teacher is constrained to be of Teacher type, while course is of Course type.
-Variable C is an edge, and it's type is the courses association between Teachers
+Variable C is an edge, and its type is the courses association between Teachers
 and Courses. The course variable is further constrained to be a
 SpecializationCourse.
 
@@ -46,7 +46,7 @@ keepaspectratio]{figures/pattern_body_graph.png}
 %----------------------------------------------------------------------------
 
 The search graph is a graph based data structure of constraints and variables
-for representing a query over a model. The search graph is a hypergraph, it's
+for representing a query over a model. The search graph is a hypergraph, its
 edges represent constraints and nodes represent pattern variables. From the
 original pattern graph, each node and edge turns into a pattern variable. The
 constraints connect the constraints and arguments of the pattern graph, for
@@ -68,7 +68,7 @@ keepaspectratio]{figures/search_graph.png}
 Figure \figref{searchGraph} shows an example of the search graph of the
 \emph{specializationCoursesOfTeacher} pattern. The search graph has seven
 pattern variables. Pattern variables \emph{teacher}, \emph{course} and \emph{C}
-represent variables (denoted by grey dots), while \emph{Teacher},
+represent variables (denoted by gray dots), while \emph{Teacher},
 \emph{Course}, \emph{SpecializationCourse} and \emph{courses} represent types
 (denoted by black dots). Between pattern variables and types, there are
 \emph{``instance of''} constraints (black edges marked by \emph{inst}). Green
@@ -97,7 +97,7 @@ keepaspectratio]{figures/search_graph_plan_trans.png}
 The search graph may contain references to other queries. These references are
 removed in the flattening step, where each reference is replaced with the
 specified queries search graph. This results in the flattened search graph. The
-next step is the normalization step. This removes any constraint deducable from
+next step is the normalization step. This removes any constraint deducible from
 the metamodel, removes any duplicate or trivial constraints. The normalized
 graph then gets sent to the planner which produces the search plan. 
 
@@ -110,7 +110,7 @@ applied to the model. The search graph have two basic types of operation:
   the specified type will be bound to it.
   \item check - these kind of operations check whether the specified
   constraints are met on already bound variables, e.g. in case of a type
-  constraint it checs if whether the object assigned to the variable is the
+  constraint it checks if whether the object assigned to the variable is the
   specified type.
 \end{itemize}
 

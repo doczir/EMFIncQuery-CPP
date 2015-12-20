@@ -15,11 +15,11 @@ The aim of this chapter is to familiarize the reader with these technologies.
 \section{Eclipse Modeling Framework}\label{sec:EMF}
 %----------------------------------------------------------------------------
 
-\emph{Eclipse Modeling Framework} (from now on referred to as \emph{\EMF{}}) is
-a \Java{} based modeling tool and code generation facility for building applications based
+\emph{Eclipse Modeling Framework}\cite{EMF} (from now on referred to as
+\emph{\EMF{}}) is a \Java{} based modeling tool and code generation facility for building applications based
 on structured models. The specification of the model is written in \emph{XML
-Metadata Interchange} (\emph{XMI}), which is an \emph{OMG} standard for
-exchanging XML based metadata. Using the tools provided by \EMF{}, it is
+Metadata Interchange}\cite{XMI} (\emph{XMI}), which is an \emph{OMG} standard
+for exchanging XML based metadata. Using the tools provided by \EMF{}, it is
 possible to generate \Java{} code and facilities from a model specification
 written in XMI. The generated code contains \Java{} classes representing the
 model elements while the facilities include a basic model editor.
@@ -34,9 +34,9 @@ important modeling concept.
   instances of the types defined in the metamodel
 \end{itemize}
 
-\EMF{} uses \emph{ECore} as it's main modeling language, which is a partial but most commonly acknowledged implementation of the OMG's
-\emph{MetaObject Facility} (MOF) standard. It is a metamodel describing how a
-user defined metamodel, which is an instance model of ECore, should look. The
+\EMF{} uses \emph{ECore} as its main modeling language, which is a partial but most commonly acknowledged implementation of the OMG's
+\emph{MetaObject Facility}\cite{MOF} (MOF) standard. It is a metamodel
+describing how a user defined metamodel, which is an instance model of ECore, should look. The
 relationship of ECore, user defined metamodel and instance model of the user
 defined metamodel is described in figure \figref{ECore-Metamodel-Rel}.
 
@@ -49,8 +49,8 @@ defined metamodel is described in figure \figref{ECore-Metamodel-Rel}.
 
 On the image it is clearly visible that the concepts metamodel and instance model
 all depend on the perspective. From the perspective of ECore, ECore is a
-metamodel while an ECore based user defined model is it's instance model. From
-the perspective of the user defined metamodel, it is a metamodel, while it's
+metamodel while an ECore based user defined model is its instance model. From
+the perspective of the user defined metamodel, it is a metamodel, while its
 instance is an instance model.
 
 The typical EMF workflow is to define a metamodel which describes the structured
@@ -85,7 +85,7 @@ The \EMF{} code generator is capable of generating the \Java{} classes from the
 ECore model. Each Java class representing the EClasses defined in the ECore
 model extends the EObject \EMF base class. This class provides a powerful
 reflective API, with which it is possible to generically access the data of an
-EClass instance without knowing it's type. In addition it is also possible to
+EClass instance without knowing its type. In addition it is also possible to
 register listeners for notification on model events, like a new model element
 appearing, a model element disappearing or a property getting changed.
 
@@ -104,7 +104,7 @@ schools.
 \end{figure}
 
 On the metamodel, some of the already explained parts of EMF can be seen. The
-top element of the model, \emph{School} is an \emph{EClass}, while it's
+top element of the model, \emph{School} is an \emph{EClass}, while its
 \emph{name} is an \emph{EAttribute}. School has an \emph{EReference}
 \emph{teachers} to the type \emph{Teacher} with a multiplicity of ``*''. This
 EReference is a containment reference, marked by the small rhombus at the start
@@ -157,14 +157,14 @@ picture.
 \section{EMF-IncQuery}\label{sec:EMF-IncQuery}
 %----------------------------------------------------------------------------
 
-\emph{\EIQ{}} is a framework which allows for the execution of
+\emph{\EIQ{}}\cite{EIQ} is a framework which allows for the execution of
 \emph{declarative} queries over EMF models. These queries can be defined using
 \EIQ{}'s own high level yet powerful query language. The main advantage of
 the declarative query language is that it is not necessary to implement complex
 model traversal algorithms in an imperative programming language (like \Java{})
 to perform queries.
 
-Queries defined via \EIQ{} can be easily tested development time, thanks to it's
+Queries defined via \EIQ{} can be easily tested development time, thanks to its
 rich tooling support. \EIQ{} generates \Java{} code for each
 defined query which enables the user to run the queries over any EMF
 instance model.
@@ -317,8 +317,8 @@ matcher.forEachMatch(new SchoolsProcessor() {
 \section{Xtend}\label{sec:Xtend}
 %----------------------------------------------------------------------------
 
-Xtend is a statically typed dialect of \Java{} which compiles into human
-readable \Java{} code. The language has it's roots in \Java{} but improves on
+Xtend\cite{Xtend} is a statically typed dialect of \Java{} which compiles into
+human readable \Java{} code. The language has its roots in \Java{} but improves on
 many aspects of it:
 
 \begin{itemize}
@@ -370,11 +370,11 @@ val matcher = engine.getMatcher(SchoolQuerySpecification::instance)
 matcher.forEachMatch[println(school.name)]
 \end{lstlisting}
 
-Xtends most important feature in my case was it's code generation capability
+Xtends most important feature in my case was its code generation capability
 through template expressions, to which listing \listref{XtendCodeGen} gives an
 example. This example generates a simple \CPP{} program which prints out a
-greeting. The most important things are how the string between the tripple ticks
-maintains it's identation and how easy it is to parametrize the text.
+greeting. The most important things are how the string between the triple ticks
+maintains its indentation and how easy it is to parametrize the text.
 
 \begin{lstlisting}[frame=single, language=Xtend,
 label=listing:XtendCodeGen, caption=Xtend code generation] 
@@ -382,9 +382,9 @@ def genCppGreeting(String... names) ```
 	#include <iostream>
 
 	int main(int, char**) {
-		ï¿½FOR name : namesï¿½
-		std::cout << "Hello ï¿½nameï¿½!" << std::endl;
-		ï¿½ENDFORï¿½
+		«FOR name : names»
+		std::cout << "Hello «name»!" << std::endl;
+		«ENDFOR»
 	}
 ```
 \end{lstlisting}

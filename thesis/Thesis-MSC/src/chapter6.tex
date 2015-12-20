@@ -1,3 +1,51 @@
-\chapter{Conclusion}My job was to create an application capable of generating code from an EMFmodel, able to declare queries over said model and run these queries over the\CPP{} instances of the generated classes. I also had to test it's scalabilityand efficiency.I managed to finish the following tasks:\begin{itemize}
-  \item Generating code from EMF model  \item Generate search plan from the queries written in EMF-IncQuery Pattern  Language  \item Execution of the search plan over \CPP{} instances  \item Scaleability and performance testing
-\end{itemize}During my work I did not manage to implement every feature of the originalEMF-IncQuery engine, as the handling of constants, evaluatuon and checkexpressions and negative pattern application is still missing. The negativepattern applications could be implemented by generating a version of thenegatively applied pattern where all the parameters are bound, calling this andchecking if there are any matches as a search operation. The check and evaloperations are more problematic, as they would require the modification of thepattern language. The EMF-IncQuery pattern language allows the writing of checkexpression using the Xbase language, which allows the usage of Java libraries.Translating this to Java would be unreasonable amount of work, thus restrictingthe usable expression is the better solution.Throughout development, the fact that the Java local search engine wasstill being implemented slowed down my job a significantly. There were severaloccations when a bug in the search plan generation would break the \CPP{}generated code, components did not behave as documented or the Java API was notplanned with external contributions in mind, resulting in temporary hacks andworkarounds.There are still a lot of work left to be done on the resulting program. Thegenerated code should is currently not tested, this resulted in many unexpectedbugs when encountering with specific edge cases. Another possible improvementwould be the implementation of a multithreaded version of the search planexecution. This could result in significant performance gains in the case oflarger models and more complex queries. In addition, it would be worthwile tocheck different ways of solving the \CPP{} related problems mentioned in section\sectref{CppSpecificProblems}. For example it might be a reasonable restraintfor all of the model classes to inherit from a common base type, as \CPP{}allows for multiple inheritance.All in all, I believe the resulting program, while definitely not productionready, proved that it might be worthwhile to put further research anddevelopment in the \CPP{} implementation of search plan execution, as themeasured performance was significantly better in most cases.
+\chapter{Conclusion}
+
+My job was to create an application capable of generating code from an EMF
+model, able to declare queries over said model and run these queries over the
+\CPP{} instances of the generated classes. I also had to test its scalability
+and efficiency.
+
+I managed to finish the following tasks:
+
+\begin{itemize}
+  \item Generating code from EMF model
+  \item Generate search plan from the queries written in EMF-IncQuery Pattern
+  Language
+  \item Execution of the search plan over \CPP{} instances
+  \item Scaleability and performance testing
+\end{itemize}
+
+During my work I did not manage to implement every feature of the original
+\EIQ{} engine, as the handling of constants, evaluation and check
+expressions and negative pattern application is still missing. The negative
+pattern applications could be implemented by generating a version of the
+negatively applied pattern where all the parameters are bound, calling this and
+checking if there are any matches as a search operation. The check and eval
+operations are more problematic, as they would require the modification of the
+pattern language. The \EIQ{} pattern language allows the writing of check
+expression using the Xbase language, which allows the usage of Java libraries.
+Translating this to Java would be unreasonable amount of work, thus restricting
+the usable expression is the better solution.
+
+Throughout development, the fact that the Java local search engine was
+still being implemented slowed down my job a significantly. There were several
+occasions when a bug in the search plan generation would break the \CPP{}
+generated code, components did not behave as documented or the Java API was not
+planned with external contributions in mind, resulting in temporary hacks and
+workarounds.
+
+There are still a lot of work left to be done on the resulting program. The
+generated code should is currently not tested, this resulted in many unexpected
+bugs when encountering with specific edge cases. Another possible improvement
+would be the implementation of a multithreaded version of the search plan
+execution. This could result in significant performance gains in the case of
+larger models and more complex queries. In addition, it would be worthwhile to
+check different ways of solving the \CPP{} related problems mentioned in section
+\sectref{CppSpecificProblems}. For example it might be a reasonable restraint
+for all of the model classes to inherit from a common base type, as \CPP{}
+allows for multiple inheritance.
+
+All in all, I believe the resulting program, while definitely not production
+ready, proved that it might be worthwhile to put further research and
+development in the \CPP{} implementation of search plan execution, as the
+measured performance was significantly better in most cases.
