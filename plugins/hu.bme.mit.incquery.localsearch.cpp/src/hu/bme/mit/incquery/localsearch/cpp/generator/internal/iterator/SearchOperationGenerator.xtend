@@ -173,7 +173,7 @@ class SearchOperationGenerator extends BaseGenerator {
 	}
 	
 	def generatePurgedName(PVariable variable) {
-		val halfPurgedName = if (!variable.virtual) {
+		var halfPurgedName = (if (!variable.virtual) {
 			val regexp = Pattern::compile("_<(.)>");
 			val matcher = regexp.matcher(variable.name)
 			if (matcher.find)
@@ -181,10 +181,10 @@ class SearchOperationGenerator extends BaseGenerator {
 			else
 				variable.name
 		} else
-			variable.name
+			variable.name).replace("<", "_").replace(">", "_")
 		
 		if(halfPurgedName.contains(".virtual")) {
-			val tempName = '_' + variable.name.replace(".virtual{", "")
+			val tempName = '_' + halfPurgedName.replace(".virtual{", "")
 			return tempName.substring(0, tempName.length - 1)			
 		}  else 
 			return halfPurgedName
