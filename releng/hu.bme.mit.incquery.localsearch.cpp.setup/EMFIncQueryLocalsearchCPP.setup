@@ -56,6 +56,8 @@
           name="org.eclipse.incquery.runtime.localsearch.feature.source.feature.group"/>
       <requirement
           name="org.eclipse.incquery.sdk.feature.source.feature.group"/>
+      <requirement
+          name="org.eclipse.cdt.feature.group"/>
       <repositoryList
           name="Mars">
         <repository
@@ -66,6 +68,8 @@
             url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/milestones/"/>
         <repository
             url="http://download.eclipse.org/releases/mars"/>
+        <repository
+            url="http://download.eclipse.org/tools/cdt/releases/8.8"/>
       </repositoryList>
     </targlet>
   </setupTask>
