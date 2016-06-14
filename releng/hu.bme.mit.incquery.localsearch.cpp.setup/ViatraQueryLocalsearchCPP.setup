@@ -15,6 +15,25 @@
     name="hu.bme.mit.incquery.localsearch.cpp"
     label="EMF-IncQuery Localsearch CPP">
   <setupTask
+      xsi:type="setup:CompoundTask"
+      name="User Preferences">
+    <annotation
+        source="http://www.eclipse.org/oomph/setup/UserPreferences"/>
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="org.eclipse.core.resources">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.core.resources/encoding"
+          value="UTF-8"/>
+    </setupTask>
+  </setupTask>
+  <setupTask
+      xsi:type="setup:EclipseIniTask"
+      option="-Doomph.redirection.cppls.setup"
+      value="=https://raw.githubusercontent.com/doczir/EMFIncQuery-CPP/master/releng/org.eclipse.viatra.query.localsearch.cpp.setup/ViatraQueryLocalsearchCPP.setup->${git.clone.emdw-mc.location|uri}/releng/org.eclipse.viatra.query.localsearch.cpp.setup/ViatraQueryLocalsearchCPP.setup"
+      vm="true"/>
+  <setupTask
       xsi:type="git:GitCloneTask"
       id="git.clone.localsearch-cpp"
       remoteURI="doczir/EMFIncQuery-CPP"
@@ -53,9 +72,7 @@
       <requirement
           name="org.eclipse.sdk.feature.group"/>
       <requirement
-          name="org.eclipse.incquery.runtime.localsearch.feature.source.feature.group"/>
-      <requirement
-          name="org.eclipse.incquery.sdk.feature.source.feature.group"/>
+          name="org.eclipse.viatra.query.sdk.feature.source.feature.group"/>
       <requirement
           name="org.eclipse.cdt.feature.group"/>
       <repositoryList
@@ -63,11 +80,24 @@
         <repository
             url="http://download.eclipse.org/modeling/mdt/papyrus/updates/releases/mars"/>
         <repository
-            url="https://hudson.eclipse.org/incquery/job/incquery-master/lastSuccessfulBuild/artifact/update-site-extra/"/>
+            url="https://hudson.eclipse.org/viatra/job/viatra-master/lastSuccessfulBuild/artifact/releng/org.eclipse.viatra.update/target/repository/"/>
         <repository
             url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/milestones/"/>
         <repository
             url="http://download.eclipse.org/releases/mars"/>
+        <repository
+            url="http://download.eclipse.org/tools/cdt/releases/8.8"/>
+      </repositoryList>
+      <repositoryList
+          name="Neon">
+        <repository
+            url="http://download.eclipse.org/modeling/mdt/papyrus/updates/releases/mars"/>
+        <repository
+            url="https://hudson.eclipse.org/viatra/job/viatra-master/lastSuccessfulBuild/artifact/releng/org.eclipse.viatra.update/target/repository/"/>
+        <repository
+            url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/milestones/"/>
+        <repository
+            url="http://download.eclipse.org/releases/neon"/>
         <repository
             url="http://download.eclipse.org/tools/cdt/releases/8.8"/>
       </repositoryList>
@@ -80,19 +110,13 @@
     <requirement
         name="org.eclipse.emf.sdk.feature.group"/>
     <requirement
-        name="org.eclipse.sdk.feature.group"/>
-    <requirement
-        name="org.eclipse.incquery.runtime.localsearch.feature.source.feature.group"/>
-    <requirement
-        name="org.eclipse.incquery.sdk.feature.source.feature.group"/>
+        name="org.eclipse.viatra.query.sdk.feature.source.feature.group"/>
     <repository
         url="http://download.eclipse.org/modeling/mdt/papyrus/updates/releases/mars"/>
     <repository
-        url="https://hudson.eclipse.org/incquery/job/incquery-master/lastSuccessfulBuild/artifact/update-site-extra/"/>
+        url="https://hudson.eclipse.org/viatra/job/viatra-master/lastSuccessfulBuild/artifact/releng/org.eclipse.viatra.update/target/repository/"/>
     <repository
         url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/milestones/"/>
-    <repository
-        url="http://download.eclipse.org/releases/mars"/>
   </setupTask>
   <setupTask
       xsi:type="jdt:JRETask"
