@@ -31,7 +31,7 @@
   <setupTask
       xsi:type="setup:EclipseIniTask"
       option="-Doomph.redirection.cppls.setup"
-      value="=https://raw.githubusercontent.com/doczir/EMFIncQuery-CPP/master/releng/org.eclipse.viatra.query.localsearch.cpp.setup/ViatraQueryLocalsearchCPP.setup->${git.clone.emdw-mc.location|uri}/releng/org.eclipse.viatra.query.localsearch.cpp.setup/ViatraQueryLocalsearchCPP.setup"
+      value="=https://raw.githubusercontent.com/doczir/EMFIncQuery-CPP/master/releng/org.eclipse.viatra.query.localsearch.cpp.setup/ViatraQueryLocalsearchCPP.setup->${git.clone.localsearch-cpp.location|uri}/releng/org.eclipse.viatra.query.localsearch.cpp.setup/ViatraQueryLocalsearchCPP.setup"
       vm="true"/>
   <setupTask
       xsi:type="git:GitCloneTask"
