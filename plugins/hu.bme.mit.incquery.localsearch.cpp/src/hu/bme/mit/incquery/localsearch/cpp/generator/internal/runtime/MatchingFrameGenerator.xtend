@@ -8,7 +8,7 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
 import java.util.Set
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EDataType
-import org.eclipse.incquery.runtime.matchers.psystem.PVariable
+import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
 
 class MatchingFrameGenerator extends BaseGenerator {

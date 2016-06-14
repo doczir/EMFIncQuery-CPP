@@ -3,18 +3,18 @@ package hu.bme.mit.incquery.localsearch.cpp.generator.planner
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.QueryStub
 import java.util.List
 import org.apache.log4j.Logger
-import org.eclipse.incquery.runtime.api.IncQueryEngine
-import org.eclipse.incquery.runtime.emf.EMFQueryMetaContext
-import org.eclipse.incquery.runtime.matchers.psystem.annotations.ParameterReference
-import org.eclipse.incquery.runtime.matchers.psystem.queries.PDisjunction
-import org.eclipse.incquery.runtime.matchers.psystem.queries.PQuery
-import org.eclipse.incquery.runtime.matchers.psystem.rewriters.DefaultFlattenCallPredicate
-import org.eclipse.incquery.runtime.matchers.psystem.rewriters.PBodyNormalizer
-import org.eclipse.incquery.runtime.matchers.psystem.rewriters.PQueryFlattener
+import org.eclipse.viatra.query.runtime.emf.EMFQueryMetaContext
+import org.eclipse.viatra.query.runtime.matchers.psystem.annotations.ParameterReference
+import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PDisjunction
+import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
+import org.eclipse.viatra.query.runtime.matchers.psystem.rewriters.DefaultFlattenCallPredicate
+import org.eclipse.viatra.query.runtime.matchers.psystem.rewriters.PBodyNormalizer
+import org.eclipse.viatra.query.runtime.matchers.psystem.rewriters.PQueryFlattener
+import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine
 
 class PlanCompiler {
 	
-	def compilePlan(PQuery pQuery, IncQueryEngine engine, QueryStub query) {
+	def compilePlan(PQuery pQuery, ViatraQueryEngine engine, QueryStub query) {
 		val extension strategy = new CPPLocalSearchRuntimeBasedStrategy(false)
 		val extension compiler = new POperationCompiler
 
@@ -33,7 +33,7 @@ class PlanCompiler {
 		pQuery.compile(engine, query, strategy, compiler, #{}, true)
 	}
 
-	def compile(PQuery pQuery, IncQueryEngine engine, QueryStub query, extension CPPLocalSearchRuntimeBasedStrategy strategy,
+	def compile(PQuery pQuery, ViatraQueryEngine engine, QueryStub query, extension CPPLocalSearchRuntimeBasedStrategy strategy,
 		extension POperationCompiler compiler, Iterable<ParameterReference> boundVariables, boolean checkSanity) {
 		val flattener = new PQueryFlattener(new DefaultFlattenCallPredicate)
 		val normalizer = new PBodyNormalizer(null, false)

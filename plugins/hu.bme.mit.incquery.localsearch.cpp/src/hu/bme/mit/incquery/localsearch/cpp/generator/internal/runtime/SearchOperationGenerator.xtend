@@ -14,7 +14,7 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.SearchOperationStub
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EStructuralFeature
-import org.eclipse.incquery.runtime.matchers.psystem.PVariable
+import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
 
 class SearchOperationGenerator extends BaseGenerator {

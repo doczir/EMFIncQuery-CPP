@@ -7,11 +7,11 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.planner.PlanCompiler
 import java.util.List
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.incquery.runtime.api.IncQueryEngine
-import org.eclipse.incquery.runtime.emf.EMFScope
-import org.eclipse.incquery.runtime.matchers.psystem.queries.PQuery
+import org.eclipse.viatra.query.runtime.emf.EMFScope
+import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
 
 import static extension com.google.common.collect.Iterators.*
+import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine
 
 class LocalSearchCppGenerator {
 
@@ -23,7 +23,7 @@ class LocalSearchCppGenerator {
 
 	def IGeneratorOutputProvider generate(String queryFileName, ResourceSet resourceSet, List<PQuery> queries) {
 
-		val engine = IncQueryEngine.on(new EMFScope(resourceSet))
+		val engine = ViatraQueryEngine.on(new EMFScope(resourceSet))
 
 		val query = new QueryStub(queryFileName)
 		query.addClasses(resourceSet.resources.map[allContents].concat.filter(EClass))

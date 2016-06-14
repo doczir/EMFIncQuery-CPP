@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableSet
 import java.util.Collection
 import java.util.List
 import java.util.Set
-import org.eclipse.incquery.runtime.matchers.psystem.PVariable
-import org.eclipse.incquery.runtime.matchers.psystem.queries.PQuery
+import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
+import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
 import org.eclipse.xtend.lib.annotations.Accessors
 
 import static com.google.common.base.Preconditions.*

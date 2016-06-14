@@ -1,14 +1,14 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.planner
 
 import java.util.Set
-import org.eclipse.incquery.runtime.localsearch.planner.PConstraintInfo
-import org.eclipse.incquery.runtime.matchers.context.IInputKey
-import org.eclipse.incquery.runtime.matchers.context.IQueryRuntimeContext
-import org.eclipse.incquery.runtime.matchers.psystem.PConstraint
-import org.eclipse.incquery.runtime.matchers.psystem.PVariable
-import org.eclipse.incquery.runtime.matchers.psystem.basicdeferred.ExportedParameter
-import org.eclipse.incquery.runtime.matchers.psystem.basicenumerables.ConstantValue
-import org.eclipse.incquery.runtime.matchers.psystem.basicenumerables.TypeConstraint
+import org.eclipse.viatra.query.runtime.localsearch.planner.PConstraintInfo
+import org.eclipse.viatra.query.runtime.matchers.context.IInputKey
+import org.eclipse.viatra.query.runtime.matchers.context.IQueryRuntimeContext
+import org.eclipse.viatra.query.runtime.matchers.psystem.PConstraint
+import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
+import org.eclipse.viatra.query.runtime.matchers.psystem.basicdeferred.ExportedParameter
+import org.eclipse.viatra.query.runtime.matchers.psystem.basicenumerables.ConstantValue
+import org.eclipse.viatra.query.runtime.matchers.psystem.basicenumerables.TypeConstraint
 
 class CPPPConstraintInfo extends PConstraintInfo{
 	

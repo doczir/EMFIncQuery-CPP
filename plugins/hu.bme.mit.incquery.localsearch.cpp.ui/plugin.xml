@@ -17,7 +17,7 @@
                     <iterate
                           ifEmpty="false">
                        <reference
-                             definitionId="hu.bme.mit.incquery.localsearch.cpp.ui.testEiqExtension">
+                             definitionId="hu.bme.mit.incquery.localsearch.cpp.ui.testVqlExtension">
                        </reference>
                     </iterate>
                  </with>
@@ -32,7 +32,7 @@
                     <iterate
                           ifEmpty="false">
                        <reference
-                             definitionId="hu.bme.mit.incquery.localsearch.cpp.ui.testEiqExtension">
+                             definitionId="hu.bme.mit.incquery.localsearch.cpp.ui.testVqlExtension">
                        </reference>
                     </iterate>
                  </with>
@@ -44,12 +44,12 @@
   <extension
         point="org.eclipse.core.expressions.definitions">
      <definition
-           id="hu.bme.mit.incquery.localsearch.cpp.ui.testEiqExtension">
+           id="hu.bme.mit.incquery.localsearch.cpp.ui.testVqlExtension">
         <adapt
               type="org.eclipse.core.resources.IResource">
            <test
                  property="org.eclipse.core.resources.extension"
-                 value="eiq">
+                 value="vql">
            </test>
         </adapt>
      </definition>

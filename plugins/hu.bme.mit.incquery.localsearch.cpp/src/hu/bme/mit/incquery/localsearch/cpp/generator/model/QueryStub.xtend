@@ -4,12 +4,12 @@ import com.google.common.collect.ImmutableList
 import java.util.Iterator
 import java.util.List
 import java.util.Set
-import org.eclipse.incquery.runtime.matchers.psystem.PVariable
-import org.eclipse.incquery.runtime.matchers.psystem.queries.PQuery
+import org.eclipse.emf.ecore.EClass
+import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
+import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
 import org.eclipse.xtend.lib.annotations.Accessors
 
 import static com.google.common.base.Preconditions.*
-import org.eclipse.emf.ecore.EClass
 
 class QueryStub {
 

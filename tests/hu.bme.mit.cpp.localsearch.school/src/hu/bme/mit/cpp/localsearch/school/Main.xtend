@@ -1,7 +1,7 @@
 package hu.bme.mit.cpp.localsearch.school
 
 import com.google.common.base.Stopwatch
-import hu.bme.mit.cpp.localsearch.school.query.util.MutualFriendsInOneSchoolQuerySpecification
+import hu.bme.mit.cpp.localsearch.school.query.util.SchoolsWithMutualFriendsQuerySpecification
 import java.util.Collection
 import java.util.List
 import java.util.Random
@@ -12,20 +12,15 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
-import org.eclipse.incquery.runtime.api.AdvancedIncQueryEngine
-import org.eclipse.incquery.runtime.api.IPatternMatch
-import org.eclipse.incquery.runtime.api.IQuerySpecification
-import org.eclipse.incquery.runtime.api.IncQueryMatcher
-import org.eclipse.incquery.runtime.emf.EMFScope
-import org.eclipse.incquery.runtime.extensibility.QueryBackendRegistry
-import org.eclipse.incquery.runtime.localsearch.matcher.integration.LocalSearchBackend
-import org.eclipse.incquery.runtime.localsearch.matcher.integration.LocalSearchBackendFactory
-import org.eclipse.incquery.runtime.localsearch.matcher.integration.LocalSearchHintKeys
-import org.eclipse.incquery.runtime.matchers.backend.QueryEvaluationHint
+import org.eclipse.viatra.query.runtime.api.AdvancedViatraQueryEngine
+import org.eclipse.viatra.query.runtime.api.IPatternMatch
+import org.eclipse.viatra.query.runtime.api.IQuerySpecification
+import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher
+import org.eclipse.viatra.query.runtime.emf.EMFScope
+import org.eclipse.viatra.query.runtime.localsearch.matcher.integration.LocalSearchBackendFactory
+import org.eclipse.viatra.query.runtime.localsearch.matcher.integration.LocalSearchHintKeys
+import org.eclipse.viatra.query.runtime.matchers.backend.QueryEvaluationHint
 import school.SchoolFactory
-import hu.bme.mit.cpp.localsearch.school.query.util.CoursesOfTeacherQuerySpecification
-import hu.bme.mit.cpp.localsearch.school.query.util.StudentsQuerySpecification
-import hu.bme.mit.cpp.localsearch.school.query.util.SchoolsWithMutualFriendsQuerySpecification
 
 class Main {
 
@@ -136,12 +131,12 @@ class Main {
 		}
 	}
 
-	def void query(int runs, List<IQuerySpecification<? extends IncQueryMatcher<? extends IPatternMatch>>> patterns) {
+	def void query(int runs, List<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> patterns) {
 		
 		for(patternSpecification : patterns) {
 			println('''Preparing query: «patternSpecification.fullyQualifiedName»''')		
 			
-			val hint = new QueryEvaluationHint(LocalSearchBackend, #{
+			val hint = new QueryEvaluationHint(LocalSearchBackendFactory.INSTANCE, #{
 				LocalSearchHintKeys::USE_BASE_INDEX -> false				
 			})
 			
@@ -153,7 +148,7 @@ class Main {
 					System.gc
 				val memStart = Runtime.runtime.totalMemory - Runtime.runtime.freeMemory
 				sw.start
-				val engine = AdvancedIncQueryEngine::createUnmanagedEngine(new EMFScope(schoolSet))
+				val engine = AdvancedViatraQueryEngine::createUnmanagedEngine(new EMFScope(schoolSet))
 
 				val matcher = engine.getMatcher(patternSpecification /*,hint*/)
 				val match = matcher.oneArbitraryMatch
@@ -176,7 +171,7 @@ class Main {
 		
 	}
 	
-	def void run(int levels, int runs, List<IQuerySpecification<? extends IncQueryMatcher<? extends IPatternMatch>>> patterns) {
+	def void run(int levels, int runs, List<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> patterns) {
 		for(i : 5..<levels) {
 			initModel(Math.pow(2, i) as int)
 			query(runs, #[SchoolsWithMutualFriendsQuerySpecification::instance])

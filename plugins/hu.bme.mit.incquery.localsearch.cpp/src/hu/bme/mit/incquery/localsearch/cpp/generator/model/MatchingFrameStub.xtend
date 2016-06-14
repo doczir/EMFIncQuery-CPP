@@ -2,12 +2,12 @@ package hu.bme.mit.incquery.localsearch.cpp.generator.model
 
 import com.google.common.collect.ImmutableList
 import hu.bme.mit.incquery.localsearch.cpp.generator.planner.util.CompilerHelper.TypeMap
+import java.util.Comparator
 import java.util.List
 import java.util.Map
-import org.eclipse.incquery.runtime.matchers.psystem.PVariable
+import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 
 import static com.google.common.base.Preconditions.*
-import java.util.Comparator
 
 class MatchingFrameStub {
 

@@ -16,19 +16,19 @@ import java.util.Map
 import java.util.Set
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
-import org.eclipse.incquery.runtime.api.IncQueryEngine
-import org.eclipse.incquery.runtime.emf.types.EClassTransitiveInstancesKey
-import org.eclipse.incquery.runtime.emf.types.EStructuralFeatureInstancesKey
-import org.eclipse.incquery.runtime.matchers.planning.SubPlan
-import org.eclipse.incquery.runtime.matchers.planning.operations.PApply
-import org.eclipse.incquery.runtime.matchers.planning.operations.POperation
-import org.eclipse.incquery.runtime.matchers.planning.operations.PProject
-import org.eclipse.incquery.runtime.matchers.planning.operations.PStart
-import org.eclipse.incquery.runtime.matchers.psystem.PConstraint
-import org.eclipse.incquery.runtime.matchers.psystem.PVariable
-import org.eclipse.incquery.runtime.matchers.psystem.basicdeferred.ExportedParameter
-import org.eclipse.incquery.runtime.matchers.psystem.basicenumerables.TypeConstraint
-import org.eclipse.incquery.runtime.matchers.psystem.queries.PQuery
+import org.eclipse.viatra.query.runtime.emf.types.EClassTransitiveInstancesKey
+import org.eclipse.viatra.query.runtime.emf.types.EStructuralFeatureInstancesKey
+import org.eclipse.viatra.query.runtime.matchers.planning.SubPlan
+import org.eclipse.viatra.query.runtime.matchers.planning.operations.PApply
+import org.eclipse.viatra.query.runtime.matchers.planning.operations.POperation
+import org.eclipse.viatra.query.runtime.matchers.planning.operations.PProject
+import org.eclipse.viatra.query.runtime.matchers.planning.operations.PStart
+import org.eclipse.viatra.query.runtime.matchers.psystem.PConstraint
+import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
+import org.eclipse.viatra.query.runtime.matchers.psystem.basicdeferred.ExportedParameter
+import org.eclipse.viatra.query.runtime.matchers.psystem.basicenumerables.TypeConstraint
+import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
+import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine
 
 class POperationCompiler {
 
@@ -41,7 +41,7 @@ class POperationCompiler {
 	var Map<PQuery, MatchingFrameStub> frameMap = newHashMap;
 
 	
-	def void compile(SubPlan plan, PQuery pQuery, Set<PVariable> boundVariables, IncQueryEngine engine, QueryStub query) {
+	def void compile(SubPlan plan, PQuery pQuery, Set<PVariable> boundVariables, ViatraQueryEngine engine, QueryStub query) {
 		val patternName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, plan.body.pattern.fullyQualifiedName.removeQualifier);
 		val variableMapping = CompilerHelper::createVariableMapping(plan)
 		typeMapping = CompilerHelper::createTypeMapping(plan)

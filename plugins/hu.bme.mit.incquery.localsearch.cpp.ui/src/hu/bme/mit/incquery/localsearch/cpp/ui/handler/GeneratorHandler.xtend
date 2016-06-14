@@ -14,9 +14,9 @@ import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.incquery.patternlanguage.emf.eMFPatternLanguage.PatternModel
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.ui.handlers.HandlerUtil
+import org.eclipse.viatra.query.patternlanguage.emf.eMFPatternLanguage.PatternModel
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2
 import org.eclipse.xtext.generator.IContextualOutputConfigurationProvider
 import org.eclipse.xtext.resource.XtextResourceSet
