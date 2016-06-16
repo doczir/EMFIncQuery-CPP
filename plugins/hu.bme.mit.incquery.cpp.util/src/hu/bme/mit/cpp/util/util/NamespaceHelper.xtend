@@ -18,7 +18,7 @@ class NamespaceHelper implements Iterable<String> {
 				val parent = it.eContainer
 				switch(parent) {
 					ENamedElement: new NamespaceHelper(parent)
-					default: new NamespaceHelper(it.eResource)
+					default: new NamespaceHelper()
 				}
 			]
 		;
