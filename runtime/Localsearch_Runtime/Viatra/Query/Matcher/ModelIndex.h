@@ -3,10 +3,10 @@
 namespace Viatra {
 namespace Query {
 
-template<class T>
+template<class Class, class ModelRoot>
 struct ModelIndex {
 
-	static std::list<T*>& instances() {
+	static const std::list<Class*>& instances(const ModelRoot* modelroot) {
 		static_assert(false, "Please specialize a model indexer for this type!");
 	}
 };
