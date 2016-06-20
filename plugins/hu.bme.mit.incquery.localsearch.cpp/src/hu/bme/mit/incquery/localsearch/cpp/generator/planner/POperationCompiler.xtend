@@ -16,7 +16,6 @@ import java.util.Map
 import java.util.Set
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
-import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine
 import org.eclipse.viatra.query.runtime.emf.types.EClassTransitiveInstancesKey
 import org.eclipse.viatra.query.runtime.emf.types.EStructuralFeatureInstancesKey
 import org.eclipse.viatra.query.runtime.matchers.planning.SubPlan
@@ -38,33 +37,31 @@ class POperationCompiler {
 	var MatchingFrameStub matchingFrame
 	var PatternStub pattern
 	
-	var Map<PQuery, MatchingFrameStub> frameMap = newHashMap;
-
+	val Map<PQuery, MatchingFrameStub> frameMap = newHashMap
 	
-	def void compile(SubPlan plan, PQuery pQuery, Set<PVariable> boundVariables, ViatraQueryEngine engine, QueryStub query) {
+	def void compile(SubPlan plan, PQuery pQuery, Set<PVariable> boundVariables, QueryStub queryStub) {
 		val patternName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, plan.body.pattern.fullyQualifiedName.removeQualifier);
 		val variableMapping = CompilerHelper::createVariableMapping(plan)
 		typeMapping = CompilerHelper::createTypeMapping(plan)
 		variableBindings = CompilerHelper::cacheVariableBindings(plan, variableMapping, boundVariables.map[variableMapping.get(it)].toSet)
 
-		if(frameMap.containsKey(pQuery)) {
-			matchingFrame = frameMap.get(pQuery)
-			query.addMatchingFrame(matchingFrame)
-		}
-		else {
-			matchingFrame = query.addMatchingFrame
-			frameMap.put(pQuery, matchingFrame)	
+		matchingFrame = if(frameMap.containsKey(pQuery)) {
+			frameMap.get(pQuery)
+		} else {
+			val tmpMatchingFrame = queryStub.addMatchingFrame
+			frameMap.put(pQuery, tmpMatchingFrame)	
 			
 			typeMapping.forEach [ 
-				matchingFrame.addVariable($0, $1, variableMapping.get($0))
+				tmpMatchingFrame.addVariable($0, $1, variableMapping.get($0))
 			]
 
 			plan.body.pattern.parameters.map[plan.body.getVariableByNameChecked(it.name)].forEach [
-				matchingFrame.setVariableKey(it)
+				tmpMatchingFrame.setVariableKey(it)
 			]
+			tmpMatchingFrame
 		}
 		
-		pattern = query.addPattern(plan.body.pattern, matchingFrame, boundVariables)
+		pattern = queryStub.addPattern(plan.body.pattern, matchingFrame, boundVariables)
 
 		CompilerHelper::createOperationsList(plan).forEach [
 			compile(variableMapping, patternName)
