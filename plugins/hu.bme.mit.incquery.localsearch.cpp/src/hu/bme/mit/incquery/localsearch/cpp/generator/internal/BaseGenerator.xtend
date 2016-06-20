@@ -25,21 +25,28 @@ class BaseGenerator implements IGenerator{
 
 class ViatraQueryHeaderGenerator extends BaseGenerator {
 	
+	val Iterable<String> fullNamespace
 	@Accessors(PROTECTED_GETTER) val Set<Include> includes
 	val GuardHelper guard
 	
-	NamespaceHelper implementationNamespace
+	val NamespaceHelper implementationNamespace
+	protected val String unitName
+	
+	
 
 	protected new(Set<String> namespace, String unitName) {
-		val fullNamespace = Iterables::concat(#{"Viatra", "Query"}, namespace)
+		this.fullNamespace = Iterables::concat(#["Viatra", "Query"], namespace.map[toFirstUpper])
 		this.guard = CppHelper::getGuardHelper(
-			Iterables::concat(fullNamespace, #{unitName})
-				.map[CaseFormat::UPPER_CAMEL.to(CaseFormat::UPPER_UNDERSCORE, it)].join("__")
+			Iterables::concat(fullNamespace, #{unitName.toFirstUpper})
+				.map[CaseFormat::UPPER_CAMEL.to(CaseFormat::UPPER_UNDERSCORE, it)]
+				.join("__")
 		)
 		this.implementationNamespace = NamespaceHelper::getCustomHelper(fullNamespace)
-		
+		this.unitName = unitName.toFirstUpper
 		this.includes = newTreeSet(Comparator::comparing[includePath])
 	}
+	
+	override getFileName() '''«unitName».h'''
 	
 	final def addInclude(Include include) {
 		includes += include;
@@ -81,4 +88,10 @@ class ViatraQueryHeaderGenerator extends BaseGenerator {
 	
 	def compileInner() ''''''
 	def compileOuter() ''''''	
+	
+	def getInclude() {
+		new Include('''«implementationNamespace.toString('/')»/«fileName»''')
+	}
+
+	def getQualifiedName() '''::«implementationNamespace.toString("::")»::«unitName»'''
 }
