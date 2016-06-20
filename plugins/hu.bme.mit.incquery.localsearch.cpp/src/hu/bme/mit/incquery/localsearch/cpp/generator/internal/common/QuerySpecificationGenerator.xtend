@@ -10,6 +10,8 @@ import java.util.Collection
 import java.util.Set
 import org.eclipse.xtend2.lib.StringConcatenation
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
+import java.util.Map
+import java.util.List
 
 class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 	
@@ -17,7 +19,7 @@ class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 	val MatchingFrameGenerator frameGenerator
 	
 	val String patternName
-	val Multimap<PatternStub, SearchOperationGenerator> searchOperations
+	Map<PatternStub, List<SearchOperationGenerator>> searchOperations
 	
 	new(String queryName, Set<PatternStub> patternGroup, MatchingFrameGenerator frameGenerator
 		) {
@@ -26,12 +28,11 @@ class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 		this.frameGenerator = frameGenerator
 		
 		this.patternName = patternGroup.head.name
-		val patternStubSearchOperationMap = Maps::<PatternStub, Collection<SearchOperationGenerator>>asMap(patternGroup)[pattern |
+		this.searchOperations = Maps::asMap(patternGroup)[pattern |
 			pattern.searchOperations.map[ op |
 				new SearchOperationGenerator(op, frameGenerator)
 			]	
-		]
-		this.searchOperations = Multimaps::newMultimap(patternStubSearchOperationMap)[newArrayList] 
+		] 
 	}
 	
 	override initialize() {
