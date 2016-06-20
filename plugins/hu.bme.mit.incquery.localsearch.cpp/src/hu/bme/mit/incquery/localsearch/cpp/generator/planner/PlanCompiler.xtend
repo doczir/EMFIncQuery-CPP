@@ -3,6 +3,7 @@ package hu.bme.mit.incquery.localsearch.cpp.generator.planner
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.QueryStub
 import java.util.List
 import org.apache.log4j.Logger
+import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine
 import org.eclipse.viatra.query.runtime.emf.EMFQueryMetaContext
 import org.eclipse.viatra.query.runtime.matchers.psystem.annotations.ParameterReference
 import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PDisjunction
@@ -10,13 +11,12 @@ import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
 import org.eclipse.viatra.query.runtime.matchers.psystem.rewriters.DefaultFlattenCallPredicate
 import org.eclipse.viatra.query.runtime.matchers.psystem.rewriters.PBodyNormalizer
 import org.eclipse.viatra.query.runtime.matchers.psystem.rewriters.PQueryFlattener
-import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine
 
 class PlanCompiler {
 	
 	def compilePlan(PQuery pQuery, ViatraQueryEngine engine, QueryStub query) {
-		val extension strategy = new CPPLocalSearchRuntimeBasedStrategy(false)
-		val extension compiler = new POperationCompiler
+		val strategy = new CPPLocalSearchRuntimeBasedStrategy(false)
+		val compiler = new POperationCompiler
 
 		val bindings = pQuery.allAnnotations.filter[name == "Bind"]
 		for (binding : bindings) {

@@ -7,8 +7,8 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckSingleNavigation
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendInstanceOfStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendMultiNavigationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendSingleNavigationStub
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.IPatternStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.QueryStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.planner.util.CompilerHelper
 import hu.bme.mit.incquery.localsearch.cpp.generator.planner.util.CompilerHelper.TypeMap
@@ -16,6 +16,7 @@ import java.util.Map
 import java.util.Set
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine
 import org.eclipse.viatra.query.runtime.emf.types.EClassTransitiveInstancesKey
 import org.eclipse.viatra.query.runtime.emf.types.EStructuralFeatureInstancesKey
 import org.eclipse.viatra.query.runtime.matchers.planning.SubPlan
@@ -28,7 +29,6 @@ import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.viatra.query.runtime.matchers.psystem.basicdeferred.ExportedParameter
 import org.eclipse.viatra.query.runtime.matchers.psystem.basicenumerables.TypeConstraint
 import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
-import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine
 
 class POperationCompiler {
 
@@ -36,7 +36,7 @@ class POperationCompiler {
 	var Map<PVariable, TypeMap> typeMapping
 
 	var MatchingFrameStub matchingFrame
-	var IPatternStub pattern
+	var PatternStub pattern
 	
 	var Map<PQuery, MatchingFrameStub> frameMap = newHashMap;
 
@@ -64,10 +64,7 @@ class POperationCompiler {
 			]
 		}
 		
-		if(boundVariables.empty)
-			pattern = query.addSimplePattern(plan.body.pattern, matchingFrame)
-		else
-			pattern = query.addBoundPattern(plan.body.pattern, matchingFrame, boundVariables)
+		pattern = query.addPattern(plan.body.pattern, matchingFrame, boundVariables)
 
 		CompilerHelper::createOperationsList(plan).forEach [
 			compile(variableMapping, patternName)
@@ -97,7 +94,7 @@ class POperationCompiler {
 		}
 	}
 
-	def dispatch createCheck(TypeConstraint constraint, Map<PVariable, Integer> variableMapping, String patternName) {
+	def dispatch void createCheck(TypeConstraint constraint, Map<PVariable, Integer> variableMapping, String patternName) {
 		val inputKey = constraint.supplierKey
 
 		switch (inputKey) {
@@ -125,15 +122,15 @@ class POperationCompiler {
 //		pattern.addSearchOperation(new CheckExpressionStub(matchingFrame, constraint.affectedVariables, constraint.expression))
 //	}
 
-	def dispatch createCheck(ExportedParameter constraint, Map<PVariable, Integer> variableMapping,
+	def dispatch void createCheck(ExportedParameter constraint, Map<PVariable, Integer> variableMapping,
 		String patternName) {
 		// nop
 	}
 
-	def dispatch createCheck(PConstraint constraint, Map<PVariable, Integer> variableMapping, String patternName) {
+	def dispatch void createCheck(PConstraint constraint, Map<PVariable, Integer> variableMapping, String patternName) {
 	}
 
-	def dispatch createExtend(TypeConstraint constraint, Map<PVariable, Integer> variableMapping, String patternName) {
+	def dispatch void createExtend(TypeConstraint constraint, Map<PVariable, Integer> variableMapping, String patternName) {
 		val inputKey = constraint.supplierKey
 
 		// TODO : this is wasteful
@@ -185,12 +182,12 @@ class POperationCompiler {
 		}
 	}
 
-	def dispatch createExtend(ExportedParameter constraint, Map<PVariable, Integer> variableMapping,
+	def dispatch void createExtend(ExportedParameter constraint, Map<PVariable, Integer> variableMapping,
 		String patternName) {
 		// nop
 	}
 
-	def dispatch createExtend(PConstraint constraint, Map<PVariable, Integer> variableMapping, String patternName) {
+	def dispatch void createExtend(PConstraint constraint, Map<PVariable, Integer> variableMapping, String patternName) {
 		println("Constraint type not yet implemented: " + constraint)
 	}
 
