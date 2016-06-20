@@ -14,27 +14,35 @@ import org.eclipse.viatra.query.runtime.matchers.psystem.rewriters.PQueryFlatten
 
 class PlanCompiler {
 	
-	def compilePlan(PQuery pQuery, ViatraQueryEngine engine, QueryStub query) {
-		val strategy = new CPPLocalSearchRuntimeBasedStrategy(false)
-		val compiler = new POperationCompiler
-
+	
+	val ViatraQueryEngine engine
+	extension val CPPLocalSearchRuntimeBasedStrategy strategy
+	extension val POperationCompiler compiler
+	
+	
+	new (ViatraQueryEngine engine) {
+		this.engine = engine
+		this.strategy = new CPPLocalSearchRuntimeBasedStrategy(false)
+		this.compiler = new POperationCompiler	
+	}
+	
+	def compilePlan(PQuery pQuery, QueryStub queryStub) {
 		val bindings = pQuery.allAnnotations.filter[name == "Bind"]
-		for (binding : bindings) {
-			val boundVariables = binding.getAllValues("parameters").map [
+		bindings.forEach[ binding |
+			val boundParameters = binding.getAllValues("parameters").map [
 				switch (it) {
 					ParameterReference: #[it]
 					List<ParameterReference>: it
 				}
 			].flatten
 
-			pQuery.compile(engine, query, strategy, compiler, boundVariables, false)
-		}
+			pQuery.compile(queryStub, boundParameters, false)
+		]
 
-		pQuery.compile(engine, query, strategy, compiler, #{}, true)
+		pQuery.compile(queryStub, #{}, true)
 	}
 
-	def compile(PQuery pQuery, ViatraQueryEngine engine, QueryStub query, extension CPPLocalSearchRuntimeBasedStrategy strategy,
-		extension POperationCompiler compiler, Iterable<ParameterReference> boundVariables, boolean checkSanity) {
+	def compile(PQuery pQuery, QueryStub queryStub, Iterable<ParameterReference> boundParameters, boolean checkSanity) {
 		val flattener = new PQueryFlattener(new DefaultFlattenCallPredicate)
 		val normalizer = new PBodyNormalizer(null, false)
 
@@ -47,9 +55,9 @@ class PlanCompiler {
 		val normalizedBodies = normalizedDisjunction.bodies
 
 		val body = normalizedBodies.head // TODO: generate the other bodies
-		val boundPVariables = boundVariables.map[body.getVariableByNameChecked(name)].toSet
+		val boundPVariables = boundParameters.map[body.getVariableByNameChecked(name)].toSet
 
-		body.plan(Logger::getLogger(PlanCompiler), boundPVariables, EMFQueryMetaContext.INSTANCE, null, #{}).compile(pQuery, boundPVariables, engine, query)
+		body.plan(Logger::getLogger(PlanCompiler), boundPVariables, EMFQueryMetaContext.INSTANCE, null, #{}).compile(pQuery, boundPVariables, engine, queryStub)
 	}
 
 	/**

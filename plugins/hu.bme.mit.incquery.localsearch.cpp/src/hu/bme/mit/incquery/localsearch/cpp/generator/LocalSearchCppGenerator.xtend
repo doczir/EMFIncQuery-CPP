@@ -28,8 +28,8 @@ class LocalSearchCppGenerator {
 		val query = new QueryStub(queryFileName)
 		query.addClasses(resourceSet.resources.map[allContents].concat.filter(EClass))
 
-		val planCompiler = new PlanCompiler
-		queries.forEach[planCompiler.compilePlan(it, engine, query)]
+		val planCompiler = new PlanCompiler(engine)
+		queries.forEach[planCompiler.compilePlan(it, query)]
 
 		generator.initialize(query)
 
