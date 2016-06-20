@@ -35,7 +35,6 @@ class QueryStub {
 	def addPattern(PQuery pQuery, MatchingFrameStub matchingFrame, Set<PVariable> boundVariables) {
 		checkNotNull(pQuery)
 		checkNotNull(matchingFrame)
-		checkArgument(!boundVariables.empty)
 		val p = new PatternStub(pQuery, matchingFrame, boundVariables)
 		patterns += p
 		return p
