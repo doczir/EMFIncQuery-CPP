@@ -72,7 +72,7 @@ class GenerateFileTask extends FileTask {
 
 	override run() {
 		val parent = path.parent
-		if (!Files.exists(parent))
+		if (!Files?.exists(parent))
 			Files.createDirectories(parent)
 		if (Files.exists(path))
 			Files.delete(path)
