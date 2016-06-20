@@ -1,14 +1,13 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime
 
 import hu.bme.mit.cpp.util.util.CppHelper
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
-import java.util.Set
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EDataType
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 
 class MatchingFrameGenerator extends ViatraQueryHeaderGenerator {
 
@@ -16,31 +15,25 @@ class MatchingFrameGenerator extends ViatraQueryHeaderGenerator {
 	val String patternName
 	@Accessors(PUBLIC_GETTER) val MatchingFrameStub matchingFrame
 
-	@Accessors(PUBLIC_GETTER) val String frameName
-	val Set<Include> includes
-	
-
 	new(String queryName, String patternName, MatchingFrameStub matchingFrame) {
-		super(#{queryName}, '''«patternName»Frame''')
+		super(#{queryName}, '''«patternName.toFirstUpper»Frame''')
 		this.queryName = queryName
 		this.patternName = patternName
 		this.matchingFrame = matchingFrame
-
-		this.frameName = '''«patternName»Frame'''
-		this.includes = newHashSet
 	}
 
 	override initialize() {
-		matchingFrame.allTypes.forEach [
+		includes += matchingFrame.allTypes.map[looseType].map[
 			switch it {
-				EClass: includes += new Include(CppHelper::getIncludeHelper(it).toString)
-				EDataType: if(it.name.toLowerCase.contains("string")) includes += new Include("string", true)
+				EClass: Include::fromEClass(it)
+				EDataType: if(it.name.toLowerCase.contains("string")) new Include("string", true)
+				default: null
 			}
-		]
+		].filterNull
 	}
 
 	override compileInner() '''
-		struct «frameName» {
+		struct «unitName» {
 			
 			«FOR param : matchingFrame.allVariables.sortBy[matchingFrame.getVariablePosition(it)]»
 				«val type = matchingFrame.getVariableLooseType(param)»
@@ -75,14 +68,16 @@ class MatchingFrameGenerator extends ViatraQueryHeaderGenerator {
 		};
 	'''
 
-	override getFileName() '''«frameName».h'''
+	def toGetter(PVariable variable) '''«unitName»::«matchingFrame.getVariablePosition(variable).getter»'''
 
-	def toGetter(PVariable variable) '''«frameName»::«matchingFrame.getVariablePosition(variable).getter»'''
-
-	def toSetter(PVariable variable) '''«frameName»::«matchingFrame.getVariablePosition(variable).setter»'''
+	def toSetter(PVariable variable) '''«unitName»::«matchingFrame.getVariablePosition(variable).setter»'''
 	
 	def getParamName(PVariable variable) {
 		getParamName(matchingFrame.getVariablePosition(variable))
+	}
+	
+	def getFrameName() {
+		unitName
 	}
 
 	def getParamName(int position) '''_«position»'''
@@ -90,11 +85,5 @@ class MatchingFrameGenerator extends ViatraQueryHeaderGenerator {
 	private def getter(int position) '''get«position.paramName»'''
 
 	private def setter(int position) '''set«position.paramName»'''
-
-	def getInclude() {
-		new Include('''Localsearch/«queryName»/«fileName»''')
-	}
-	
-	def getQualifiedName() '''::Localsearch::«queryName»::«frameName»'''
 
 }

@@ -9,15 +9,19 @@ class QueryGroupGenerator extends ViatraQueryHeaderGenerator {
 	val QueryStub query
 	
 	new(QueryStub query) {
-		super(#{query.name}, '''«query.name»QueryGroup''')
+		super(#{query.name}, '''«query.name.toFirstUpper»QueryGroup''')
 		this.query = query
+	}
+	
+	override initialize() {
+		
 	}
 	
 	override compileInner() '''
 		template<class ModelRoot>
 		class «query.name»Matcher;
 		
-		class «query.name»QueryGroup {
+		class «unitName»{
 		public:
 			static «query.name»QueryGroup instance() {
 				static «query.name»QueryGroup instance;
@@ -29,7 +33,7 @@ class QueryGroupGenerator extends ViatraQueryHeaderGenerator {
 			}
 		
 		private:
-			«query.name»QueryGroup()
+			«unitName»()
 				: _isc{ ::Viatra::Query::Matcher::ClassHelper::builder()
 							«FOR clazz : query.classes»
 								«val supers = clazz.EAllGenericSuperTypes.map[EClassifier]»

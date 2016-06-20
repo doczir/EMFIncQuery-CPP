@@ -1,30 +1,49 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime
 
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.MatchGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.NameUtils
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import java.util.List
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.NameUtils
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.QuerySpecificationGenerator
 
 class MatcherGenerator extends ViatraQueryHeaderGenerator {
 	
 	val String name
-	List<PatternStub> patterns
+	val List<PatternStub> patterns
+	val MatchingFrameStub matchingFrame
+	val MatchingFrameGenerator frameGen
+	val MatchGenerator matchGen
 	
-	MatchingFrameStub matchingFrame
+	QuerySpecificationGenerator querySpec
 
-	new(String patternName, List<PatternStub> patterns, MatchingFrameStub frame) {
-		super(#{patternName}, '''«patternName»Matcher''')
-		this.name = patternName
+	new(String patternName, List<PatternStub> patterns, MatchingFrameGenerator frameGen, MatchGenerator matchGen, QuerySpecificationGenerator querySpec) {
+		super(#{patternName}, '''«patternName.toFirstUpper»Matcher''')
+		this.name = patternName.toFirstUpper
 		this.patterns = patterns
-		this.matchingFrame = frame
+		this.matchingFrame = frameGen.matchingFrame
+		this.frameGen = frameGen
+		this.matchGen = matchGen
+		this.querySpec = querySpec
+	}
+	
+	override initialize() {
+		includes += frameGen.include
+		includes += matchGen.include
+		includes += querySpec.include
+		
+		includes += new Include("Viatra/Query/QueryEngine.h")
+		includes += new Include("Viatra/Query/Plan/SearchPlanExecutor.h")
+		includes += new Include("unordered_set", true)
 	}
 	
 	override compileInner() '''
 		template<class ModelRoot>
-		class «name»Matcher {
+		class «unitName» {
 		public:
 			friend class ::Viatra::Query::QueryEngine<ModelRoot>;
 		
@@ -69,7 +88,7 @@ class MatcherGenerator extends ViatraQueryHeaderGenerator {
 	
 	private def fillMatch() '''
 		«FOR keyVariable : matchingFrame.keyVariables»
-			match.«keyVariable.name» = static_cast<«keyVariable.type»>
+			match.«keyVariable.name» = static_cast<«keyVariable.type»>(frame._«matchingFrame.getVariablePosition(keyVariable)»)
 		«ENDFOR»
 	'''
 	

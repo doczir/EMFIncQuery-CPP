@@ -1,14 +1,13 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.common
 
 import hu.bme.mit.cpp.util.util.CppHelper
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
 import java.util.List
-import java.util.Set
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EDataType
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 
 class MatchGenerator extends ViatraQueryHeaderGenerator {
 
@@ -16,38 +15,30 @@ class MatchGenerator extends ViatraQueryHeaderGenerator {
 	val String patternName
 	@Accessors(PUBLIC_GETTER) val MatchingFrameStub matchingFrame
 
-	@Accessors(PUBLIC_GETTER) val String matchName
-	val Set<Include> includes
 	val List<PVariable> keyVariables
 	
 
 	new(String queryName, String patternName, MatchingFrameStub matchingFrame) {
-		super(#{queryName}, '''«patternName»Match''')
+		super(#{queryName}, '''«patternName.toFirstUpper»Match''')
 		this.queryName = queryName
 		this.patternName = patternName
 		this.matchingFrame = matchingFrame
 
-		this.matchName = '''«patternName»Match'''
-		this.includes = newHashSet
 		this.keyVariables = matchingFrame.keyVariables.sortBy[name].unmodifiableView
 	}
 
-	override getFileName() {
-		'''«matchName».h'''
-	}
-
 	override initialize() {
-		matchingFrame.allTypes.forEach [
+		includes += matchingFrame.allTypes.map[strictType].map[
 			switch it {
-				EClass: includes += Include::fromEClass(it)
-				EDataType: if(it.name.toLowerCase.contains("string")) includes += new Include("string", true)
+				EClass: Include::fromEClass(it)
+				EDataType: if(it.name.toLowerCase.contains("string")) new Include("string", true)
+				default: null
 			}
-		]
-		includes += new Include("functional", true)
+		].filterNull
 	}
 
 	override compileInner() '''		
-		struct «matchName» {
+		struct «unitName» {
 			
 			«fields(keyVariables)»
 			
@@ -59,6 +50,11 @@ class MatchGenerator extends ViatraQueryHeaderGenerator {
 	override compileOuter() '''
 		«hash(keyVariables)»
 	'''
+	
+	def getMatchName() {
+		return unitName
+	}
+	
 	private def fields(Iterable<PVariable> variables) {
 		'''
 		«FOR variable : variables»
@@ -75,7 +71,7 @@ class MatchGenerator extends ViatraQueryHeaderGenerator {
 	
 	private def equals(Iterable<PVariable> variables) {
 		'''
-		bool operator==(const «matchName»& other) const {
+		bool operator==(const «unitName»& other) const {
 			return 
 				«FOR variable : variables SEPARATOR "&&"»
 					«variable.toEquals»
@@ -110,11 +106,5 @@ class MatchGenerator extends ViatraQueryHeaderGenerator {
 	private def toHash(PVariable variable) {
 		'''std::hash<decltype(match.«variable.name»)>()(match.«variable.name»)'''
 	}
-
-	def getInclude() {
-		new Include('''Localsearch/«queryName»/«fileName»''')
-	}
-
-	def getQualifiedName() '''::Localsearch::«queryName»::«matchName»'''
 
 }

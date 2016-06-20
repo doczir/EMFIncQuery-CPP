@@ -30,12 +30,13 @@ class RuntimeGeneratorContext extends LocalsearchGeneratorOutputProvider {
 			matchGenerators.put(matchingFrame, matchGen)
 //			matchGen.initialize
 			
-			val matcherGen = new MatcherGenerator(patterns.head.name, patterns, matchingFrame)
-			generators += matcherGen
 //			matcherGen.initialize
 			
 			val querySpec = new QuerySpecificationGenerator(query.name, patterns.toSet, frameGen)
 			generators += querySpec
+			
+			val matcherGen = new MatcherGenerator(patterns.head.name, patterns, frameGen, matchGen, querySpec)
+			generators += matcherGen
 //			querySpec.initialize
 		]
 		

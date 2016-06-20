@@ -1,17 +1,14 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.common
 
 import com.google.common.collect.Maps
-import com.google.common.collect.Multimap
-import com.google.common.collect.Multimaps
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime.MatchingFrameGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime.SearchOperationGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
-import java.util.Collection
+import java.util.List
+import java.util.Map
 import java.util.Set
 import org.eclipse.xtend2.lib.StringConcatenation
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
-import java.util.Map
-import java.util.List
 
 class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 	
@@ -19,15 +16,16 @@ class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 	val MatchingFrameGenerator frameGenerator
 	
 	val String patternName
+	val String querySpecificationName
 	Map<PatternStub, List<SearchOperationGenerator>> searchOperations
 	
-	new(String queryName, Set<PatternStub> patternGroup, MatchingFrameGenerator frameGenerator
-		) {
-		super(#{queryName}, '''«patternGroup.head.name»QuerySpecification''')
+	new(String queryName, Set<PatternStub> patternGroup, MatchingFrameGenerator frameGenerator) {
+		super(#{queryName}, '''«patternGroup.head.name.toFirstUpper»QuerySpecification''')
 		this.patternGroup = patternGroup
 		this.frameGenerator = frameGenerator
 		
-		this.patternName = patternGroup.head.name
+		this.patternName = patternGroup.head.name.toFirstUpper
+		this.querySpecificationName = '''«patternName.toUpperCase»QuerySpecification'''
 		this.searchOperations = Maps::asMap(patternGroup)[pattern |
 			pattern.searchOperations.map[ op |
 				new SearchOperationGenerator(op, frameGenerator)
@@ -38,16 +36,14 @@ class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 	override initialize() {
 		includes += frameGenerator.include
 		
-		includes += new Include("Localsearch/Util/Optional.h")
-	}
-	
-	override getFileName() {
-		super.getFileName()
+		includes += new Include("Viatra/Query/Util/Optional.h")
+		includes += new Include("Viatra/Query/Operations/AllOperations.h")
+		includes += new Include("Viatra/Query/Plan/SearchPlan.h")
 	}
 	
 	override compileInner() '''
 		template<class ModelRoot>
-		class «patternName»QuerySpecification {
+		class «unitName» {
 		public:
 			using Matcher = «patternName»Matcher<ModelRoot>;
 		
@@ -58,7 +54,7 @@ class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 				using namespace ::Viatra::Query::Operations::Check;
 				using namespace ::Viatra::Query::Operations::Extend;
 			
-				::Viatra::Query::Plan::SearchPlan< SchoolsFrame> sp;
+				::Viatra::Query::Plan::SearchPlan<«patternName»Frame> sp;
 			
 				«FOR op : searchOperations.get(pattern)»
 					sp.add_operation(«op.compile»);
