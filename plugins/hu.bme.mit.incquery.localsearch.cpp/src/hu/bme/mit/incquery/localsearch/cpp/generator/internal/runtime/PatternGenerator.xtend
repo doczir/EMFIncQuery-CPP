@@ -7,10 +7,8 @@ import hu.bme.mit.cpp.util.util.CppHelper
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.BaseGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.MatchGenerator
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.BoundPatternStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckExpressionStub
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.IPatternStub
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.SimplePatternStub
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import java.util.List
 import java.util.Map
 import java.util.Set
@@ -21,14 +19,14 @@ import org.eclipse.xtend.lib.annotations.Accessors
 
 class PatternGenerator extends BaseGenerator {
 
-	val IPatternStub pattern
+	val PatternStub pattern
 	val MatchingFrameGenerator frameGenerator
 	val MatchGenerator matchGenerator
 
 	val List<SearchOperationGenerator> searchOperations
 	@Accessors(PUBLIC_GETTER) val Set<Include> includes
 	
-	new(IPatternStub pattern, MatchingFrameGenerator frameGenerator, MatchGenerator matchGenerator,
+	new(PatternStub pattern, MatchingFrameGenerator frameGenerator, MatchGenerator matchGenerator,
 		Map<CheckExpressionStub, CheckExpressionGenerator> checkExpressionGenerators) {
 		this.pattern = pattern
 		this.frameGenerator = frameGenerator
@@ -53,10 +51,10 @@ class PatternGenerator extends BaseGenerator {
 	}
 
 	override compile() {
-		switch (pattern) { // Be careful here! Order matters (since BoundPatternStub is the subclass of SimplePatternStub)
-			BoundPatternStub: compileBound
-			SimplePatternStub: compileSimple
-		}
+		if(pattern.bound)
+			compileBound
+		else
+			compileSimple
 	}
 
 	def compileSimple() '''
@@ -132,7 +130,7 @@ class PatternGenerator extends BaseGenerator {
 	'''
 
 	def compileBound() '''
-		«val boundVariables = (pattern as BoundPatternStub).boundVariables»
+		«val boundVariables = pattern.boundVariables»
 		std::unordered_set< «matchGenerator.qualifiedName»> get_all_«CaseFormat::LOWER_CAMEL.to(CaseFormat::LOWER_UNDERSCORE, pattern.name)»(«paramList») {
 			using ::Localsearch::Matcher::ISearchContext;
 			using ::Localsearch::Plan::SearchPlan;
@@ -212,7 +210,7 @@ class PatternGenerator extends BaseGenerator {
 	'''
 
 	def getParamList() {
-		val boundVariables = (pattern as BoundPatternStub).boundVariables
+		val boundVariables = pattern.boundVariables
 		val params = boundVariables.map['''«matchGenerator.matchingFrame.getVariableStrictType(it).toTypeName» «name»''']
 		Joiner.on(", ").join(params)
 	}

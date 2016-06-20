@@ -1,17 +1,16 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.common
 
-import com.google.common.collect.ImmutableList
 import hu.bme.mit.cpp.util.util.CppHelper
-import hu.bme.mit.cpp.util.util.NamespaceHelper
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.IGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
+import java.util.List
 import java.util.Set
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EDataType
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 
-class MatchGenerator implements IGenerator {
+class MatchGenerator extends ViatraQueryHeaderGenerator {
 
 	val String queryName
 	val String patternName
@@ -19,14 +18,18 @@ class MatchGenerator implements IGenerator {
 
 	@Accessors(PUBLIC_GETTER) val String matchName
 	val Set<Include> includes
+	val List<PVariable> keyVariables
+	
 
 	new(String queryName, String patternName, MatchingFrameStub matchingFrame) {
+		super(#{queryName}, '''«patternName»Match''')
 		this.queryName = queryName
 		this.patternName = patternName
 		this.matchingFrame = matchingFrame
 
 		this.matchName = '''«patternName»Match'''
 		this.includes = newHashSet
+		this.keyVariables = matchingFrame.keyVariables.sortBy[name].unmodifiableView
 	}
 
 	override getFileName() {
@@ -43,38 +46,19 @@ class MatchGenerator implements IGenerator {
 		includes += new Include("functional", true)
 	}
 
-	override compile() '''
-		«val guard = CppHelper::getGuardHelper(("LOCALSEARCH_" + queryName + "_" + matchName).toUpperCase)»
-		«guard.start»
-		
-		«FOR include : includes»
-			«include.compile()»
-		«ENDFOR»
-		
-		«val implementationNamespace = NamespaceHelper::getCustomHelper(#["Localsearch", queryName])»
-		«FOR namespaceFragment : implementationNamespace»
-			namespace «namespaceFragment» {
-		«ENDFOR»
-		
-		«val keyVariables = ImmutableList.copyOf(matchingFrame.keyVariables.sortBy[name])»
-		
+	override compileInner() '''		
 		struct «matchName» {
 			
 			«fields(keyVariables)»
 			
 			«equals(keyVariables)»
 			
-		};
-		
-		«FOR namespaceFragment : implementationNamespace.toList.reverseView»
-			} /* namespace «namespaceFragment» */
-		«ENDFOR»
-		
-		«hash(keyVariables)»
-		
-		«guard.end»
+		};		
 	'''
 	
+	override compileOuter() '''
+		«hash(keyVariables)»
+	'''
 	private def fields(Iterable<PVariable> variables) {
 		'''
 		«FOR variable : variables»

@@ -1,8 +1,6 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime
 
 import hu.bme.mit.cpp.util.util.CppHelper
-import hu.bme.mit.cpp.util.util.NamespaceHelper
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.BaseGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
 import java.util.Set
@@ -10,8 +8,9 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EDataType
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 
-class MatchingFrameGenerator extends BaseGenerator {
+class MatchingFrameGenerator extends ViatraQueryHeaderGenerator {
 
 	val String queryName
 	val String patternName
@@ -22,6 +21,7 @@ class MatchingFrameGenerator extends BaseGenerator {
 	
 
 	new(String queryName, String patternName, MatchingFrameStub matchingFrame) {
+		super(#{queryName}, '''«patternName»Frame''')
 		this.queryName = queryName
 		this.patternName = patternName
 		this.matchingFrame = matchingFrame
@@ -39,19 +39,7 @@ class MatchingFrameGenerator extends BaseGenerator {
 		]
 	}
 
-	override compile() '''
-		«val guard = CppHelper::getGuardHelper(("LOCALSEARCH_" + queryName + "_" + frameName).toUpperCase)»
-		«guard.start»
-		
-		«FOR include : includes»
-			«include.compile»
-		«ENDFOR»
-		
-		«val implementationNamespace = NamespaceHelper::getCustomHelper(#["Localsearch", queryName])»
-		«FOR namespaceFragment : implementationNamespace»
-			namespace «namespaceFragment» {
-		«ENDFOR»
-		
+	override compileInner() '''
 		struct «frameName» {
 			
 			«FOR param : matchingFrame.allVariables.sortBy[matchingFrame.getVariablePosition(it)]»
@@ -85,12 +73,6 @@ class MatchingFrameGenerator extends BaseGenerator {
 				«ENDIF»
 			«ENDFOR»
 		};
-		
-		«FOR namespaceFragment : implementationNamespace.toList.reverseView»
-			} /* namespace «namespaceFragment» */
-		«ENDFOR»	
-		
-		«guard.end»
 	'''
 
 	override getFileName() '''«frameName».h'''
