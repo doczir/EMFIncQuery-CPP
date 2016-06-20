@@ -51,4 +51,27 @@ class PatternStub {
 	def boolean isBound() {
 		!boundVariables.empty
 	}
+	
+	override toString() '''
+		pattern <«name»> («paramList») «FOR body : query.disjunctBodies.bodies SEPARATOR " or "» {
+			«FOR so : searchOperations»
+				«so»
+			«ENDFOR»
+		} «ENDFOR»
+		
+	'''
+	
+	private def paramList() {
+		val paramNames = newArrayList
+		for(i : 0..<query.parameters.size) {
+			val param = query.parameterNames.get(i)
+			if(boundVariables.map[name].findFirst[it == query.parameters.get(i).name] != null)
+				paramNames += param + " (B)"
+			else 
+				paramNames += param
+		}
+		
+		paramNames.join(", ")
+	}
+	
 }

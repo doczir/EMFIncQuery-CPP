@@ -9,7 +9,6 @@ import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
 import org.eclipse.xtend.lib.annotations.Accessors
 
 import static com.google.common.base.Preconditions.*
-import com.google.common.collect.Multimaps
 
 class QueryStub {
 
@@ -60,10 +59,18 @@ class QueryStub {
 	}
 
 	def getPatterns() {
-		patterns.groupBy[name].unmodifiableView
+		patterns.groupBy[it.name].unmodifiableView
 	}
 
 	def getClasses() {
 		classes.unmodifiableView
 	}
+	
+	override toString() '''
+		Query<«name»>:
+			«FOR pattern : patterns»
+				«pattern»
+			«ENDFOR»		
+	'''
+	
 }
