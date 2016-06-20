@@ -1,6 +1,5 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.model
 
-import com.google.common.collect.ImmutableList
 import java.util.Iterator
 import java.util.List
 import java.util.Set
@@ -10,6 +9,7 @@ import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
 import org.eclipse.xtend.lib.annotations.Accessors
 
 import static com.google.common.base.Preconditions.*
+import com.google.common.collect.Multimaps
 
 class QueryStub {
 
@@ -17,7 +17,7 @@ class QueryStub {
 	val String name
 
 	val List<EClass> classes
-	val List<IPatternStub> patterns
+	val List<PatternStub> patterns
 	val List<MatchingFrameStub> matchingFrames
 
 	new(String name) {
@@ -28,19 +28,15 @@ class QueryStub {
 		this.matchingFrames = newArrayList
 	}
 
-	def addSimplePattern(PQuery pQuery, MatchingFrameStub matchingFrame) {
-		checkNotNull(pQuery)
-		checkNotNull(matchingFrame)
-		val p = new SimplePatternStub(pQuery, matchingFrame)
-		patterns += p
-		return p
+	def addPattern(PQuery pQuery, MatchingFrameStub matchingFrame) {
+		addPattern(pQuery, matchingFrame, #{})
 	}
 
-	def addBoundPattern(PQuery pQuery, MatchingFrameStub matchingFrame, Set<PVariable> boundVariables) {
+	def addPattern(PQuery pQuery, MatchingFrameStub matchingFrame, Set<PVariable> boundVariables) {
 		checkNotNull(pQuery)
 		checkNotNull(matchingFrame)
 		checkArgument(!boundVariables.empty)
-		val p = new BoundPatternStub(pQuery, matchingFrame, boundVariables)
+		val p = new PatternStub(pQuery, matchingFrame, boundVariables)
 		patterns += p
 		return p
 	}
@@ -61,14 +57,14 @@ class QueryStub {
 	}
 
 	def getMatchingFrames() {
-		ImmutableList.copyOf(matchingFrames)
+		matchingFrames.unmodifiableView
 	}
 
 	def getPatterns() {
-		ImmutableList.copyOf(patterns)
+		patterns.groupBy[name].unmodifiableView
 	}
 
 	def getClasses() {
-		ImmutableList.copyOf(classes)
+		classes.unmodifiableView
 	}
 }

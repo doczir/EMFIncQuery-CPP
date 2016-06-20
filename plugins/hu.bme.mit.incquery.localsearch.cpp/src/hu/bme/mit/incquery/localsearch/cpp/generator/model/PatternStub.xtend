@@ -1,8 +1,5 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.model
 
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
-import java.util.Collection
 import java.util.List
 import java.util.Set
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
@@ -11,57 +8,47 @@ import org.eclipse.xtend.lib.annotations.Accessors
 
 import static com.google.common.base.Preconditions.*
 
-interface IPatternStub {
-	def void addSearchOperation(SearchOperationStub searchOperation)
-
-	def Collection<SearchOperationStub> getSearchOperations()
-	
-	def MatchingFrameStub getMatchingFrame()
-	
-	def String getName()
-} 
-
-class SimplePatternStub implements IPatternStub {
+class PatternStub {
 
 	val PQuery query
 	@Accessors(PUBLIC_GETTER) val MatchingFrameStub matchingFrame
 
 	val List<SearchOperationStub> searchOperations
-
+	
+	val Set<PVariable> boundVariables
+	
 	new(PQuery query, MatchingFrameStub matchingFrame) {
+		this(query, matchingFrame, #{})
+	}
+	
+	new(PQuery query, MatchingFrameStub matchingFrame, Set<PVariable> boundVariables) {
 		checkNotNull(query)
 		checkNotNull(matchingFrame)
 		this.query = query
 		this.matchingFrame = matchingFrame
 
-		this.searchOperations = newArrayList
+		this.searchOperations = newArrayList		
+		this.boundVariables = boundVariables
 	}
 
-	override addSearchOperation(SearchOperationStub searchOperation) {
+	def addSearchOperation(SearchOperationStub searchOperation) {
 		checkNotNull(searchOperation)
 		searchOperations += searchOperation
 	}
 
-	override getSearchOperations() {
-		ImmutableList.copyOf(searchOperations)
+	def getSearchOperations() {
+		searchOperations.unmodifiableView
 	}
 
-	override getName() {
+	def getName() {
 		query.fullyQualifiedName.substring(query.fullyQualifiedName.lastIndexOf('.')+1)
-	}
-}
-
-class BoundPatternStub extends SimplePatternStub {
-	
-	val Set<PVariable> boundVariables
-	
-	new(PQuery query, MatchingFrameStub matchingFrame, Set<PVariable> boundVariables) {
-		super(query, matchingFrame)
-		
-		this.boundVariables = boundVariables
 	}
 	
 	def getBoundVariables() {
-		ImmutableSet.copyOf(boundVariables)
+		boundVariables.unmodifiableView
+	}
+	
+	def boolean isBound() {
+		!boundVariables.empty
 	}
 }
