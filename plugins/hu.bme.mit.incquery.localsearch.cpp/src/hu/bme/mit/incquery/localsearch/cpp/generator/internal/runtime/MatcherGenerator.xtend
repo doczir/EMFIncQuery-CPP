@@ -4,12 +4,12 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderG
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.MatchGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.NameUtils
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.QuerySpecificationGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import java.util.List
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.QuerySpecificationGenerator
 
 class MatcherGenerator extends ViatraQueryHeaderGenerator {
 	
@@ -71,8 +71,15 @@ class MatcherGenerator extends ViatraQueryHeaderGenerator {
 			std::unordered_set<«name»Match> matches;
 		
 			auto sp = «name»QuerySpec<ModelRoot>::get_plan_«NameUtils::getPlanName(pattern)»(_model);
+		
+			«IF pattern.bound»
+				«initializeFrame(pattern)»
 			
-			SearchPlanExecutor<«name»Frame> exec(sp, *_context);
+				auto exec = SearchPlanExecutor<«name»Frame>(sp, *_context).prepare(frame);
+			«ELSE»							
+				auto exec = SearchPlanExecutor<«name»Frame>(sp, *_context);
+			«ENDIF»
+			
 		
 			for (auto&& frame : exec) {
 				«name»Match match;
@@ -84,6 +91,13 @@ class MatcherGenerator extends ViatraQueryHeaderGenerator {
 		
 			return matches;
 		}
+	'''
+	
+	private def initializeFrame(PatternStub pattern) '''
+		MatchingFrame& frame;
+		«FOR boundVar : pattern.boundVariables»
+			frame._«matchingFrame.getVariablePosition(boundVar)» = «boundVar.name»
+		«ENDFOR»
 	'''
 	
 	private def fillMatch() '''
