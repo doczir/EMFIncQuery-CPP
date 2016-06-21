@@ -38,12 +38,13 @@ public:
          */
         iterator();
 
-        /**
-         * Creates a new iterator instance.
-         * @param exec A pointer to the parent executor.
-         * @param isEnd Indicates whether the iterator is at the end, meaning there are no more matches.
-         */
-        iterator(SearchPlanExecutor* exec, bool isEnd);
+		/**
+		* Creates a new iterator instance prepared with an initial frame.
+		* @param exec A pointer to the parent executor.
+		* @param isEnd Indicates whether the iterator is at the end, meaning there are no more matches.
+		* @param frame The initial frame to use.
+		*/
+		iterator(SearchPlanExecutor* exec, bool isEnd, const MatchingFrame& frame = {});
 
         /**
          * Compares two iterators. It only checks if both iterators are of the same executor
@@ -98,13 +99,28 @@ public:
         int _nrOfMatches;
     };
 
-    bool execute(MatchingFrame& frame);
+	bool execute(MatchingFrame& frame);
     void reset_plan();
 
     iterator begin();
     iterator& end();
 
 private:
+
+	class PreparedSearchPlanExecutor {
+	public:
+		PreparedSearchPlanExecutor(SearchPlanExecutor* exec, const MatchingFrame& frame);
+
+		bool execute();
+
+		iterator begin();
+		iterator& end();
+
+	private:
+		MatchingFrame _frame;
+		SearchPlanExecutor* exec;
+	};
+
     void init(MatchingFrame& frame);
 
     const SearchPlan<MatchingFrame>& _plan;
@@ -171,16 +187,16 @@ inline void SearchPlanExecutor<MatchingFrame>::init(MatchingFrame& frame) {
 }
 
 template<typename MatchingFrame>
-inline SearchPlanExecutor<MatchingFrame>::iterator::iterator() :
-        _exec(NULL), _atEnd(true), _nrOfMatches(0) {
+inline SearchPlanExecutor<MatchingFrame>::iterator::iterator() 
+	: SearchPlanExecutor(nullptr, false) {
 }
 
 template<typename MatchingFrame>
-inline SearchPlanExecutor<MatchingFrame>::iterator::iterator(SearchPlanExecutor* exec, bool isEnd) 
+inline SearchPlanExecutor<MatchingFrame>::iterator::iterator(SearchPlanExecutor * exec, bool isEnd, const MatchingFrame & frame) 
 	: _exec(exec), _atEnd(isEnd), _nrOfMatches(0) {
-    if (!_atEnd) {
-        operator++();
-    }
+	if (!_atEnd) {
+		operator++();
+	}
 }
 
 template<typename MatchingFrame>
@@ -216,6 +232,26 @@ inline void SearchPlanExecutor<MatchingFrame>::iterator::operator ++() {
 template<typename MatchingFrame>
 inline void SearchPlanExecutor<MatchingFrame>::iterator::operator ++(int) {
     operator++();
+}
+
+template<typename MatchingFrame>
+inline SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::PreparedSearchPlanExecutor(SearchPlanExecutor * exec, const MatchingFrame & frame) 
+	: _exec(exec), _frame(frame) {
+}
+
+template<typename MatchingFrame>
+inline bool SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::execute() {
+	return exec->execute(_frame);
+}
+
+template<typename MatchingFrame>
+inline typename SearchPlanExecutor<MatchingFrame>::iterator SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::begin() {
+	return iterator(this, false, _frame);
+}
+
+template<typename MatchingFrame>
+inline typename SearchPlanExecutor<MatchingFrame>::iterator & SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::end() {
+	return exec->end();
 }
 
 } /* namespace Plan */

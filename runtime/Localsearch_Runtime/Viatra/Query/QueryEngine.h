@@ -3,39 +3,39 @@
 namespace Viatra {
 namespace Query {
 
-template<class T>
+template<class ModelRoot>
 class QueryEngine {
 public:
-	static QueryEngine<T> of(const T *model);
-	static QueryEngine<T> empty();
+	static QueryEngine<ModelRoot> of(const ModelRoot *model);
+	static QueryEngine<ModelRoot> empty();
 
 	template<template <typename> class S>
-	typename S<T>::Matcher matcher();
+	typename S<ModelRoot>::Matcher matcher();
 
 private:
-	QueryEngine(const T *model);
+	QueryEngine(const ModelRoot *model);
 	
-	const T *_model;
+	const ModelRoot *_model;
 };
 
-template<class T>
-QueryEngine<T> QueryEngine<T>::of(const T *model) {
-	return QueryEngine<T>(model);
+template<class ModelRoot>
+QueryEngine<ModelRoot> QueryEngine<ModelRoot>::of(const ModelRoot *model) {
+	return QueryEngine<ModelRoot>(model);
 }
 
-template<class T>
-QueryEngine<T> QueryEngine<T>::empty() {
-	return QueryEngine<T>(nullptr);
+template<class ModelRoot>
+QueryEngine<ModelRoot> QueryEngine<ModelRoot>::empty() {
+	return QueryEngine<ModelRoot>(nullptr);
 }
 
-template<class T>
-template<template <typename> class S>
-typename S<T>::Matcher QueryEngine<T>::matcher() {
-	return typename S<T>::Matcher(_model, &S<T>::QueryGroup::instance().context());
+template<class ModelRoot>
+template<template <typename> class QuerySpecification>
+typename QuerySpecification<ModelRoot>::Matcher QueryEngine<ModelRoot>::matcher() {
+	return typename QuerySpecification<ModelRoot>::Matcher(_model, &QuerySpecification<ModelRoot>::QueryGroup::instance().context());
 }
 
-template<class T>
-QueryEngine<T>::QueryEngine(const T* model)
+template<class ModelRoot>
+QueryEngine<ModelRoot>::QueryEngine(const ModelRoot* model)
 	: _model(model) {
 	
 }
