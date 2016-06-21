@@ -16,7 +16,7 @@ namespace detail {
 /**
  * An immutable object reference that may contain another object. Each object either contains an object or nothing.
  */
-template<typename T>
+template<class T>
 class OptionalReference {
 public:
 
@@ -69,7 +69,7 @@ private:
  *
  * This class represents an optional value that is empty, and behaves accordingly.
  */
-template<typename T>
+template<class T>
 class Absent: public OptionalReference<T> {
 public:
     /**
@@ -95,7 +95,7 @@ private:
  *
  * This class represents an optional value that containts a value, and behaves accordingly.
  */
-template<typename T>
+template<class T>
 class Present: public OptionalReference<T> {
 public:
     /**
@@ -119,94 +119,94 @@ private:
     T _value;
 };
 
-template<typename T>
+template<class T>
 inline Present<T>* Present<T>::create(T value) {
     return new Present(value);
 }
 
-template<typename T>
+template<class T>
 inline bool Present<T>::present() {
     return true;
 }
 
-template<typename T>
+template<class T>
 inline void Present<T>::if_present(void (*fun)(T)) {
     fun(_value);
 }
 
-template<typename T>
+template<class T>
 inline T Present<T>::or_else(T (*)()) {
     return _value;
 }
 
-template<typename T>
+template<class T>
 inline T Present<T>::or_else(T) {
     return _value;
 }
 
-template<typename T>
+template<class T>
 inline T Present<T>::get() {
     return _value;
 }
 
-template<typename T>
+template<class T>
 inline Present<T>::Present(T value) :
         _value(value) {
 }
 
-template<typename T>
+template<class T>
 inline Present<T>::Present(const Present<T>& present) {
 }
 
-template<typename T>
+template<class T>
 inline Present<T>::~Present() {
 }
 
-template<typename T>
+template<class T>
 inline Absent<T>* Absent<T>::create() {
     return new Absent<T>();
 }
 
-template<typename T>
+template<class T>
 inline bool Absent<T>::present() {
     return false;
 }
 
-template<typename T>
+template<class T>
 inline void Absent<T>::if_present(void (*fun)(T)) {
     return;
 }
 
-template<typename T>
+template<class T>
 inline T Absent<T>::or_else(T (*fun)()) {
     return fun();
 }
 
-template<typename T>
+template<class T>
 inline T Absent<T>::or_else(T other) {
     return other;
 }
 
-template<typename T>
+template<class T>
 T Absent<T>::get(){
     throw new not_found_error("Tried to get the value of an empty optional.");
 }
 
-template<typename T>
+template<class T>
 inline Absent<T>::Absent() {
 }
 
-template<typename T>
+template<class T>
 inline Absent<T>::Absent(const Absent<T>&) {
 }
 
-template<typename T>
+template<class T>
 inline Absent<T>::~Absent() {
 }
 
 }  // namespace detail
 
-template<typename T>
+template<class T>
 class Optional {
 public:
         Optional(const Optional&);
@@ -273,47 +273,47 @@ inline not_found_error::not_found_error(const std::string& what_arg) :
         std::logic_error(what_arg) {
 }
 
-template<typename T>
+template<class T>
 inline Optional<T> Optional<T>::empty() {
     return Optional<T>(detail::Absent<T>::create());
 }
 
-template<typename T>
+template<class T>
 inline Optional<T> Optional<T>::of(T object) {
     return Optional<T>(detail::Present<T>::create(object));
 }
 
-template<typename T>
+template<class T>
 inline bool Optional<T>::present() {
     return _optionalReference->present();
 }
 
-template<typename T>
+template<class T>
 inline void Optional<T>::if_present(void (*fun)(T)) {
     return _optionalReference->if_present(fun);
 }
 
-template<typename T>
+template<class T>
 inline T Optional<T>::or_else(T (*fun)()) {
     return _optionalReference->or_else(fun);
 }
 
-template<typename T>
+template<class T>
 inline T Optional<T>::or_else(T other) {
     return _optionalReference->or_else(other);
 }
 
-template<typename T>
+template<class T>
 inline T Optional<T>::get() {
     return _optionalReference->get();
 }
 
-template<typename T>
+template<class T>
 inline Optional<T>::Optional(const Optional& other) :
     _optionalReference(other._optionalReference){
 }
 
-template<typename T>
+template<class T>
 inline Optional<T>::Optional(detail::OptionalReference<T>* ref) :
    _optionalReference(ref) {
 }

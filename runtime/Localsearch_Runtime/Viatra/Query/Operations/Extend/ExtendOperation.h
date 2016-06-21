@@ -21,7 +21,7 @@ namespace Extend {
  * @tparam Container The type of the container that has the instances possible to bound.
  * @tparam MatchingFrame Describes the structure of the *MatchingFrame* the operation is executed on.
  */
-template<typename SrcType, class Container, typename MatchingFrame>
+template<class SrcType, class Container, class MatchingFrame>
 class ExtendOperation: public ISearchOperation<MatchingFrame> {
     typedef SrcType MatchingFrame::* MemberToBind; /** @typedef The type of the member pointer used to bind a value in a frame */
 

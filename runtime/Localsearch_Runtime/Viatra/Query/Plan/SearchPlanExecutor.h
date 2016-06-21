@@ -17,7 +17,7 @@ namespace Plan {
  *
  * @tparam MatchingFrame The frame the operations will be executed on.
  */
-template<typename MatchingFrame>
+template<class MatchingFrame>
 class SearchPlanExecutor {
 public:
     /**
@@ -132,12 +132,12 @@ private:
     iterator _endIterator;
 };
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline SearchPlanExecutor<MatchingFrame>::SearchPlanExecutor(const SearchPlan<MatchingFrame>& plan, const Matcher::ISearchContext& context) 
 	: _plan(plan), _context(context), _currentOperation(-1), _operationCount(-1), _endIterator(iterator(this, true)) {
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline bool SearchPlanExecutor<MatchingFrame>::execute(MatchingFrame& frame) {
 	auto& operations = _plan.get_operations();
     int upperBound = operations.size() - 1;
@@ -155,22 +155,22 @@ inline bool SearchPlanExecutor<MatchingFrame>::execute(MatchingFrame& frame) {
     return _currentOperation > upperBound; // if true, match found
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline void SearchPlanExecutor<MatchingFrame>::reset_plan() {
     _currentOperation = -1;
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline typename SearchPlanExecutor<MatchingFrame>::iterator SearchPlanExecutor<MatchingFrame>::begin() {
     return iterator(this, false);
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline typename SearchPlanExecutor<MatchingFrame>::iterator& SearchPlanExecutor<MatchingFrame>::end() {
     return _endIterator;
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline void SearchPlanExecutor<MatchingFrame>::init(MatchingFrame& frame) {
 	auto& operations = _plan.get_operations();
     if (_operationCount == -1) {
@@ -186,12 +186,12 @@ inline void SearchPlanExecutor<MatchingFrame>::init(MatchingFrame& frame) {
     }
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline SearchPlanExecutor<MatchingFrame>::iterator::iterator() 
 	: SearchPlanExecutor(nullptr, false) {
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline SearchPlanExecutor<MatchingFrame>::iterator::iterator(SearchPlanExecutor * exec, bool isEnd, const MatchingFrame & frame) 
 	: _exec(exec), _atEnd(isEnd), _nrOfMatches(0) {
 	if (!_atEnd) {
@@ -199,7 +199,7 @@ inline SearchPlanExecutor<MatchingFrame>::iterator::iterator(SearchPlanExecutor 
 	}
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline bool SearchPlanExecutor<MatchingFrame>::iterator::operator ==(const iterator& other) {
     if (_exec != other._exec)
         return false;
@@ -209,17 +209,17 @@ inline bool SearchPlanExecutor<MatchingFrame>::iterator::operator ==(const itera
     return true;
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline bool SearchPlanExecutor<MatchingFrame>::iterator::operator !=(const iterator& other) {
     return !((*this) == other);
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline const MatchingFrame& SearchPlanExecutor<MatchingFrame>::iterator::operator *() {
     return _frame;
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline void SearchPlanExecutor<MatchingFrame>::iterator::operator ++() {
     if (!_atEnd) {
         _atEnd = !_exec->execute(_frame);
@@ -229,27 +229,27 @@ inline void SearchPlanExecutor<MatchingFrame>::iterator::operator ++() {
     }
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline void SearchPlanExecutor<MatchingFrame>::iterator::operator ++(int) {
     operator++();
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::PreparedSearchPlanExecutor(SearchPlanExecutor * exec, const MatchingFrame & frame) 
 	: _exec(exec), _frame(frame) {
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline bool SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::execute() {
 	return exec->execute(_frame);
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline typename SearchPlanExecutor<MatchingFrame>::iterator SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::begin() {
 	return iterator(this, false, _frame);
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline typename SearchPlanExecutor<MatchingFrame>::iterator & SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::end() {
 	return exec->end();
 }

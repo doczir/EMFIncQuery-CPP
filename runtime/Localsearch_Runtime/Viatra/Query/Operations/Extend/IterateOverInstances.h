@@ -19,7 +19,7 @@ namespace Extend {
  * @tparam SrcType The type of the variable to be bound.
  * @tparam MatchingFrame Describes the structure of the *MatchingFrame* the operation is executed on.
  */
-template<typename SrcType, typename MatchingFrame, typename ModelRoot>
+template<class SrcType, class MatchingFrame, class ModelRoot>
 class IterateOverInstances: public ExtendOperation<SrcType, std::list<SrcType>, MatchingFrame> {
     typedef SrcType MatchingFrame::* BindPoint;
 public:
@@ -37,18 +37,18 @@ private:
 
 };
 
-template<typename SrcType, typename MatchingFrame, typename ModelRoot>
+template<class SrcType, class MatchingFrame, class ModelRoot>
 inline IterateOverInstances<SrcType, MatchingFrame, ModelRoot>::IterateOverInstances(BindPoint bind, EClass clazz, const ModelRoot* model)
 	: ExtendOperation<SrcType, std::list<SrcType>, MatchingFrame>(bind), _clazz(clazz), _model(model) {
 }
 
-template<typename SrcType, typename MatchingFrame, typename ModelRoot>
+template<class SrcType, class MatchingFrame, class ModelRoot>
 inline void IterateOverInstances<SrcType, MatchingFrame, ModelRoot>::on_initialize(MatchingFrame&, const Matcher::ISearchContext&) {
 	auto& data = ModelIndex<std::remove_pointer<SrcType>::type, ModelRoot>::instances(_model);
 	ExtendOperation<SrcType, std::list<SrcType>, MatchingFrame>::set_data(std::cbegin(data), std::cend(data));
 }
 
-template<typename SrcType, typename MatchingFrame, typename ModelRoot>
+template<class SrcType, class MatchingFrame, class ModelRoot>
 inline IterateOverInstances<SrcType, MatchingFrame, ModelRoot>* create_IterateOverInstances(SrcType MatchingFrame::* bind, EClass clazz, const ModelRoot* model) {
 	return new IterateOverInstances<SrcType, MatchingFrame, ModelRoot>(bind, clazz, model);
 }

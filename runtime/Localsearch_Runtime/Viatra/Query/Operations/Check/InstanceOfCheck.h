@@ -20,7 +20,7 @@ namespace Check {
  * @tparam CheckedType The type of the checked object.
  * @tparam MatchingFrame Describes the structure of the *MatchingFrame* the operation is executed on.
  */
-template<typename CheckedType, typename MatchingFrame>
+template<class CheckedType, class MatchingFrame>
 class InstanceOfCheck: public CheckOperation<MatchingFrame> {
     typedef CheckedType MatchingFrame::* CheckedMember;
 public:
@@ -33,19 +33,19 @@ private:
     int _clazz;
 };
 
-template<typename CheckedType, typename MatchingFrame>
+template<class CheckedType, class MatchingFrame>
 inline InstanceOfCheck<CheckedType, MatchingFrame>::InstanceOfCheck(CheckedMember checked, EClass clazz) :
         _checked(checked), _clazz(clazz) {
 }
 
-template<typename CheckedType, typename MatchingFrame>
+template<class CheckedType, class MatchingFrame>
 inline bool InstanceOfCheck<CheckedType, MatchingFrame>::check(MatchingFrame& frame, const Matcher::ISearchContext& context) {
     auto& ch = context.get_class_helper();
     const auto checkedObject = frame.*_checked;
     return ch.is_super_type(checkedObject->get_type_id(), _clazz);
 }
 
-template<typename CheckedType, typename MatchingFrame>
+template<class CheckedType, class MatchingFrame>
 inline InstanceOfCheck<CheckedType, MatchingFrame>* create_InstanceOfCheck(CheckedType MatchingFrame::* checked, EClass clazz) {
 	return new InstanceOfCheck<CheckedType, MatchingFrame>(checked, clazz);
 }

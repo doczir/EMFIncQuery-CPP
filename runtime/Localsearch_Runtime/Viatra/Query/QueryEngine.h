@@ -9,8 +9,8 @@ public:
 	static QueryEngine<ModelRoot> of(const ModelRoot *model);
 	static QueryEngine<ModelRoot> empty();
 
-	template<template <typename> class S>
-	typename S<ModelRoot>::Matcher matcher();
+	template<template <typename> class QuerySpecification>
+	typename QuerySpecification<ModelRoot>::Matcher matcher();
 
 private:
 	QueryEngine(const ModelRoot *model);
@@ -29,7 +29,7 @@ QueryEngine<ModelRoot> QueryEngine<ModelRoot>::empty() {
 }
 
 template<class ModelRoot>
-template<template <typename> class QuerySpecification>
+template<template <class> class QuerySpecification>
 typename QuerySpecification<ModelRoot>::Matcher QueryEngine<ModelRoot>::matcher() {
 	return typename QuerySpecification<ModelRoot>::Matcher(_model, &QuerySpecification<ModelRoot>::QueryGroup::instance().context());
 }

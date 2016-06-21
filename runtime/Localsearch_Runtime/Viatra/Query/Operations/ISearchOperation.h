@@ -16,7 +16,7 @@ namespace Operations {
  *
  *  @tparam MatchingFrame Describes the structure of the *MatchingFrame* the operation is executed on.
  */
-template<typename MatchingFrame>
+template<class MatchingFrame>
 class ISearchOperation {
 public:
     /**

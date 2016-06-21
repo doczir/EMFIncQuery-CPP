@@ -24,7 +24,7 @@ namespace Check {
  * @tparam Member The type the src has to be so the navigation can happen.
  * @tparam MatchingFrame Describes the structure of the *MatchingFrame* the operation is executed on.
  */
-template<typename SrcType, typename TrgType, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Member, class MatchingFrame>
 class SingleAssociationCheck: public CheckOperation<MatchingFrame> {
     typedef SrcType MatchingFrame::* SrcGetter; /** @typedef The type of the member pointer for getting the source from the frame. */
     typedef TrgType MatchingFrame::* TrgGetter; /** @typedef The type of the member pointer for getting the target from the frame. */
@@ -54,7 +54,7 @@ private:
  * @tparam Member The type the src has to be so the navigation can happen.
  * @tparam MatchingFrame Describes the structure of the *MatchingFrame* the operation is executed on.
  */
-template<typename SrcType, typename TrgType, typename Collection, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Collection, class Member, class MatchingFrame>
 class MultiAssociationCheck: public CheckOperation<MatchingFrame> {
 	typedef SrcType MatchingFrame::* SrcGetter; /** @typedef The type of the member pointer for getting the source from the frame. */
 	typedef TrgType MatchingFrame::* TrgGetter; /** @typedef The type of the member pointer for getting the target from the frame. */
@@ -71,13 +71,13 @@ private:
     Navigator _navigate;
 };
 
-template<typename SrcType, typename TrgType, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Member, class MatchingFrame>
 inline SingleAssociationCheck<SrcType, TrgType, Member, MatchingFrame>::SingleAssociationCheck(SrcGetter src,
         TrgGetter trg, Navigator navigate) :
         _src(src), _trg(trg), _navigate(navigate) {
 }
 
-template<typename SrcType, typename TrgType, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Member, class MatchingFrame>
 inline bool SingleAssociationCheck<SrcType, TrgType, Member, MatchingFrame>::check(MatchingFrame& frame,
         const Matcher::ISearchContext&) {
     SrcType src = frame.*_src;
@@ -85,12 +85,12 @@ inline bool SingleAssociationCheck<SrcType, TrgType, Member, MatchingFrame>::che
     return trg == static_cast<Member*>(src)->*_navigate;
 }
 
-template<typename SrcType, typename TrgType, typename Collection, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Collection, class Member, class MatchingFrame>
 inline MultiAssociationCheck<SrcType, TrgType, Collection, Member, MatchingFrame>::MultiAssociationCheck(SrcGetter getSrc, TrgGetter getTrg, Navigator navigate) :
         _src(getSrc), _trg(getTrg), _navigate(navigate) {
 }
 
-template<typename SrcType, typename TrgType, typename Collection, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Collection, class Member, class MatchingFrame>
 inline bool MultiAssociationCheck<SrcType, TrgType, Collection, Member, MatchingFrame>::check(MatchingFrame& frame, const Matcher::ISearchContext&) {
     auto src = frame.*_src;
     auto trg = frame.*_trg;;
@@ -98,12 +98,12 @@ inline bool MultiAssociationCheck<SrcType, TrgType, Collection, Member, Matching
     return std::find(data.begin(), data.end(), trg) != data.end();
 }
 
-template<typename SrcType, typename TrgType, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Member, class MatchingFrame>
 inline SingleAssociationCheck<SrcType, TrgType, Member, MatchingFrame>* create_SingleAssociationCheck(SrcType MatchingFrame::* src, TrgType MatchingFrame::* trg, TrgType Member::* navigator){
 	return new SingleAssociationCheck<SrcType, TrgType, Member, MatchingFrame>(src, trg, navigator);
 }
 
-template<typename SrcType, typename TrgType, typename Collection, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Collection, class Member, class MatchingFrame>
 inline MultiAssociationCheck<SrcType, TrgType, Collection, Member, MatchingFrame>* create_MultiAssociationCheck(SrcType MatchingFrame::* src, TrgType MatchingFrame::* trg, Collection Member::* navigator){
 	return new MultiAssociationCheck<SrcType, TrgType, Collection, Member, MatchingFrame>(src, trg, navigator);
 }

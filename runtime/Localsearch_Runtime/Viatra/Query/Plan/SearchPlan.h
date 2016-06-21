@@ -17,7 +17,7 @@ namespace Plan {
  *
  * @tparam MatchingFrame The frame the operations will be executed on.
  */
-template<typename MatchingFrame>
+template<class MatchingFrame>
 class SearchPlan {
 public:
 
@@ -45,19 +45,19 @@ private:
     std::vector<std::shared_ptr<Operations::ISearchOperation<MatchingFrame> > > _operations;
 };
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline void SearchPlan<MatchingFrame>::add_operation(Operations::ISearchOperation<MatchingFrame>* operation) {
 	_operations.push_back(std::shared_ptr<Operations::ISearchOperation<MatchingFrame> >(operation));
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline void SearchPlan<MatchingFrame>::add_operation(std::vector<Operations::ISearchOperation<MatchingFrame> *> operations) {
 	std::transform(std::begin(operations), std::end(operations), std::back_inserter(_operations),
 		[](Operations::ISearchOperation<MatchingFrame> * op) {return std::shared_ptr<::Query::Operations::ISearchOperation<MatchingFrame> >(op); }
 	);
 }
 
-template<typename MatchingFrame>
+template<class MatchingFrame>
 inline const std::vector<std::shared_ptr<Operations::ISearchOperation<MatchingFrame> > >& Query::Plan::SearchPlan<MatchingFrame>::get_operations() const {
 	return _operations;
 }

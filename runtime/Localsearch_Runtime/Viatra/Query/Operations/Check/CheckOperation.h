@@ -15,7 +15,7 @@ namespace Check {
  *
  * @tparam MatchingFrame Describes the structure of the *MatchingFrame* the operation is executed on.
  */
-template<typename MatchingFrame>
+template<class MatchingFrame>
 class CheckOperation: public ISearchOperation<MatchingFrame> {
 public:
 

@@ -22,7 +22,7 @@ namespace Extend {
  * @tparam Member The type the src has to be so the navigation can happen.
  * @tparam MatchingFrame Describes the structure of the *MatchingFrame* the operation is executed on.
  */
-template<typename SrcType, typename TrgType, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Member, class MatchingFrame>
 class NavigateSingleAssociation: public ExtendOperation<TrgType, std::list<TrgType>, MatchingFrame> {
 	typedef SrcType MatchingFrame::* SrcGetter; /** @typedef The type of the member pointer for getting the source from the frame. */
 	typedef TrgType MatchingFrame::* MemberToBind; /** @typedef The type of the member pointer used to bind a value in a frame */
@@ -50,7 +50,7 @@ private:
  * @tparam Collection The type of the collection containing the instances of targets.
  * @tparam MatchingFrame Describes the structure of the *MatchingFrame* the operation is executed on.
  */
-template<typename SrcType, typename TrgType, typename Collection, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Collection, class Member, class MatchingFrame>
 class NavigateMultiAssociation: public ExtendOperation<TrgType, Collection, MatchingFrame> {
 	typedef SrcType MatchingFrame::* SrcGetter; /** @typedef The type of the member pointer for getting the source from the frame. */
 	typedef TrgType MatchingFrame::* MemberToBind; /** @typedef The type of the member pointer used to bind a value in a frame */
@@ -64,12 +64,12 @@ private:
     Navigator _navigate;
 };
 
-template<typename SrcType, typename TrgType, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Member, class MatchingFrame>
 inline NavigateSingleAssociation<SrcType, TrgType, Member, MatchingFrame>::NavigateSingleAssociation(SrcGetter getSrc, MemberToBind bindMember, Navigator navigate) :
         ExtendOperation<TrgType, std::list<TrgType>, MatchingFrame>(bindMember), _getSrc(getSrc), _navigate(navigate) {
 }
 
-template<typename SrcType, typename TrgType, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Member, class MatchingFrame>
 inline void NavigateSingleAssociation<SrcType, TrgType, Member, MatchingFrame>::on_initialize(MatchingFrame& frame,
         const Matcher::ISearchContext&) {
     _objectHolder.clear();
@@ -77,23 +77,23 @@ inline void NavigateSingleAssociation<SrcType, TrgType, Member, MatchingFrame>::
     ExtendOperation<TrgType, std::list<TrgType>, MatchingFrame>::set_data(_objectHolder.begin(), _objectHolder.end());
 }
 
-template<typename SrcType, typename TrgType, typename Collection, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Collection, class Member, class MatchingFrame>
 inline NavigateMultiAssociation<SrcType, TrgType, Collection, Member, MatchingFrame>::NavigateMultiAssociation(SrcGetter getSrc, MemberToBind bindMember, Navigator navigate) 
 	: ExtendOperation<TrgType, Collection, MatchingFrame>(bindMember), _getSrc(getSrc), _navigate(navigate) {
 }
 
-template<typename SrcType, typename TrgType, typename Collection, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Collection, class Member, class MatchingFrame>
 inline void NavigateMultiAssociation<SrcType, TrgType, Collection, Member, MatchingFrame>::on_initialize(MatchingFrame& frame, const Matcher::ISearchContext&) {
     auto& data = static_cast<Member*>(frame.*_getSrc)->*_navigate;
     ExtendOperation<TrgType, Collection, MatchingFrame>::set_data(std::cbegin(data), std::cend(data));
 }
 
-template<typename SrcType, typename TrgType, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Member, class MatchingFrame>
 inline NavigateSingleAssociation<SrcType, TrgType, Member, MatchingFrame>* create_NavigateSingleAssociation(SrcType MatchingFrame::* getSrc, TrgType MatchingFrame::* bindMember, TrgType Member::* navigate) {
 	return new NavigateSingleAssociation<SrcType, TrgType, Member, MatchingFrame>(getSrc, bindMember, navigate);
 }
 
-template<typename SrcType, typename TrgType, typename Collection, typename Member, typename MatchingFrame>
+template<class SrcType, class TrgType, class Collection, class Member, class MatchingFrame>
 inline NavigateMultiAssociation<SrcType, TrgType, Collection, Member, MatchingFrame>* create_NavigateMultiAssociation(SrcType MatchingFrame::* getSrc, TrgType MatchingFrame::* bindMember, Collection Member::* navigate) {
 	return new NavigateMultiAssociation<SrcType, TrgType, Collection, Member, MatchingFrame>(getSrc, bindMember, navigate);
 }

@@ -16,7 +16,7 @@ namespace Check {
  * @tparam Check The type of the helper check class.
  * @tparam MatchingFrame Describes the structure of the *MatchingFrame* the operation is executed on.
  */
-template<typename Check, typename MatchingFrame>
+template<class Check, class MatchingFrame>
 class CheckExpression: public CheckOperation<MatchingFrame> {
 public:
     /**
@@ -32,12 +32,12 @@ private:
     Check _check;
 };
 
-template<typename Check, typename MatchingFrame>
+template<class Check, class MatchingFrame>
 inline CheckExpression<Check, MatchingFrame>::CheckExpression(Check check) :
         _check(check) {
 }
 
-template<typename Check, typename MatchingFrame>
+template<class Check, class MatchingFrame>
 inline bool CheckExpression<Check, MatchingFrame>::check(MatchingFrame& frame, const Matcher::ISearchContext& context) {
     return _check(frame);
 }
