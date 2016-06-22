@@ -1,6 +1,5 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.model
 
-import com.google.common.collect.ImmutableList
 import hu.bme.mit.incquery.localsearch.cpp.generator.planner.util.CompilerHelper.TypeMap
 import java.util.Comparator
 import java.util.List
@@ -49,14 +48,14 @@ class MatchingFrameStub {
 	}
 	
 	def getAllVariables() {
-		ImmutableList.copyOf(variableTypeMap.keySet)
+		variableTypeMap.keySet.unmodifiableView
 	}
 	
 	def getKeyVariables() {
-		ImmutableList.copyOf(keyVariables)
+		keyVariables.unmodifiableView
 	}
 	
 	def getAllTypes() {
-		ImmutableList.copyOf(variableTypeMap.values.toSet)
+		variableTypeMap.values.toSet.unmodifiableView
 	}
 }

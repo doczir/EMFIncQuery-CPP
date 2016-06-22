@@ -10,7 +10,7 @@ class NameUtils {
 		if(!pattern.bound)
 			return '''unbound'''
 		
-		pattern.boundVariables.join('_')[it.name]
+		pattern.boundParameters.join('_')[name]
 	}
 	
 	static def toTypeName(EClassifier type) {

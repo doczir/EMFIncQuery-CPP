@@ -14,28 +14,29 @@ class RuntimeGeneratorContext extends LocalsearchGeneratorOutputProvider {
 	override initializeGenerators(QueryStub query) {
 		val List<IGenerator> generators = newArrayList
 
-		val frameGenerators = newHashMap
-		val matchGenerators = newHashMap
 
 		query.patterns.forEach [ name, patterns |
+			val frameGenMap = newHashMap
 			val patternName = CaseFormat::LOWER_CAMEL.to(CaseFormat::UPPER_CAMEL, name)
-			val matchingFrame = patterns.head.matchingFrame
-			val frameGen = new MatchingFrameGenerator(query.name, patternName, matchingFrame)
-			generators += frameGen
-			frameGenerators.put(matchingFrame, frameGen)
-//			frameGen.initialize
+			patterns.forEach[
+				patternBodies.forEach[ patternBody, idx |
+					val matchingFrameGenerator = new MatchingFrameGenerator(query.name, patternName, idx, patternBody.matchingFrame)
+					frameGenMap.put(patternBody, matchingFrameGenerator)
+					generators += matchingFrameGenerator
+				]
+			]
 
-			val matchGen = new MatchGenerator(query.name, patternName, matchingFrame)
+			// TODO: WARNING! Incredible Hack Inc! works, but ugly...
+			val matchGen = new MatchGenerator(query.name, patternName, patterns.head.patternBodies.head.matchingFrame)
 			generators += matchGen
-			matchGenerators.put(matchingFrame, matchGen)
 //			matchGen.initialize
 			
 //			matcherGen.initialize
 			
-			val querySpec = new QuerySpecificationGenerator(query.name, patterns.toSet, frameGen)
+			val querySpec = new QuerySpecificationGenerator(query.name, patterns.toSet, frameGenMap)
 			generators += querySpec
 			
-			val matcherGen = new MatcherGenerator(patterns.head.name, patterns, frameGen, matchGen, querySpec)
+			val matcherGen = new MatcherGenerator(patterns.head.name, patterns, frameGenMap, matchGen, querySpec)
 			generators += matcherGen
 //			querySpec.initialize
 		]

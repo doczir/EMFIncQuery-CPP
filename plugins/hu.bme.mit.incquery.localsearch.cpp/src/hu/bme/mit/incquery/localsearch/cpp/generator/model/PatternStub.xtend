@@ -1,62 +1,56 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.model
 
-import java.util.List
 import java.util.Set
-import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
+import org.eclipse.viatra.query.runtime.matchers.psystem.PBody
+import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PParameter
 import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
-import org.eclipse.xtend.lib.annotations.Accessors
 
 import static com.google.common.base.Preconditions.*
 
 class PatternStub {
 
 	val PQuery query
-	@Accessors(PUBLIC_GETTER) val MatchingFrameStub matchingFrame
-
-	val List<SearchOperationStub> searchOperations
+	val Set<PParameter> boundParameters
 	
-	val Set<PVariable> boundVariables
+	val Set<PatternBodyStub> bodies
 	
-	new(PQuery query, MatchingFrameStub matchingFrame) {
-		this(query, matchingFrame, #{})
+	new(PQuery query) {
+		this(query, #{})
 	}
 	
-	new(PQuery query, MatchingFrameStub matchingFrame, Set<PVariable> boundVariables) {
+	new(PQuery query, Set<PParameter> boundParameters) {
 		checkNotNull(query)
-		checkNotNull(matchingFrame)
 		this.query = query
-		this.matchingFrame = matchingFrame
 
-		this.searchOperations = newArrayList		
-		this.boundVariables = boundVariables
+		this.bodies = newLinkedHashSet
+		this.boundParameters = boundParameters
 	}
 
-	def addSearchOperation(SearchOperationStub searchOperation) {
-		checkNotNull(searchOperation)
-		searchOperations += searchOperation
+	def addPatternBody(PBody pBody) {
+		val body = new PatternBodyStub(pBody)
+		bodies += body
+		return body
 	}
 
-	def getSearchOperations() {
-		searchOperations.unmodifiableView
+	def getPatternBodies() {
+		bodies.unmodifiableView
 	}
 
 	def getName() {
 		query.fullyQualifiedName.substring(query.fullyQualifiedName.lastIndexOf('.')+1)
 	}
 	
-	def getBoundVariables() {
-		boundVariables.unmodifiableView
+	def getBoundParameters() {
+		boundParameters.unmodifiableView
 	}
 	
 	def boolean isBound() {
-		!boundVariables.empty
+		!boundParameters.empty
 	}
 	
 	override toString() '''
-		pattern <«name»> («paramList») «FOR body : query.disjunctBodies.bodies SEPARATOR " or "» {
-			«FOR so : searchOperations»
-				«so»
-			«ENDFOR»
+		pattern <«name»> («paramList») «FOR body : bodies SEPARATOR " or "» {
+			«body»
 		} «ENDFOR»
 		
 	'''
@@ -65,7 +59,7 @@ class PatternStub {
 		val paramNames = newArrayList
 		for(i : 0..<query.parameters.size) {
 			val param = query.parameterNames.get(i)
-			if(boundVariables.map[name].findFirst[it == query.parameters.get(i).name] != null)
+			if(boundParameters.map[name].findFirst[it == query.parameters.get(i).name] != null)
 				paramNames += param + " (B)"
 			else 
 				paramNames += param

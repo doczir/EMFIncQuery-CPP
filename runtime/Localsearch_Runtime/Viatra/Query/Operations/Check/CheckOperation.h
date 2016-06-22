@@ -29,8 +29,7 @@ public:
     /**
      * Destroys a CheckOperation instance.
      */
-    virtual ~CheckOperation() {
-    }
+	virtual ~CheckOperation() = default;
 
     void on_initialize(MatchingFrame&, const Matcher::ISearchContext&) {
         _executed = false;

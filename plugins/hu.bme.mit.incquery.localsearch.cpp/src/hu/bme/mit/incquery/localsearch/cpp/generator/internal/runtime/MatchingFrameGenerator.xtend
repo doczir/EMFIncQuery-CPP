@@ -15,8 +15,8 @@ class MatchingFrameGenerator extends ViatraQueryHeaderGenerator {
 	val String patternName
 	@Accessors(PUBLIC_GETTER) val MatchingFrameStub matchingFrame
 
-	new(String queryName, String patternName, MatchingFrameStub matchingFrame) {
-		super(#{queryName}, '''«patternName.toFirstUpper»Frame''')
+	new(String queryName, String patternName, int index, MatchingFrameStub matchingFrame) {
+		super(#{queryName}, '''«patternName.toFirstUpper»Frame_«index»''')
 		this.queryName = queryName
 		this.patternName = patternName
 		this.matchingFrame = matchingFrame
@@ -41,7 +41,7 @@ class MatchingFrameGenerator extends ViatraQueryHeaderGenerator {
 					«val typeFQN = CppHelper::getTypeHelper(type).FQN»
 					«val pos = matchingFrame.getVariablePosition(param)»
 					
-					«typeFQN»* «pos.paramName»;
+					«typeFQN»* «pos.variableName»;
 					
 «««					static «typeFQN»* «pos.getter»(«frameName»& frame) {
 «««						return frame.«pos.paramName»;
@@ -54,7 +54,7 @@ class MatchingFrameGenerator extends ViatraQueryHeaderGenerator {
 					«val typeFQN = CppHelper::getTypeHelper(type).FQN»
 					«val pos = matchingFrame.getVariablePosition(param)»
 					
-					«typeFQN» «pos.paramName»;
+					«typeFQN» «pos.variableName»;
 					
 «««					static «typeFQN»& «pos.getter»(«frameName»& frame) {
 «««						return frame.«pos.paramName»;
@@ -68,22 +68,14 @@ class MatchingFrameGenerator extends ViatraQueryHeaderGenerator {
 		};
 	'''
 
-	def toGetter(PVariable variable) '''«unitName»::«matchingFrame.getVariablePosition(variable).getter»'''
-
-	def toSetter(PVariable variable) '''«unitName»::«matchingFrame.getVariablePosition(variable).setter»'''
-	
-	def getParamName(PVariable variable) {
-		getParamName(matchingFrame.getVariablePosition(variable))
+	def getVariableName(PVariable variable) {
+		getVariableName(matchingFrame.getVariablePosition(variable))
 	}
 	
 	def getFrameName() {
 		unitName
 	}
 
-	def getParamName(int position) '''_«position»'''
-
-	private def getter(int position) '''get«position.paramName»'''
-
-	private def setter(int position) '''set«position.paramName»'''
+	private def getVariableName(int position) '''_«position»'''
 
 }

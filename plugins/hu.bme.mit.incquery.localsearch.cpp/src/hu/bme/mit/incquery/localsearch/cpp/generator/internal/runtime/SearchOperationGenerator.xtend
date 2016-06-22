@@ -42,65 +42,64 @@ class SearchOperationGenerator extends BaseGenerator {
 		operation.compileOperation
 	}
 
-	def dispatch compileOperation(CheckInstanceOfStub operation) {
+	private dispatch def compileOperation(CheckInstanceOfStub operation) {
 		return '''create_«CheckInstanceOfStub::NAME»(«operation.variable.toGetter», «operation.key.toTypeID»)'''
 	}
 
-	def dispatch compileOperation(CheckSingleNavigationStub operation) {
+	private dispatch def compileOperation(CheckSingleNavigationStub operation) {
 		val sourceType = operation.matchingFrame.getVariableStrictType(operation.source) as EClass
 		return '''create_«CheckSingleNavigationStub::NAME»(«operation.source.toGetter», «operation.target.toGetter», «sourceType.toNavigator(operation.key.toRelationName)»)'''
 	}
 	
-	def dispatch compileOperation(CheckMultiNavigationStub operation) {
+	private dispatch def compileOperation(CheckMultiNavigationStub operation) {
 		val sourceType = operation.matchingFrame.getVariableStrictType(operation.source) as EClass
 		return '''create_«CheckMultiNavigationStub::NAME»(«operation.source.toGetter», «operation.target.toGetter», «sourceType.toNavigator(operation.key.toRelationName)»)'''
 	}
 
-	def dispatch compileOperation(CheckExpressionStub operation) {
+	private dispatch def compileOperation(CheckExpressionStub operation) {
 		val arguments = operation.variables.map[toGetter]
 		'''create_«CheckExpressionStub::NAME»< «checkExpressionGenerator.name»(«checkExpressionGenerator.name»< «frameGenerator.frameName»>(«Joiner.on(", ").join(arguments)»))'''
 	}
 	
-	def dispatch compileOperation(ExtendInstanceOfStub operation) {
+	private dispatch def compileOperation(ExtendInstanceOfStub operation) {
 		return '''create_«ExtendInstanceOfStub::NAME»(«operation.variable.toSetter», «operation.key.toTypeID»)'''
 	}
 	
-	def dispatch compileOperation(ExtendSingleNavigationStub operation) {
+	private dispatch def compileOperation(ExtendSingleNavigationStub operation) {
 		val sourceType = operation.matchingFrame.getVariableStrictType(operation.source) as EClass
 		return '''create_«ExtendSingleNavigationStub::NAME»(«operation.source.toGetter», «operation.target.toSetter», «sourceType.toNavigator(operation.key.toRelationName)»)'''
 	}
 	
-	def dispatch compileOperation(ExtendMultiNavigationStub operation) {
+	private dispatch def compileOperation(ExtendMultiNavigationStub operation) {
 		val sourceType = operation.matchingFrame.getVariableStrictType(operation.source) as EClass
 		return '''create_«ExtendMultiNavigationStub::NAME»(«operation.source.toGetter», «operation.target.toSetter», «sourceType.toNavigator(operation.key.toRelationName)»)'''
 	}
 	
-	def dispatch compileOperation(SearchOperationStub operation) {
+	private dispatch def compileOperation(SearchOperationStub operation) {
 		return '''//NYI'''
 	}
 
-	def toCppName(EClassifier type) {
-		CppHelper::getTypeHelper(type).FQN
-	}
-	
-	def toRelationName(EStructuralFeature key) {
-		key.name
-	}
-	
-	def toTypeID(EClassifier key) {
+	private def toTypeID(EClassifier key) {
 		'''«CppHelper::getTypeHelper(key).FQN»::type_id'''
 	}
 	
-	def toNavigator(EClass type, String name) {
+	private def toNavigator(EClass type, String name) {
 		'''&«type.toCppName»::«name»'''		
 	}
 	
-	def toGetter(PVariable variable) {
-		'''&«frameGenerator.frameName»::«frameGenerator.getParamName(variable)»'''
+	private def toGetter(PVariable variable) {
+		'''&«frameGenerator.frameName»::«frameGenerator.getVariableName(variable)»'''
 	}
 	
-	def toSetter(PVariable variable) {
-		'''&«frameGenerator.frameName»::«frameGenerator.getParamName(variable)»'''
+	private def toSetter(PVariable variable) {
+		'''&«frameGenerator.frameName»::«frameGenerator.getVariableName(variable)»'''
 	}
 
+	private def toCppName(EClassifier type) {
+		CppHelper::getTypeHelper(type).FQN
+	}
+	
+	private def toRelationName(EStructuralFeature key) {
+		key.name
+	}
 }
