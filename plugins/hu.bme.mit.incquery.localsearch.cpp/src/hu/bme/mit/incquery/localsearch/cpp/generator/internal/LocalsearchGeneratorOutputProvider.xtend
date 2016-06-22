@@ -20,10 +20,10 @@ abstract class LocalsearchGeneratorOutputProvider implements ILocalsearchGenerat
 
 	override getOutput() {
 		val generators = initializeGenerators(query)
-		val root = "Localsearch"
+		val root = "Viatra/Query"
 
 		generators.forEach [
-			records.add(new GeneratorOutputRecord('''«root»/«query.name»''', fileName, compile))
+			records.add(new GeneratorOutputRecord('''«root»/«query.name.toFirstUpper»''', fileName, compile))
 		]
 
 		return records
