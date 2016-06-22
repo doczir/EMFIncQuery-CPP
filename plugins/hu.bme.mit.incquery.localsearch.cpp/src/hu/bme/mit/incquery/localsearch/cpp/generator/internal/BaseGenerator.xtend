@@ -83,6 +83,8 @@ class ViatraQueryHeaderGenerator extends BaseGenerator {
 			} /* namespace «namespaceFragment» */
 		«ENDFOR»
 		
+		«compileOuter»
+		
 		«guard.end»
 	'''
 	
