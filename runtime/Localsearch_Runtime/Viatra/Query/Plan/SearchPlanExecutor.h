@@ -19,6 +19,7 @@ namespace Plan {
  */
 template<class MatchingFrame>
 class SearchPlanExecutor {
+	class PreparedSearchPlanExecutor;
 public:
     /**
      * Creates a new executor instance.
@@ -99,6 +100,8 @@ public:
         int _nrOfMatches;
     };
 
+	PreparedSearchPlanExecutor prepare(const MatchingFrame& frame);
+	
 	bool execute(MatchingFrame& frame);
     void reset_plan();
 
@@ -118,7 +121,7 @@ private:
 
 	private:
 		MatchingFrame _frame;
-		SearchPlanExecutor* exec;
+		SearchPlanExecutor* _exec;
 	};
 
     void init(MatchingFrame& frame);
@@ -135,6 +138,12 @@ private:
 template<class MatchingFrame>
 inline SearchPlanExecutor<MatchingFrame>::SearchPlanExecutor(const SearchPlan<MatchingFrame>& plan, const Matcher::ISearchContext& context) 
 	: _plan(plan), _context(context), _currentOperation(-1), _operationCount(-1), _endIterator(iterator(this, true)) {
+}
+
+template<class MatchingFrame>
+inline typename SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor SearchPlanExecutor<MatchingFrame>::prepare(const MatchingFrame & frame)
+{
+	return PreparedSearchPlanExecutor(this, frame);
 }
 
 template<class MatchingFrame>
@@ -193,7 +202,7 @@ inline SearchPlanExecutor<MatchingFrame>::iterator::iterator()
 
 template<class MatchingFrame>
 inline SearchPlanExecutor<MatchingFrame>::iterator::iterator(SearchPlanExecutor * exec, bool isEnd, const MatchingFrame & frame) 
-	: _exec(exec), _atEnd(isEnd), _nrOfMatches(0) {
+	: _exec(exec), _frame(frame), _atEnd(isEnd), _nrOfMatches(0) {
 	if (!_atEnd) {
 		operator++();
 	}
@@ -246,12 +255,12 @@ inline bool SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::execu
 
 template<class MatchingFrame>
 inline typename SearchPlanExecutor<MatchingFrame>::iterator SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::begin() {
-	return iterator(this, false, _frame);
+	return iterator(_exec, false, _frame);
 }
 
 template<class MatchingFrame>
-inline typename SearchPlanExecutor<MatchingFrame>::iterator & SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::end() {
-	return exec->end();
+inline typename SearchPlanExecutor<MatchingFrame>::iterator& SearchPlanExecutor<MatchingFrame>::PreparedSearchPlanExecutor::end() {
+	return _exec->end();
 }
 
 } /* namespace Plan */
