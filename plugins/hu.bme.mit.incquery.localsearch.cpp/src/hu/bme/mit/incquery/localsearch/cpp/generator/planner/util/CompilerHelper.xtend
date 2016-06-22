@@ -21,7 +21,6 @@ import org.eclipse.viatra.query.runtime.matchers.psystem.PConstraint
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.viatra.query.runtime.matchers.psystem.basicdeferred.ExportedParameter
 import org.eclipse.viatra.query.runtime.matchers.psystem.basicenumerables.TypeConstraint
-import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl
 
 class CompilerHelper {
 	

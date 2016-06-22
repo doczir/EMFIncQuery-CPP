@@ -51,16 +51,16 @@ class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 		public:
 			using Matcher = «patternName»Matcher<ModelRoot>;
 		
-			using QueryGroup = «patternName»QueryGroup;
+			using QueryGroup = «qualifiedName»QueryGroup;
 		
 			«FOR pattern : patternGroup»
 				«var bodyNum = 0»
 				«FOR body : pattern.patternBodies»
-				static ::Viatra::Query::Plan::SearchPlan<«patternName»Frame> get_plan_«NameUtils::getPlanName(pattern)»__«bodyNum»(const ModelRoot* model) {
+				static ::Viatra::Query::Plan::SearchPlan<«patternName»Frame_«bodyNum»> get_plan_«NameUtils::getPlanName(pattern)»__«bodyNum»(const ModelRoot* model) {
 					using namespace ::Viatra::Query::Operations::Check;
 					using namespace ::Viatra::Query::Operations::Extend;
 				
-					::Viatra::Query::Plan::SearchPlan<«patternName»Frame«bodyNum»> sp;
+					::Viatra::Query::Plan::SearchPlan<«patternName»Frame_«bodyNum»> sp;
 					«FOR op : searchOperations.get(pattern).get(body)»
 						sp.add_operation(«op.compile»);
 					«ENDFOR»

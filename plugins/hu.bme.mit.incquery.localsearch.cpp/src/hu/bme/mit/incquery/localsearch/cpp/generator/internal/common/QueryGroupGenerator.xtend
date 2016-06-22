@@ -23,8 +23,8 @@ class QueryGroupGenerator extends ViatraQueryHeaderGenerator {
 		
 		class «unitName»{
 		public:
-			static «query.name»QueryGroup instance() {
-				static «query.name»QueryGroup instance;
+			static «unitName» instance() {
+				static «unitName» instance;
 				return instance;
 			}
 		

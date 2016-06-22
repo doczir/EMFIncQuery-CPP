@@ -20,21 +20,21 @@ class MatcherGenerator extends ViatraQueryHeaderGenerator {
 	val String name
 	val List<PatternStub> patterns
 	val Map<PatternBodyStub, MatchingFrameGenerator> frameGenerators
-	val MatchGenerator matchGen
+	val MatchGenerator matchGenerator
 	
 	QuerySpecificationGenerator querySpec
 
-	new(String patternName, List<PatternStub> patterns, Map<PatternBodyStub, MatchingFrameGenerator> frameGens, MatchGenerator matchGen, QuerySpecificationGenerator querySpec) {
-		super(#{patternName}, '''«patternName.toFirstUpper»Matcher''')
+	new(String queryName, String patternName, List<PatternStub> patterns, Map<PatternBodyStub, MatchingFrameGenerator> frameGens, MatchGenerator matchGen, QuerySpecificationGenerator querySpec) {
+		super(#{queryName}, '''«patternName.toFirstUpper»Matcher''')
 		this.name = patternName.toFirstUpper
 		this.patterns = patterns
 		this.frameGenerators = frameGens
-		this.matchGen = matchGen
+		this.matchGenerator = matchGen
 		this.querySpec = querySpec
 	}
 	
 	override initialize() {
-		includes += matchGen.include
+		includes += matchGenerator.include
 		includes += querySpec.include
 		includes += frameGenerators.values.map[it.include]
 		
@@ -54,7 +54,7 @@ class MatcherGenerator extends ViatraQueryHeaderGenerator {
 			«ENDFOR»
 		
 		private:
-			SchoolMatcher(const ModelRoot* model, const ::Viatra::Query::Matcher::ISearchContext* context) 
+			«unitName»(const ModelRoot* model, const ::Viatra::Query::Matcher::ISearchContext* context) 
 				: _model(model), _context(context) {
 			}
 		
@@ -75,7 +75,7 @@ class MatcherGenerator extends ViatraQueryHeaderGenerator {
 			«var bodyNum = 0»
 			«FOR patternBody : pattern.patternBodies»
 				{
-					auto sp = «name»QuerySpec<ModelRoot>::get_plan_«NameUtils::getPlanName(pattern)»__«bodyNum»(_model);
+					auto sp = «name»QuerySpecification<ModelRoot>::get_plan_«NameUtils::getPlanName(pattern)»__«bodyNum»(_model);
 					«IF pattern.bound»
 						«initializeFrame(frameGenerators.get(patternBody), pattern.boundParameters.map[toPVariable(patternBody.matchingFrame)].toSet)»
 						
@@ -110,7 +110,7 @@ class MatcherGenerator extends ViatraQueryHeaderGenerator {
 	
 	private def fillMatch(MatchingFrameStub matchingFrame) '''
 		«FOR keyVariable : matchingFrame.keyVariables»
-			match.«keyVariable.name» = static_cast<«keyVariable.type(matchingFrame)»>(frame._«matchingFrame.getVariablePosition(keyVariable)»)
+			match.«keyVariable.name» = static_cast<«keyVariable.type(matchingFrame)»>(frame._«matchingFrame.getVariablePosition(keyVariable)»);
 		«ENDFOR»
 	'''
 	

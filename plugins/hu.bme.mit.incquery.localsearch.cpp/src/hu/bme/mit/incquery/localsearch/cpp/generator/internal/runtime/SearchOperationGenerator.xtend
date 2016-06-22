@@ -62,7 +62,7 @@ class SearchOperationGenerator extends BaseGenerator {
 	}
 	
 	private dispatch def compileOperation(ExtendInstanceOfStub operation) {
-		return '''create_«ExtendInstanceOfStub::NAME»(«operation.variable.toSetter», «operation.key.toTypeID»)'''
+		return '''create_«ExtendInstanceOfStub::NAME»(«operation.variable.toSetter», «operation.key.toTypeID», model)'''
 	}
 	
 	private dispatch def compileOperation(ExtendSingleNavigationStub operation) {
