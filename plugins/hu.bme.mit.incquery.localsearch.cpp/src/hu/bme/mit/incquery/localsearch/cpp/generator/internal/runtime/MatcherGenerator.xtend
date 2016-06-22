@@ -77,7 +77,7 @@ class MatcherGenerator extends ViatraQueryHeaderGenerator {
 				{
 					auto sp = «name»QuerySpecification<ModelRoot>::get_plan_«NameUtils::getPlanName(pattern)»__«bodyNum»(_model);
 					«IF pattern.bound»
-						«initializeFrame(frameGenerators.get(patternBody), pattern.boundParameters.map[toPVariable(patternBody.matchingFrame)].toSet)»
+						«initializeFrame(frameGenerators.get(patternBody), pattern.boundParameters.map[toPVariable(patternBody.matchingFrame)].toSet, bodyNum)»
 						
 						auto exec = SearchPlanExecutor<«name»Frame_«bodyNum»>(sp, *_context).prepare(frame);
 					«ELSE»							
@@ -101,10 +101,10 @@ class MatcherGenerator extends ViatraQueryHeaderGenerator {
 		}
 	'''
 	
-	private def initializeFrame(MatchingFrameGenerator matchingFrameGen, Set<PVariable> boundVariables) '''
-		MatchingFrame& frame;
+	private def initializeFrame(MatchingFrameGenerator matchingFrameGen, Set<PVariable> boundVariables, int bodyNum) '''
+		«name»Frame_«bodyNum» frame;
 		«FOR boundVar : boundVariables»
-			frame._«matchingFrameGen.getVariableName(boundVar)» = «boundVar.name»
+			frame.«matchingFrameGen.getVariableName(boundVar)» = «boundVar.name»;
 		«ENDFOR»
 	'''
 	

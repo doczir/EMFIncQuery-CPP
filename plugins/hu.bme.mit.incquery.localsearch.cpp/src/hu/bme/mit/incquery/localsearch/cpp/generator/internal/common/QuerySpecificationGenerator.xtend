@@ -14,15 +14,18 @@ class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 	
 	val Set<PatternStub> patternGroup
 	val Map<PatternBodyStub, MatchingFrameGenerator> frameGenerators
+	val String queryName
 	
 	val String patternName
 	val String querySpecificationName
 	Map<PatternStub, Map<PatternBodyStub, List<SearchOperationGenerator>>> searchOperations
 	
+	
 	new(String queryName, Set<PatternStub> patternGroup, Map<PatternBodyStub, MatchingFrameGenerator> frameGenerators) {
-		super(#{queryName}, '''«patternGroup.head.name.toFirstUpper»QuerySpecification''')
+		super(#{queryName.toFirstUpper}, '''«patternGroup.head.name.toFirstUpper»QuerySpecification''')
 		this.patternGroup = patternGroup
 		this.frameGenerators = frameGenerators
+		this.queryName = queryName.toFirstUpper
 		
 		this.patternName = patternGroup.head.name.toFirstUpper
 		this.querySpecificationName = '''«patternName.toFirstUpper»QuerySpecification'''
@@ -38,6 +41,7 @@ class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 	
 	override initialize() {
 		includes += frameGenerators.values.map[it.include]
+		includes += new Include('''Viatra/Query/«queryName»/«queryName»QueryGroup.h''')
 		
 		includes += new Include("Viatra/Query/Util/Optional.h")
 		includes += new Include("Viatra/Query/Operations/AllOperations.h")
@@ -54,7 +58,7 @@ class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 		public:
 			using Matcher = «patternName»Matcher<ModelRoot>;
 		
-			using QueryGroup = «qualifiedName»QueryGroup;
+			using QueryGroup = «queryName»QueryGroup;
 		
 			«FOR pattern : patternGroup»
 				«var bodyNum = 0»
