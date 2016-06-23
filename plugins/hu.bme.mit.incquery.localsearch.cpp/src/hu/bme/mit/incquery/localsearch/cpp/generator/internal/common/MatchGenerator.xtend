@@ -1,6 +1,5 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.common
 
-import hu.bme.mit.cpp.util.util.CppHelper
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
 import java.util.List

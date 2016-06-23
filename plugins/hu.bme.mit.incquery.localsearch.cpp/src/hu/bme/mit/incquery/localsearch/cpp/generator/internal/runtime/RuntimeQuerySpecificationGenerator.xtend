@@ -1,16 +1,35 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime
 
+import com.google.common.collect.Maps
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.NameUtils
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.QuerySpecificationGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternBodyStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
+import java.util.List
 import java.util.Map
 import java.util.Set
+import java.util.Collection
 
 class RuntimeQuerySpecificationGenerator extends QuerySpecificationGenerator {
 	
+	val Map<PatternStub, Map<PatternBodyStub, List<RuntimeSearchOperationGenerator>>> searchOperations
+	val Collection<MatchingFrameGenerator> frameGenerators
+	
 	new(String queryName, Set<PatternStub> patternGroup, Map<PatternBodyStub, MatchingFrameGenerator> frameGenerators) {
-		super(queryName, patternGroup, frameGenerators)
+		super(queryName, patternGroup)
+		
+		this.searchOperations = Maps::asMap(patternGroup)[pattern |
+			Maps::asMap(pattern.patternBodies) [patternBody|
+				patternBody.searchOperations.map[op |
+					new RuntimeSearchOperationGenerator(op, frameGenerators.get(patternBody))
+				]
+			]
+		]
+		this.frameGenerators = frameGenerators.values
+	}
+	
+	override initialize() {
+		includes += frameGenerators.map[include]
 	}
 	
 	override generatePlan(PatternStub pattern, PatternBodyStub patternBody, int bodyNum) '''

@@ -88,7 +88,7 @@ abstract class MatcherGenerator extends ViatraQueryHeaderGenerator {
 		val matchingFrame = pattern.patternBodies.head.matchingFrame
 		pattern.boundParameters.map[
 			toPVariable(pattern.patternBodies.head)
-		].map['''«it.type(matchingFrame)» «it.name»'''].join(", ")		
+		].map['''«it.type(matchingFrame)» «NameUtils::getPurgedName(it)»'''].join(", ")		
 	}
 	
 	private def toTypeName(EClassifier clazz) {

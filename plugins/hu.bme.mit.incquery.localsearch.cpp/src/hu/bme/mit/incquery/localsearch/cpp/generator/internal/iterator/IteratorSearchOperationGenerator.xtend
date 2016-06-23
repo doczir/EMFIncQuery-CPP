@@ -21,6 +21,7 @@ import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.NameUtils
 
 class IteratorSearchOperationGenerator extends BaseGenerator {
 
@@ -161,26 +162,8 @@ class IteratorSearchOperationGenerator extends BaseGenerator {
 
 	def getPurgedName(PVariable variable) {
 		getCachedData(variablePurgedNameCache, variable.name) [
-			generatePurgedName(variable)
+			NameUtils::getPurgedName(variable)
 		]
-	}
-	
-	def generatePurgedName(PVariable variable) {
-		var halfPurgedName = (if (!variable.virtual) {
-			val regexp = Pattern::compile("_<(.)>");
-			val matcher = regexp.matcher(variable.name)
-			if (matcher.find)
-				'''_unnamed_«matcher.group(1)»'''
-			else
-				variable.name
-		} else
-			variable.name).replace("<", "_").replace(">", "_")
-		
-		if(halfPurgedName.contains(".virtual")) {
-			val tempName = '_' + halfPurgedName.replace(".virtual{", "")
-			return tempName.substring(0, tempName.length - 1)			
-		}  else 
-			return halfPurgedName
 	}
 	
 	private def <Key, Value> getCachedData(Map<Key, Value> cache, Key key, (Key) => Value supplier) {

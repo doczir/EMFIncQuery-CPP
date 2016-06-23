@@ -17,12 +17,15 @@ class IteratorMatcherGenerator extends MatcherGenerator {
 		super(queryName, patternName, patternGroup, matchGenerator, querySpecification)
 		this.searchOperations = Maps::asMap(patternGroup)[pattern |
 			Maps::asMap(pattern.patternBodies) [patternBody|
-				new IteratorSearchOperationGenerator(patternBody.searchOperations, matchGenerator)
+				val sog = new IteratorSearchOperationGenerator(patternBody.searchOperations, matchGenerator)
+				sog.initialize
+				return sog
 			]
 		]
 	}
 	
 	override protected compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody, int bodyNum) '''
+		auto _classHelper = &_context->get_class_helper();
 		«val sog = searchOperations.get(pattern).get(patternBody)»
 		«sog.matchFoundHandler = ['''matches.insert(«it»);''']»
 		

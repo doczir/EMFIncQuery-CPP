@@ -23,13 +23,13 @@ class QueryGroupGenerator extends ViatraQueryHeaderGenerator {
 		
 		class «unitName»{
 		public:
-			static «unitName» instance() {
+			static «unitName»* instance() {
 				static «unitName» instance;
-				return instance;
+				return &instance;
 			}
 		
-			const ::Viatra::Query::Matcher::ISearchContext& context() const {
-				return _isc;
+			const ::Viatra::Query::Matcher::ISearchContext* context() const {
+				return &_isc;
 			}
 		
 		private:
