@@ -62,12 +62,6 @@ abstract class AbstractSearchOperationStub implements SearchOperationStub{
 	
 }
 
-@Data class CheckExpressionStub extends ExpressionStub {
-	
-	public static val String NAME = "CheckExpression"
-	
-}
-
 @Data class ExtendInstanceOfStub extends InstanceOfStub {
 
 	public static val String NAME = "IterateOverInstances"

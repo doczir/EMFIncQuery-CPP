@@ -1,9 +1,7 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime
 
-import com.google.common.base.Joiner
 import hu.bme.mit.cpp.util.util.CppHelper
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.BaseGenerator
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckExpressionStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckInstanceOfStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckMultiNavigationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckSingleNavigationStub
@@ -17,22 +15,15 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
 
-class SearchOperationGenerator extends BaseGenerator {
+class RuntimeSearchOperationGenerator extends BaseGenerator {
 
 	@Accessors(PUBLIC_GETTER) val SearchOperationStub operation;
 	val MatchingFrameGenerator frameGenerator
 
-	@Accessors(PUBLIC_GETTER) val CheckExpressionGenerator checkExpressionGenerator
 	
 	new(SearchOperationStub operation, MatchingFrameGenerator frameGenerator) {
-			this(operation, frameGenerator, null)
-	}
-
-	new(SearchOperationStub operation, MatchingFrameGenerator frameGenerator, CheckExpressionGenerator checkExpressionGenerator) {
 		this.operation = operation
 		this.frameGenerator = frameGenerator
-
-		this.checkExpressionGenerator = checkExpressionGenerator
 	}
 
 	override initialize() {
@@ -56,11 +47,6 @@ class SearchOperationGenerator extends BaseGenerator {
 		return '''create_«CheckMultiNavigationStub::NAME»(«operation.source.toGetter», «operation.target.toGetter», «sourceType.toNavigator(operation.key.toRelationName)»)'''
 	}
 
-	private dispatch def compileOperation(CheckExpressionStub operation) {
-		val arguments = operation.variables.map[toGetter]
-		'''create_«CheckExpressionStub::NAME»< «checkExpressionGenerator.name»(«checkExpressionGenerator.name»< «frameGenerator.frameName»>(«Joiner.on(", ").join(arguments)»))'''
-	}
-	
 	private dispatch def compileOperation(ExtendInstanceOfStub operation) {
 		return '''create_«ExtendInstanceOfStub::NAME»(«operation.variable.toSetter», «operation.key.toTypeID», model)'''
 	}

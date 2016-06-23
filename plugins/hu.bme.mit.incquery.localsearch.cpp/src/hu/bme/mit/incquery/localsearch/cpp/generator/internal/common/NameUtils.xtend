@@ -3,6 +3,8 @@ package hu.bme.mit.incquery.localsearch.cpp.generator.internal.common
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import org.eclipse.emf.ecore.EClassifier
 import hu.bme.mit.cpp.util.util.CppHelper
+import org.eclipse.emf.ecore.EClass
+import org.eclipse.emf.ecore.EDataType
 
 class NameUtils {
 	
@@ -15,6 +17,9 @@ class NameUtils {
 	
 	static def toTypeName(EClassifier type) {
 		val typeHelper = CppHelper::getTypeHelper(type)
-		'''«typeHelper.FQN»*'''
+		switch (type) {
+			EClass: '''«typeHelper.FQN»*'''
+			EDataType: '''«typeHelper.FQN»''' 
+		}
 	}
 }

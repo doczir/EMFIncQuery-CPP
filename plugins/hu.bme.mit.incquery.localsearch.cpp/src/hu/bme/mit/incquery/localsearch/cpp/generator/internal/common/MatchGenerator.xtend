@@ -59,12 +59,7 @@ class MatchGenerator extends ViatraQueryHeaderGenerator {
 		'''
 		«FOR variable : variables»
 			«val type = matchingFrame.getVariableStrictType(variable)»
-			«val typeHelper = CppHelper::getTypeHelper(type)»
-			«IF type instanceof EClass»
-				«typeHelper.FQN»* «variable.name»;
-			«ELSEIF type instanceof EDataType»
-				«typeHelper.FQN» «variable.name»; 
-			«ENDIF»
+			«NameUtils::toTypeName(type)» «variable.name»;
 		«ENDFOR»
 		'''
 	}

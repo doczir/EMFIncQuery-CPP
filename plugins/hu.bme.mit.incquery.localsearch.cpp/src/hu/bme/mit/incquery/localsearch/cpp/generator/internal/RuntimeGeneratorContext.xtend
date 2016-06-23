@@ -3,9 +3,9 @@ package hu.bme.mit.incquery.localsearch.cpp.generator.internal
 import com.google.common.base.CaseFormat
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.MatchGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.QueryGroupGenerator
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.QuerySpecificationGenerator
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime.MatcherGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime.MatchingFrameGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime.RuntimeMatcherGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime.RuntimeQuerySpecificationGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.QueryStub
 import java.util.List
 
@@ -33,10 +33,10 @@ class RuntimeGeneratorContext extends LocalsearchGeneratorOutputProvider {
 			
 //			matcherGen.initialize
 			
-			val querySpec = new QuerySpecificationGenerator(query.name, patterns.toSet, frameGenMap)
+			val querySpec = new RuntimeQuerySpecificationGenerator(query.name, patterns.toSet, frameGenMap)
 			generators += querySpec
 			
-			val matcherGen = new MatcherGenerator(query.name, patterns.head.name, patterns, frameGenMap, matchGen, querySpec)
+			val matcherGen = new RuntimeMatcherGenerator(query.name, patterns.head.name, patterns.toSet, frameGenMap, matchGen, querySpec)
 			generators += matcherGen
 //			querySpec.initialize
 		]

@@ -8,7 +8,7 @@ import static com.google.common.base.Preconditions.*
 
 class PatternBodyStub {
 	
-	val PBody pBody
+	@Accessors val PBody pBody
 	
 	@Accessors var MatchingFrameStub matchingFrame
 	val List<SearchOperationStub> searchOperations

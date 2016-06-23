@@ -4,7 +4,6 @@ import hu.bme.mit.cpp.util.util.CppHelper
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.BaseGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.MatchGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.AbstractSearchOperationStub
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckExpressionStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckInstanceOfStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckMultiNavigationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckSingleNavigationStub
@@ -23,7 +22,7 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
 
-class SearchOperationGenerator extends BaseGenerator {
+class IteratorSearchOperationGenerator extends BaseGenerator {
 
 	val Collection<SearchOperationStub> operations;
 	val MatchGenerator matchGenerator
@@ -80,12 +79,6 @@ class SearchOperationGenerator extends BaseGenerator {
 		«val relName = operation.key.name»
 		auto& data = «srcName»->«relName»; 
 		if(std::find(data.begin(), data.end(), «tarName») != data.end()) {
-			«compileNext»
-		}
-	'''
-
-	def dispatch compileOperation(CheckExpressionStub operation) '''
-		if(«operation.expression.replaceVars») {
 			«compileNext»
 		}
 	'''

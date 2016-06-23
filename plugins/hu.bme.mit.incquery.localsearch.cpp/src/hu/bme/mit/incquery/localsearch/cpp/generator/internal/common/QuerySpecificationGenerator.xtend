@@ -3,22 +3,22 @@ package hu.bme.mit.incquery.localsearch.cpp.generator.internal.common
 import com.google.common.collect.Maps
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime.MatchingFrameGenerator
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime.SearchOperationGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternBodyStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import java.util.List
 import java.util.Map
 import java.util.Set
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime.RuntimeSearchOperationGenerator
 
-class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
+abstract class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 	
-	val Set<PatternStub> patternGroup
-	val Map<PatternBodyStub, MatchingFrameGenerator> frameGenerators
-	val String queryName
-	
-	val String patternName
-	val String querySpecificationName
-	Map<PatternStub, Map<PatternBodyStub, List<SearchOperationGenerator>>> searchOperations
+	protected val Set<PatternStub> patternGroup
+	protected val Map<PatternBodyStub, MatchingFrameGenerator> frameGenerators
+	protected val String queryName
+
+	protected val String patternName
+	protected val String querySpecificationName
+	protected val Map<PatternStub, Map<PatternBodyStub, List<RuntimeSearchOperationGenerator>>> searchOperations
 	
 	
 	new(String queryName, Set<PatternStub> patternGroup, Map<PatternBodyStub, MatchingFrameGenerator> frameGenerators) {
@@ -32,11 +32,10 @@ class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 		this.searchOperations = Maps::asMap(patternGroup)[pattern |
 			Maps::asMap(pattern.patternBodies) [patternBody|
 				patternBody.searchOperations.map[op |
-					new SearchOperationGenerator(op, frameGenerators.get(patternBody))
+					new RuntimeSearchOperationGenerator(op, frameGenerators.get(patternBody))
 				]
 			]
 		]
-		this.searchOperations.forEach[]
 	}
 	
 	override initialize() {
@@ -63,22 +62,14 @@ class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 			«FOR pattern : patternGroup»
 				«var bodyNum = 0»
 				«FOR body : pattern.patternBodies»
-				static ::Viatra::Query::Plan::SearchPlan<«patternName»Frame_«bodyNum»> get_plan_«NameUtils::getPlanName(pattern)»__«bodyNum»(const ModelRoot* model) {
-					using namespace ::Viatra::Query::Operations::Check;
-					using namespace ::Viatra::Query::Operations::Extend;
-				
-					::Viatra::Query::Plan::SearchPlan<«patternName»Frame_«bodyNum»> sp;
-					«FOR op : searchOperations.get(pattern).get(body)»
-						sp.add_operation(«op.compile»);
-					«ENDFOR»
-					return sp;
-				}
-				
+					«generatePlan(pattern, body, bodyNum)»
 				«val youShallNotPrint = bodyNum++»
 				«ENDFOR»
 			«ENDFOR»
 		
 		};
 	'''
+	
+	abstract def String generatePlan(PatternStub pattern, PatternBodyStub patternBody, int bodyNum) 
 	
 }
