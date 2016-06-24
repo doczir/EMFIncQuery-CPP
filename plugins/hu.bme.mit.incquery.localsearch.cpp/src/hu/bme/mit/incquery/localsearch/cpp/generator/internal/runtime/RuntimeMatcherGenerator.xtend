@@ -31,7 +31,7 @@ class RuntimeMatcherGenerator extends MatcherGenerator {
 	override protected compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody, int bodyNum) '''
 		auto sp = «name»QuerySpecification<ModelRoot>::get_plan_«NameUtils::getPlanName(pattern)»__«bodyNum»(_model);
 		«IF pattern.bound»
-			«initializeFrame(frameGenerators.get(patternBody), pattern.boundParameters.map[toPVariable(patternBody)].toSet, bodyNum)»
+			«initializeFrame(frameGenerators.get(patternBody), pattern.boundParameters.map[toPVariable(patternBody.matchingFrame)].toSet, bodyNum)»
 			
 			auto exec = SearchPlanExecutor<«name»Frame_«bodyNum»>(sp, *_context).prepare(frame);
 		«ELSE»							

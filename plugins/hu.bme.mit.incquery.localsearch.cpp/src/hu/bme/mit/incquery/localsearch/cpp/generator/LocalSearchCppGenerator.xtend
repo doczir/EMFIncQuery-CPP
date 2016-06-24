@@ -22,7 +22,7 @@ class LocalSearchCppGenerator {
 	def IGeneratorOutputProvider generate(String queryFileName, ResourceSet resourceSet, List<PQuery> queries) {
 
 		val query = new QueryStub(queryFileName)
-		query.addClasses(resourceSet.resources.map[allContents].concat.filter(EClass))
+		query.addClasses(resourceSet.resources.map[allContents].concat.filter(EClass).filterNull.toSet)
 
 		val planCompiler = new PlanCompiler
 		queries.forEach[planCompiler.compilePlan(it, query)]

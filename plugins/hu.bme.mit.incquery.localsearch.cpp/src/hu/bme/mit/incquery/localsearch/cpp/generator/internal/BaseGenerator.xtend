@@ -1,6 +1,8 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal
 
+import com.google.common.base.CaseFormat
 import com.google.common.collect.Iterables
+import com.google.common.collect.Ordering
 import hu.bme.mit.cpp.util.util.CppHelper
 import hu.bme.mit.cpp.util.util.GuardHelper
 import hu.bme.mit.cpp.util.util.NamespaceHelper
@@ -8,7 +10,6 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
 import java.util.Comparator
 import java.util.Set
 import org.eclipse.xtend.lib.annotations.Accessors
-import com.google.common.base.CaseFormat
 
 class BaseGenerator implements IGenerator{
 	
@@ -43,7 +44,7 @@ class ViatraQueryHeaderGenerator extends BaseGenerator {
 		)
 		this.implementationNamespace = NamespaceHelper::getCustomHelper(fullNamespace)
 		this.unitName = unitName.toFirstUpper
-		this.includes = newTreeSet(Comparator::comparing[includePath])
+		this.includes = newTreeSet(Ordering.natural.onResultOf[includePath])
 	}
 	
 	override getFileName() '''«unitName».h'''

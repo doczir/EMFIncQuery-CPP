@@ -129,9 +129,10 @@ class IteratorSearchOperationGenerator extends BaseGenerator {
 
 	def createMatch() '''
 		«matchGenerator.qualifiedName» match;
-		«FOR keyVar : matchGenerator.matchingFrame.keyVariables»
-			«val variableType = matchGenerator.matchingFrame.getVariableStrictType(keyVar)»
-			match.«keyVar.name» = «keyVar.cppName.castTo(variableType)»;
+		«FOR parameter : matchGenerator.matchingFrame.parameters»
+			«val keyVariable = matchGenerator.matchingFrame.getVariableFromParameter(parameter)»
+			«val variableType = matchGenerator.matchingFrame.getVariableStrictType(keyVariable)»
+			match.«parameter.name» = «keyVariable.cppName.castTo(variableType)»;
 		«ENDFOR»
 		
 		«matchFoundHandler.apply("match")»

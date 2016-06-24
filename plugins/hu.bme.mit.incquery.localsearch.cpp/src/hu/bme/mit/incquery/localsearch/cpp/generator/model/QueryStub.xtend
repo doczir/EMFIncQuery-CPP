@@ -36,8 +36,8 @@ class QueryStub {
 		return p
 	}
 
-	def addClasses(Iterator<EClass> classes) {
-		this.classes += classes.filterNull.toIterable
+	def addClasses(Set<EClass> classes) {
+		this.classes += classes
 	}
 
 	def getPatterns() {

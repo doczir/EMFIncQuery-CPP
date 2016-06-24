@@ -45,14 +45,24 @@ class POperationCompiler {
 		typeMapping = CompilerHelper::createTypeMapping(plan)
 		variableBindings = CompilerHelper::cacheVariableBindings(plan, variableMapping, boundVariables.map[variableMapping.get(it)].toSet)
 
-		matchingFrame = if(frameMap.containsKey(pBody)) {
-			val tmpMatchingFrame = frameMap.get(pBody)
-			bodyStub.matchingFrame = tmpMatchingFrame
-			tmpMatchingFrame
+		matchingFrame = getMatchingFrame(plan, pBody)
+		bodyStub.matchingFrame = matchingFrame
+		
+		patternBodyStub = bodyStub
+
+		CompilerHelper::createOperationsList(plan).forEach [
+			compile(variableMapping)
+		]
+		return
+	}
+	
+	private def getMatchingFrame(SubPlan plan, PBody pBody) {
+		if(frameMap.containsKey(pBody)) {
+			frameMap.get(pBody)
 		} else {
 			val tmpMatchingFrame = new MatchingFrameStub
 			frameMap.put(pBody, tmpMatchingFrame)
-			bodyStub.matchingFrame = tmpMatchingFrame
+			
 			
 			typeMapping.forEach [ 
 				tmpMatchingFrame.addVariable($0, $1, variableMapping.get($0))
@@ -61,15 +71,13 @@ class POperationCompiler {
 			plan.body.pattern.parameters.map[plan.body.getVariableByNameChecked(it.name)].forEach [
 				tmpMatchingFrame.setVariableKey(it)
 			]
+			
+			plan.body.pattern.parameters.forEach[
+				tmpMatchingFrame.mapParameterToVariable(it, plan.body.getVariableByNameChecked(it.name))
+			]
+			
 			tmpMatchingFrame
 		}
-		
-		patternBodyStub = bodyStub
-
-		CompilerHelper::createOperationsList(plan).forEach [
-			compile(variableMapping)
-		]
-		return
 	}
 
 	def compile(POperation pOperation, Map<PVariable, Integer> variableMapping) {

@@ -8,7 +8,6 @@ import java.util.Set
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PParameter
-import com.ibm.icu.text.DateTimePatternGenerator.PatternInfo
 
 abstract class MatcherGenerator extends ViatraQueryHeaderGenerator {
 	
@@ -79,16 +78,18 @@ abstract class MatcherGenerator extends ViatraQueryHeaderGenerator {
 	protected abstract def String compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody, int bodyNum)
 	
 	protected def fillMatch(MatchingFrameStub matchingFrame) '''
-		«FOR keyVariable : matchingFrame.keyVariables»
-			match.«keyVariable.name» = static_cast<«keyVariable.type(matchingFrame)»>(frame._«matchingFrame.getVariablePosition(keyVariable)»);
+		«FOR parameter : matchingFrame.parameters»
+			«val keyVariable = parameter.toPVariable(matchingFrame)»
+			match.«parameter.name» = static_cast<«keyVariable.type(matchingFrame)»>(frame._«matchingFrame.getVariablePosition(keyVariable)»);
 		«ENDFOR»
 	'''
 	
 	private def getParamList(PatternStub pattern) {
 		val matchingFrame = pattern.patternBodies.head.matchingFrame
 		pattern.boundParameters.map[
-			toPVariable(pattern.patternBodies.head)
-		].map['''«it.type(matchingFrame)» «NameUtils::getPurgedName(it)»'''].join(", ")		
+			val variable = it.toPVariable(matchingFrame);
+			'''«variable.type(matchingFrame)» «it.name»'''
+		].join(", ")		
 	}
 	
 	private def toTypeName(EClassifier clazz) {
@@ -99,8 +100,8 @@ abstract class MatcherGenerator extends ViatraQueryHeaderGenerator {
 		matchingFrame.getVariableStrictType(variable).toTypeName
 	}
 	
-	protected def toPVariable(PParameter pParameter, PatternBodyStub patternBody) {
+	protected def toPVariable(PParameter pParameter, MatchingFrameStub matchingFrame) {
 		// TODO: soooo slow....
-		patternBody.PBody.symbolicParameters.findFirst[it.parameterName == pParameter.name].parameterVariable
+		matchingFrame.getVariableFromParameter(pParameter)
 	}
 }

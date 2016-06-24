@@ -7,6 +7,7 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EDataType
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
+import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PParameter
 
 class MatchGenerator extends ViatraQueryHeaderGenerator {
 
@@ -14,16 +15,12 @@ class MatchGenerator extends ViatraQueryHeaderGenerator {
 	val String patternName
 	@Accessors(PUBLIC_GETTER) val MatchingFrameStub matchingFrame
 
-	val List<PVariable> keyVariables
-	
-
 	new(String queryName, String patternName, MatchingFrameStub matchingFrame) {
 		super(#{queryName}, '''«patternName.toFirstUpper»Match''')
 		this.queryName = queryName
 		this.patternName = patternName
 		this.matchingFrame = matchingFrame
 
-		this.keyVariables = matchingFrame.keyVariables.sortBy[name].unmodifiableView
 	}
 
 	override initialize() {
@@ -39,35 +36,35 @@ class MatchGenerator extends ViatraQueryHeaderGenerator {
 	override compileInner() '''		
 		struct «unitName» {
 			
-			«fields(keyVariables)»
+			«fields(matchingFrame.parameters)»
 			
-			«equals(keyVariables)»
+			«equals(matchingFrame.parameters)»
 			
 		};		
 	'''
 	
 	override compileOuter() '''
-		«hash(keyVariables)»
+		«hash(matchingFrame.parameters)»
 	'''
 	
 	def getMatchName() {
 		return unitName
 	}
 	
-	private def fields(Iterable<PVariable> variables) {
+	private def fields(Iterable<PParameter> parameters) {
 		'''
-		«FOR variable : variables»
-			«val type = matchingFrame.getVariableStrictType(variable)»
-			«NameUtils::toTypeName(type)» «variable.name»;
+		«FOR parameter : parameters»
+			«val type = matchingFrame.getVariableStrictType(matchingFrame.getVariableFromParameter(parameter))»
+			«NameUtils::toTypeName(type)» «parameter.name»;
 		«ENDFOR»
 		'''
 	}
 	
-	private def equals(Iterable<PVariable> variables) {
+	private def equals(Iterable<PParameter> parameters) {
 		'''
 		bool operator==(const «unitName»& other) const {
 			return 
-				«FOR variable : variables SEPARATOR "&&"»
+				«FOR variable : parameters SEPARATOR "&&"»
 					«variable.toEquals»
 				«ENDFOR»
 			;
@@ -75,19 +72,19 @@ class MatchGenerator extends ViatraQueryHeaderGenerator {
 		'''
 	}
 	
-	private def toEquals(PVariable variable) {
+	private def toEquals(PParameter variable) {
 		'''«variable.name» == other.«variable.name»'''
 	}
 	
-	private def hash(Iterable<PVariable> variables) {
+	private def hash(Iterable<PParameter> parameters) {
 		'''
 		namespace std {
 		
 		template<> struct hash<«qualifiedName»> {
 			unsigned operator()(const «qualifiedName»& match) const {
 				return 
-					«FOR variable : variables SEPARATOR '^'»
-						«variable.toHash»
+					«FOR parameter : parameters SEPARATOR '^'»
+						«parameter.toHash»
 					«ENDFOR»
 				;
 			}
@@ -97,7 +94,7 @@ class MatchGenerator extends ViatraQueryHeaderGenerator {
 		'''
 	}
 	
-	private def toHash(PVariable variable) {
+	private def toHash(PParameter variable) {
 		'''std::hash<decltype(match.«variable.name»)>()(match.«variable.name»)'''
 	}
 
