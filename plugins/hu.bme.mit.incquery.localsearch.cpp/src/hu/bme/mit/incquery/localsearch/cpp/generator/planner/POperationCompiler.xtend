@@ -1,6 +1,7 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.planner
 
-import com.google.common.base.CaseFormat
+import com.google.common.base.Optional
+import com.google.common.collect.Maps
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckInstanceOfStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckMultiNavigationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckSingleNavigationStub
@@ -9,8 +10,10 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendMultiNavigation
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendSingleNavigationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternBodyStub
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.SearchOperationStub
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.TypeInfo
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.VariableInfo
 import hu.bme.mit.incquery.localsearch.cpp.generator.planner.util.CompilerHelper
-import hu.bme.mit.incquery.localsearch.cpp.generator.planner.util.CompilerHelper.TypeMap
 import java.util.Map
 import java.util.Set
 import org.eclipse.emf.ecore.EReference
@@ -34,61 +37,47 @@ class POperationCompiler {
 	
 	var Map<PVariable, Integer> variableMapping
 	var Map<PConstraint, Set<Integer>> variableBindings
-	var Map<PVariable, TypeMap> typeMapping
+	var Map<PVariable, TypeInfo> typeMapping
 
 	var MatchingFrameStub matchingFrame
-	var PatternBodyStub patternBodyStub
 	
 	
-	def void compile(SubPlan plan, PBody pBody, Set<PVariable> boundVariables, PatternBodyStub bodyStub) {
+	def compile(SubPlan plan, PBody pBody, Set<PVariable> boundVariables) {
 		variableMapping = CompilerHelper::createVariableMapping(plan)
 		typeMapping = CompilerHelper::createTypeMapping(plan)
 		variableBindings = CompilerHelper::cacheVariableBindings(plan, variableMapping, boundVariables.map[variableMapping.get(it)].toSet)
 
-		matchingFrame = getMatchingFrame(plan, pBody)
-		bodyStub.matchingFrame = matchingFrame
+		matchingFrame = getMatchingFrame(pBody)
 		
-		patternBodyStub = bodyStub
-
-		CompilerHelper::createOperationsList(plan).forEach [
-			compile(variableMapping)
-		]
-		return
+		val searchOperations = CompilerHelper::createOperationsList(plan)
+			.map[compile]
+			.flatten
+			.toList
+		return new PatternBodyStub(pBody, matchingFrame, searchOperations)
 	}
 	
-	private def getMatchingFrame(SubPlan plan, PBody pBody) {
+	private def getMatchingFrame(PBody pBody) {
 		if(frameMap.containsKey(pBody)) {
 			frameMap.get(pBody)
 		} else {
-			val tmpMatchingFrame = new MatchingFrameStub
-			frameMap.put(pBody, tmpMatchingFrame)
-			
-			
-			typeMapping.forEach [ 
-				tmpMatchingFrame.addVariable($0, $1, variableMapping.get($0))
-			]
-
-			plan.body.pattern.parameters.map[plan.body.getVariableByNameChecked(it.name)].forEach [
-				tmpMatchingFrame.setVariableKey(it)
-			]
-			
-			plan.body.pattern.parameters.forEach[
-				tmpMatchingFrame.mapParameterToVariable(it, plan.body.getVariableByNameChecked(it.name))
-			]
-			
-			tmpMatchingFrame
+			val variableToParameterMap = Maps::uniqueIndex(pBody.pattern.parameters) [pBody.getVariableByNameChecked(it.name)]
+			// don't pass this to anything else or evaluate it! (Lazy evaluation!!)
+			val variableInfos = pBody.allVariables.map[
+				new VariableInfo(Optional::fromNullable(variableToParameterMap.get(it)), it, typeMapping.get(it), variableMapping.get(it))
+			].toList
+			new MatchingFrameStub(variableInfos)
 		}
 	}
 
-	def compile(POperation pOperation, Map<PVariable, Integer> variableMapping) {
+	def compile(POperation pOperation) {
 		switch (pOperation) {
 			PApply: {
 				val pConstraint = pOperation.getPConstraint
 
 				if(pConstraint.allBound)
-					createCheck(pConstraint, variableMapping)
+					return createCheck(pConstraint)
 				else
-					createExtend(pConstraint, variableMapping)
+					return createExtend(pConstraint)
 
 			}
 			PStart: {
@@ -98,15 +87,17 @@ class POperationCompiler {
 			default: { // TODO: throw an error
 			}
 		}
+		return #[]
 	}
 
-	def dispatch void createCheck(TypeConstraint constraint, Map<PVariable, Integer> variableMapping) {
+	def dispatch createCheck(TypeConstraint constraint) {
+		val operations = <SearchOperationStub>newArrayList
 		val inputKey = constraint.supplierKey
 
 		switch (inputKey) {
 			EClassTransitiveInstancesKey: {
 				val variable = constraint.getVariableInTuple(0)
-				patternBodyStub.addSearchOperation(new CheckInstanceOfStub(matchingFrame, variable, inputKey.wrappedKey))
+				operations += new CheckInstanceOfStub(matchingFrame, variable, inputKey.wrappedKey)
 			}
 			EStructuralFeatureInstancesKey: {
 				val src = constraint.getVariableInTuple(0)
@@ -116,26 +107,31 @@ class POperationCompiler {
 
 				switch (relationType) {
 					case relationType.isOneToOne:
-						patternBodyStub.addSearchOperation(new CheckSingleNavigationStub(matchingFrame, src, trg, inputKey.wrappedKey))
+						operations += new CheckSingleNavigationStub(matchingFrame, src, trg, inputKey.wrappedKey)
 					case relationType.isOneToMany:
-						patternBodyStub.addSearchOperation(new CheckMultiNavigationStub(matchingFrame, src, trg, inputKey.wrappedKey))
+						operations += new CheckMultiNavigationStub(matchingFrame, src, trg, inputKey.wrappedKey)
 				}
 			}
 		}
+		
+		return operations
 	}
 
 //	def dispatch createCheck(CheckPConstraint constraint, Map<PVariable, Integer> variableMapping, String patternName) {
 //		pattern.addSearchOperation(new CheckExpressionStub(matchingFrame, constraint.affectedVariables, constraint.expression))
 //	}
 
-	def dispatch void createCheck(ExportedParameter constraint, Map<PVariable, Integer> variableMapping) {
+	def dispatch createCheck(ExportedParameter constraint) {
 		// nop
+		#[]
 	}
 
-	def dispatch void createCheck(PConstraint constraint, Map<PVariable, Integer> variableMapping) {
+	def dispatch createCheck(PConstraint constraint) {
+		#[]
 	}
 
-	def dispatch void createExtend(TypeConstraint constraint, Map<PVariable, Integer> variableMapping) {
+	def dispatch createExtend(TypeConstraint constraint) {
+		val operations = <SearchOperationStub>newArrayList
 		val inputKey = constraint.supplierKey
 
 		// TODO : this is wasteful
@@ -147,7 +143,7 @@ class POperationCompiler {
 		switch (inputKey) {
 			EClassTransitiveInstancesKey: {
 				val variable = constraint.getVariableInTuple(0)
-				patternBodyStub.addSearchOperation(new ExtendInstanceOfStub(matchingFrame, variable, inputKey.wrappedKey))
+				operations += new ExtendInstanceOfStub(matchingFrame, variable, inputKey.wrappedKey)
 			}
 			EStructuralFeatureInstancesKey: {
 				var src = constraint.getVariableInTuple(0)
@@ -163,25 +159,28 @@ class POperationCompiler {
 					trg = tmp
 					key = (key as EReference).EOpposite
 				} else if (!fromBound && !toBound) {
-					patternBodyStub.addSearchOperation(new ExtendInstanceOfStub(matchingFrame, src, inputKey.wrappedKey.EContainingClass))					
+					operations += new ExtendInstanceOfStub(matchingFrame, src, inputKey.wrappedKey.EContainingClass)					
 				}
 				
 				switch (key) {
 					case key.isOneToOne:
-						patternBodyStub.addSearchOperation(new ExtendSingleNavigationStub(matchingFrame, src, trg, key))
+						operations += new ExtendSingleNavigationStub(matchingFrame, src, trg, key)
 					case key.isOneToMany:
-						patternBodyStub.addSearchOperation(new ExtendMultiNavigationStub(matchingFrame, src, trg, key))
+						operations += new ExtendMultiNavigationStub(matchingFrame, src, trg, key)
 				}
 			}
 		}
+		return operations
 	}
 
-	def dispatch void createExtend(ExportedParameter constraint, Map<PVariable, Integer> variableMapping) {
+	def dispatch createExtend(ExportedParameter constraint) {
 		// nop
+		#[]
 	}
 
-	def dispatch void createExtend(PConstraint constraint, Map<PVariable, Integer> variableMapping) {
+	def dispatch createExtend(PConstraint constraint) {
 		println("Constraint type not yet implemented: " + constraint)
+		#[]
 	}
 
 	private def allBound(PConstraint pConstraint) {

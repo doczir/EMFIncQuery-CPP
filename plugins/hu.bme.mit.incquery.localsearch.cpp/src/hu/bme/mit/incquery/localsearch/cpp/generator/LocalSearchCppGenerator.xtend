@@ -21,13 +21,15 @@ class LocalSearchCppGenerator {
 
 	def IGeneratorOutputProvider generate(String queryFileName, ResourceSet resourceSet, List<PQuery> queries) {
 
-		val query = new QueryStub(queryFileName)
-		query.addClasses(resourceSet.resources.map[allContents].concat.filter(EClass).filterNull.toSet)
+		val classes = resourceSet.resources.map[allContents].concat.filter(EClass).filterNull.toSet
 
 		val planCompiler = new PlanCompiler
-		queries.forEach[planCompiler.compilePlan(it, query)]
+		val patternStubs = queries.map[
+			planCompiler.compilePlan(it)
+		].flatten.toSet
 
-		generator.initialize(query)
+		val queryStub = new QueryStub(queryFileName, patternStubs, classes)
+		generator.initialize(queryStub)
 
 		return generator
 	}

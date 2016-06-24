@@ -1,10 +1,10 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.planner.util
 
-import com.google.common.base.Objects
 import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.TypeInfo
 import java.util.List
 import java.util.Map
 import java.util.Set
@@ -22,6 +22,7 @@ import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.viatra.query.runtime.matchers.psystem.basicdeferred.ExportedParameter
 import org.eclipse.viatra.query.runtime.matchers.psystem.basicenumerables.TypeConstraint
 
+// TODO: help... please...
 class CompilerHelper {
 	
 	static def Map<PVariable, Integer> createVariableMapping(SubPlan plan) {
@@ -89,17 +90,17 @@ class CompilerHelper {
 		return variableBindings
 	}
 
-	static def Map<PVariable, TypeMap> createTypeMapping(SubPlan plan) {
-		val Map<PVariable, TypeMap> typeMapping = Maps::newHashMap()
+	static def Map<PVariable, TypeInfo> createTypeMapping(SubPlan plan) {
+		val Map<PVariable, TypeInfo> typeMapping = Maps::newHashMap()
 		var Set<PVariable> allVarialbes = plan.getAllEnforcedConstraints().map[getAffectedVariables].flatten.toSet
 		allVarialbes.forEach[pVar |
 			var EClass leastStrictType = getLeastStrictType(pVar)
 			if (leastStrictType !== null) {
-				typeMapping.put(pVar, new TypeMap(leastStrictType, getStrictestType(pVar)))
+				typeMapping.put(pVar, new TypeInfo(leastStrictType, getStrictestType(pVar)))
 			} else {
 				var EDataType primitiveType = getPrimitiveType(pVar)
 				if (primitiveType !== null) {
-					typeMapping.put(pVar, new TypeMap(primitiveType, primitiveType))
+					typeMapping.put(pVar, new TypeInfo(primitiveType, primitiveType))
 				}
 			}
 		]
@@ -202,29 +203,5 @@ class CompilerHelper {
 		}
 		operationsList.add(plan.getOperation())
 		return Lists::reverse(operationsList)
-	}
-
-	static class TypeMap {
-		final EClassifier looseType
-		final EClassifier strictType
-
-		def EClassifier getLooseType() {
-			return looseType
-		}
-
-		def EClassifier getStrictType() {
-			return strictType
-		}
-
-		new(EClassifier looseType, EClassifier strictType) {
-			super()
-			this.looseType = looseType
-			this.strictType = strictType
-		}
-
-		override String toString() {
-			return Objects::toStringHelper(this).add("looseType", looseType.getName()).add("strictType",
-				strictType.getName()).toString()
-		}
-	}
+	} 
 }

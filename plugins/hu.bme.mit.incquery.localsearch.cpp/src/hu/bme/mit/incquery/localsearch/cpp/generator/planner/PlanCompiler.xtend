@@ -1,33 +1,38 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.planner
 
+import com.google.common.collect.ImmutableSet
+import com.google.common.collect.Iterables
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import java.util.List
 import org.apache.log4j.Logger
 import org.eclipse.viatra.query.runtime.emf.EMFQueryMetaContext
 import org.eclipse.viatra.query.runtime.matchers.psystem.annotations.ParameterReference
 import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PDisjunction
+import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PParameter
 import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
 import org.eclipse.viatra.query.runtime.matchers.psystem.rewriters.DefaultFlattenCallPredicate
 import org.eclipse.viatra.query.runtime.matchers.psystem.rewriters.PBodyNormalizer
 import org.eclipse.viatra.query.runtime.matchers.psystem.rewriters.PQueryFlattener
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.QueryStub
-import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PParameter
 
 class PlanCompiler {
 	
+	val PQueryFlattener flattener
+	val PBodyNormalizer normalizer	
 	
 	extension val CPPLocalSearchRuntimeBasedStrategy strategy
 	extension val POperationCompiler compiler
 	
-	
 	new () {
+		this.flattener = new PQueryFlattener(new DefaultFlattenCallPredicate)
+		this.normalizer = new PBodyNormalizer(null, false)
+		
 		this.strategy = new CPPLocalSearchRuntimeBasedStrategy(false)
 		this.compiler = new POperationCompiler
 	}
 	
-	def compilePlan(PQuery pQuery, QueryStub queryStub) {
+	def compilePlan(PQuery pQuery) {
 		val bindings = pQuery.allAnnotations.filter[name == "Bind"]
-		bindings.forEach[ binding |
+		val boundPatternStubs = bindings.map[ binding |
 			val boundParameters = binding.getAllValues("parameters").map [
 				switch (it) {
 					ParameterReference: #[it]
@@ -37,33 +42,36 @@ class PlanCompiler {
 				pQuery.parameters.get(pQuery.getPositionOfParameter(it.name))
 			].toSet
 
-			val patternStub = queryStub.addPattern(pQuery, boundParameters)
-			pQuery.compile(patternStub, boundParameters, false)
+			val bodies = pQuery.compile(boundParameters, false)
+			return new PatternStub(pQuery, bodies, boundParameters)
 		]
 
-		val patternStub = queryStub.addPattern(pQuery)
-		pQuery.compile(patternStub, #{}, true)
+		val bodies = pQuery.compile(#{}, true)
+		val unboundPatternStub = new PatternStub(pQuery, bodies)
+		// copy to prevent lazy evaluation
+		return ImmutableSet::copyOf(Iterables::concat(#[unboundPatternStub], boundPatternStubs))
 	}
 
-	def compile(PQuery pQuery, PatternStub patternStub, Iterable<PParameter> boundParameters, boolean checkSanity) {
-		val flattener = new PQueryFlattener(new DefaultFlattenCallPredicate)
-		val normalizer = new PBodyNormalizer(null, false)
+	def compile(PQuery pQuery, Iterable<PParameter> boundParameters, boolean checkSanity) {
 
 		val flatDisjunction = flattener.rewrite(pQuery.disjunctBodies)
 		val normalizedDisjunction = normalizer.rewrite(flatDisjunction)
 		
 		if (checkSanity && !normalizedDisjunction.sensibleWithoutBinding) 
-			return
+			return #{}
 		
 		val normalizedBodies = normalizedDisjunction.bodies
 
-		normalizedBodies.forEach[pBody |
-			val boundPVariables = boundParameters.map[pBody.getVariableByNameChecked(name)].toSet
+		val patternBodyStubs = normalizedBodies.map[pBody |
+			val boundPVariables = boundParameters.map[pBody.getVariableByNameChecked(name)]
+												 .toSet
 
-			val patternBodyStub = patternStub.addPatternBody(pBody)
 			pBody.plan(Logger::getLogger(PlanCompiler), boundPVariables, EMFQueryMetaContext.INSTANCE, null, #{})
-				 .compile(pBody, boundPVariables, patternBodyStub)
-		]
+				 .compile(pBody, boundPVariables)
+				 
+		].toSet
+		
+		return patternBodyStubs
 	}
 
 	/**
