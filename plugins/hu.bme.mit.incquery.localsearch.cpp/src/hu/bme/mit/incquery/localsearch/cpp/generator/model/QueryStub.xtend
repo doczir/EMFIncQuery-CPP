@@ -1,44 +1,45 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.model
 
-import java.util.Iterator
-import java.util.List
 import java.util.Set
 import org.eclipse.emf.ecore.EClass
-import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PParameter
-import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
 import org.eclipse.xtend.lib.annotations.Accessors
-
-import static com.google.common.base.Preconditions.*
 
 class QueryStub {
 
 	@Accessors(PUBLIC_GETTER)
 	val String name
 
-	val List<EClass> classes
-	val List<PatternStub> patterns
+	val Set<PatternStub> patterns
+	val Set<EClass> classes
 
 	new(String name) {
 		this.name = name
 
-		this.classes = newArrayList
-		this.patterns = newArrayList
+		this.patterns = newHashSet
+		this.classes = newHashSet
+	}
+	
+	new(String name, Set<PatternStub> patterns, Set<EClass> classes) {
+		this.name = name
+
+		this.patterns = patterns
+		this.classes = classes
 	}
 
-	def addPattern(PQuery pQuery) {
-		addPattern(pQuery, #{})
-	}
-
-	def addPattern(PQuery pQuery, Set<PParameter> boundVariables) {
-		checkNotNull(pQuery)
-		val p = new PatternStub(pQuery, boundVariables)
-		patterns += p
-		return p
-	}
-
-	def addClasses(Set<EClass> classes) {
-		this.classes += classes
-	}
+//	def addPattern(PQuery pQuery) {
+//		addPattern(pQuery, #{})
+//	}
+//
+//	def addPattern(PQuery pQuery, Set<PParameter> boundVariables) {
+//		checkNotNull(pQuery)
+//		val p = new PatternStub(pQuery, boundVariables)
+//		patterns += p
+//		return p
+//	}
+//
+//	def addClasses(Set<EClass> classes) {
+//		this.classes += classes
+//	}
 
 	def getPatterns() {
 		patterns.groupBy[it.name].unmodifiableView

@@ -1,7 +1,6 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.model
 
 import java.util.Set
-import org.eclipse.viatra.query.runtime.matchers.psystem.PBody
 import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PParameter
 import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
 
@@ -14,23 +13,35 @@ class PatternStub {
 	
 	val Set<PatternBodyStub> bodies
 	
-	new(PQuery query) {
-		this(query, #{})
+	new(PQuery query, Set<PatternBodyStub> bodies) {
+		this(query, bodies, #{})
 	}
 	
-	new(PQuery query, Set<PParameter> boundParameters) {
+//	new(PQuery query, Set<PParameter> boundParameters) {
+//		checkNotNull(query)
+//		this.query = query
+//
+//		this.bodies = newLinkedHashSet
+//		this.boundParameters = boundParameters
+//	}
+	
+	new(PQuery query, Set<PatternBodyStub> bodies, Set<PParameter> boundParameters) {
 		checkNotNull(query)
+		checkNotNull(bodies)
+		checkNotNull(boundParameters)	
+		checkArgument(!bodies.empty)	
+		
 		this.query = query
 
-		this.bodies = newLinkedHashSet
+		this.bodies = bodies
 		this.boundParameters = boundParameters
 	}
 
-	def addPatternBody(PBody pBody) {
-		val body = new PatternBodyStub(pBody)
-		bodies += body
-		return body
-	}
+//	def addPatternBody(PBody pBody) {
+//		val body = new PatternBodyStub(pBody)
+//		bodies += body
+//		return body
+//	}
 
 	def getPatternBodies() {
 		bodies.unmodifiableView

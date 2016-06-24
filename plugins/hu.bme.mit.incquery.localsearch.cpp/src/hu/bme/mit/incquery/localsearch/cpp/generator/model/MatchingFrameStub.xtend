@@ -1,58 +1,61 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.model
 
 import com.google.common.base.Optional
-import com.google.common.collect.BiMap
-import com.google.common.collect.HashBiMap
-import com.google.common.collect.Ordering
-import hu.bme.mit.incquery.localsearch.cpp.generator.planner.util.CompilerHelper.TypeMap
 import java.util.List
 import java.util.Map
+import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PParameter
+import org.eclipse.xtend.lib.annotations.Data
 
 import static com.google.common.base.Preconditions.*
+import com.google.common.collect.Maps
+import com.google.common.collect.ImmutableList
 
 class MatchingFrameStub {
 
-	val Map<String, PParameter> parameterNameMap
-	val BiMap<String, PVariable> parameterNameToVariableMap 
-	val Map<PVariable, TypeMap> variableTypeMap
-	val Map<PVariable, Integer> variablePositionMap
-	val List<PVariable> keyVariables
+	val Map<PVariable, VariableInfo> variableInfoMap
+	val Map<String, PVariable> parameterNameToVariableMap 
 
-	new() {
-		this.parameterNameMap = newHashMap
-		this.parameterNameToVariableMap = HashBiMap::create
-		this.variableTypeMap = newTreeMap(Ordering.natural.onResultOf[name])
-		this.variablePositionMap = newTreeMap(Ordering.natural.onResultOf[name])
-		this.keyVariables = newArrayList
+//	new() {
+//		this.parameterNameMap = newHashMap
+//		this.parameterNameToVariableMap = HashBiMap::create
+//		this.variableTypeMap = newTreeMap(Ordering.natural.onResultOf[name])
+//		this.variablePositionMap = newTreeMap(Ordering.natural.onResultOf[name])
+//		this.keyVariables = newArrayList
+//	}
+
+	new(List<VariableInfo> paramTypes) {
+		variableInfoMap = Maps::uniqueIndex(paramTypes) [variable]
+		parameterNameToVariableMap = Maps::newHashMap
+		paramTypes.filter[parameter.present].forEach[parameterNameToVariableMap.put(parameter.get.name, variable)]
 	}
 
-	def mapParameterToVariable(PParameter param, PVariable variable) {
-		parameterNameToVariableMap.put(param.name, variable)
-		parameterNameMap.put(param.name, param)		
-	}
-
-	def addVariable(PVariable variable, TypeMap type, int position) {
-		checkNotNull(variable)
-		checkNotNull(type)
-		variableTypeMap.put(variable, type)
-		variablePositionMap.put(variable, position)
-	}
+//	def mapParameterToVariable(PParameter param, PVariable variable) {
+//		parameterNameToVariableMap.put(param.name, variable)
+//		parameterNameMap.put(param.name, param)		
+//	}
+//
+//	def addVariable(PVariable variable, TypeMap type, int position) {
+//		checkNotNull(variable)
+//		checkNotNull(type)
+//		variableTypeMap.put(variable, type)
+//		variablePositionMap.put(variable, position)
+//	}
 	
 	def getVariableStrictType(PVariable variable) {
 		checkNotNull(variable)
-		variableTypeMap.get(variable).strictType
+		variableInfoMap.get(variable).type.strictType
 	}
 	
 	def getVariableLooseType(PVariable variable) {
 		checkNotNull(variable)
-		variableTypeMap.get(variable).looseType
+		variableInfoMap.get(variable).type.looseType
 	}
 	
 	def getVariablePosition(PVariable variable) {
 		checkNotNull(variable)
-		variablePositionMap.get(variable)
+		variableInfoMap.get(variable).position
 	}
 	
 	def getVariableFromParameter(PParameter parameter) {
@@ -62,24 +65,43 @@ class MatchingFrameStub {
 	
 	def getParameterFromVariable(PVariable variable) {
 		checkNotNull(variable)
-		val name = parameterNameToVariableMap.inverse.get(variable)
-		Optional::fromNullable(parameterNameMap.get(name))
+		variableInfoMap.get(variable).parameter		
 	}
 	
-	def setVariableKey(PVariable variable) {
-		checkNotNull(variable)
-		keyVariables += variable
-	}
+//	def setVariableKey(PVariable variable) {
+//		checkNotNull(variable)
+//		keyVariables += variable
+//	}
 	
 	def getAllVariables() {
-		variableTypeMap.keySet.unmodifiableView
+		// copy it to evaluate
+		ImmutableList::copyOf(variableInfoMap.values.map[variable])
 	}
 	
 	def getParameters() {
-		parameterNameMap.values.unmodifiableView
+		// copy it to evaluate
+		ImmutableList::copyOf(variableInfoMap.values.filter[parameter.present].map[parameter.get])
 	}
 	
 	def getAllTypes() {
-		variableTypeMap.values.toSet.unmodifiableView
+		ImmutableList::copyOf(variableInfoMap.values.map[type])
 	}
+}
+
+@Data
+class VariableInfo {
+	Optional<PParameter> parameter
+	PVariable variable
+	TypeInfo type
+	int position
+	
+	def isKey() {
+		parameter.present
+	}
+}
+
+@Data
+class TypeInfo {
+	EClassifier looseType
+	EClassifier strictType
 }

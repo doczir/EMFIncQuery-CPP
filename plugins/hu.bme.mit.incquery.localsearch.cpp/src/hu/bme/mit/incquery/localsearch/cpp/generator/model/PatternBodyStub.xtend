@@ -9,16 +9,23 @@ import static com.google.common.base.Preconditions.*
 class PatternBodyStub {
 	
 	@Accessors val PBody pBody
-	
-	@Accessors var MatchingFrameStub matchingFrame
+	@Accessors val MatchingFrameStub matchingFrame
 	val List<SearchOperationStub> searchOperations
 	
 	
-	new(PBody pBody) {
+//	new(PBody pBody) {
+//		checkNotNull(pBody)
+//		
+//		this.pBody = pBody
+//		this.searchOperations = newArrayList
+//	}
+	
+	new(PBody pBody, MatchingFrameStub matchingFrame, List<SearchOperationStub> searchOperations) {
 		checkNotNull(pBody)
 		
 		this.pBody = pBody
-		this.searchOperations = newArrayList
+		this.matchingFrame = matchingFrame
+		this.searchOperations = searchOperations
 	}
 	
 	def void addSearchOperation(SearchOperationStub searchOperation) {
