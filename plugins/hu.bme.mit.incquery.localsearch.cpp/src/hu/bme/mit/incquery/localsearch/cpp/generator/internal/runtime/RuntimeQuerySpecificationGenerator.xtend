@@ -29,6 +29,7 @@ class RuntimeQuerySpecificationGenerator extends QuerySpecificationGenerator {
 	}
 	
 	override initialize() {
+		super.initialize
 		includes += frameGenerators.map[include]
 	}
 	

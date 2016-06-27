@@ -14,7 +14,12 @@ class QueryGroupGenerator extends ViatraQueryHeaderGenerator {
 	}
 	
 	override initialize() {
+		includes += new Include("Viatra/Query/Matcher/ISearchContext.h")
+		includes += new Include("Viatra/Query/Matcher/ClassHelper.h")		
 		
+		includes += query.classes.map[
+			Include::fromEClass(it)	
+		]
 	}
 	
 	override compileInner() '''

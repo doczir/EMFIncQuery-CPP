@@ -2,12 +2,10 @@ package hu.bme.mit.incquery.localsearch.cpp.generator.internal.common
 
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
-import java.util.List
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EDataType
-import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
-import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PParameter
+import org.eclipse.xtend.lib.annotations.Accessors
 
 class MatchGenerator extends ViatraQueryHeaderGenerator {
 
