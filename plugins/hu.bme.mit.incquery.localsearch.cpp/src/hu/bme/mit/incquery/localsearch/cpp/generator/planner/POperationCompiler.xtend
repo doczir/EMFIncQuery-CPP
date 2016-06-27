@@ -62,7 +62,7 @@ class POperationCompiler {
 		} else {
 			val variableToParameterMap = Maps::uniqueIndex(pBody.pattern.parameters) [pBody.getVariableByNameChecked(it.name)]
 			// don't pass this to anything else or evaluate it! (Lazy evaluation!!)
-			val variableInfos = pBody.allVariables.map[
+			val variableInfos = pBody.uniqueVariables.map[
 				new VariableInfo(Optional::fromNullable(variableToParameterMap.get(it)), it, typeMapping.get(it), variableMapping.get(it))
 			].toList
 			new MatchingFrameStub(variableInfos)
