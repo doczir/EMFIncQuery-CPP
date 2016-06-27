@@ -20,17 +20,18 @@ class PlanCompiler {
 	val PBodyNormalizer normalizer	
 	
 	extension val CPPLocalSearchRuntimeBasedStrategy strategy
-	extension val POperationCompiler compiler
+	extension val POperationCompilerExperimental compiler
 	
 	new () {
 		this.flattener = new PQueryFlattener(new DefaultFlattenCallPredicate)
 		this.normalizer = new PBodyNormalizer(null, false)
 		
 		this.strategy = new CPPLocalSearchRuntimeBasedStrategy(false)
-		this.compiler = new POperationCompiler
+		this.compiler = new POperationCompilerExperimental
 	}
 	
 	def compilePlan(PQuery pQuery) {
+		val frameRegistry = new MatchingFrameRegistry
 		val bindings = pQuery.allAnnotations.filter[name == "Bind"]
 		val boundPatternStubs = bindings.map[ binding |
 			val boundParameters = binding.getAllValues("parameters").map [
@@ -42,17 +43,17 @@ class PlanCompiler {
 				pQuery.parameters.get(pQuery.getPositionOfParameter(it.name))
 			].toSet
 
-			val bodies = pQuery.compile(boundParameters, false)
+			val bodies = pQuery.compile(boundParameters, false, frameRegistry)
 			return new PatternStub(pQuery, bodies, boundParameters)
 		]
 
-		val bodies = pQuery.compile(#{}, true)
+		val bodies = pQuery.compile(#{}, true, frameRegistry)
 		val unboundPatternStub = new PatternStub(pQuery, bodies)
 		// copy to prevent lazy evaluation
 		return ImmutableSet::copyOf(Iterables::concat(#[unboundPatternStub], boundPatternStubs))
 	}
 
-	def compile(PQuery pQuery, Iterable<PParameter> boundParameters, boolean checkSanity) {
+	def compile(PQuery pQuery, Iterable<PParameter> boundParameters, boolean checkSanity, MatchingFrameRegistry frameRegistry) {
 
 		val flatDisjunction = flattener.rewrite(pQuery.disjunctBodies)
 		val normalizedDisjunction = normalizer.rewrite(flatDisjunction)
@@ -66,9 +67,11 @@ class PlanCompiler {
 			val boundPVariables = boundParameters.map[pBody.getVariableByNameChecked(name)]
 												 .toSet
 
+			val acceptor = new CPPSearchOperationAcceptor(frameRegistry)
 			pBody.plan(Logger::getLogger(PlanCompiler), boundPVariables, EMFQueryMetaContext.INSTANCE, null, #{})
-				 .compile(pBody, boundPVariables)
+				 .compile(pBody, boundPVariables, acceptor)
 				 
+			return acceptor.patternBodyStub				 
 		].toSet
 		
 		return patternBodyStubs
