@@ -44,16 +44,14 @@ abstract class QuerySpecificationGenerator extends ViatraQueryHeaderGenerator {
 			using QueryGroup = «queryName»QueryGroup;
 		
 			«FOR pattern : patternGroup»
-				«var bodyNum = 0»
 				«FOR body : pattern.patternBodies»
-					«generatePlan(pattern, body, bodyNum)»
-				«val youShallNotPrint = bodyNum++»
+					«generatePlan(pattern, body)»
 				«ENDFOR»
 			«ENDFOR»
 		
 		};
 	'''
 	
-	abstract def String generatePlan(PatternStub pattern, PatternBodyStub patternBody, int bodyNum) 
+	abstract def String generatePlan(PatternStub pattern, PatternBodyStub patternBody) 
 	
 }

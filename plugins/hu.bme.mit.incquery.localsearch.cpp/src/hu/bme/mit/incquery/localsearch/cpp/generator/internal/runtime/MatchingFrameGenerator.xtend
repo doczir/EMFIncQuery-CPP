@@ -13,13 +13,16 @@ class MatchingFrameGenerator extends ViatraQueryHeaderGenerator {
 
 	val String queryName
 	val String patternName
-	@Accessors(PUBLIC_GETTER) val MatchingFrameStub matchingFrame
+	@Accessors val MatchingFrameStub matchingFrame
+	@Accessors val int index
+	
 
 	new(String queryName, String patternName, int index, MatchingFrameStub matchingFrame) {
 		super(#{queryName}, '''«patternName.toFirstUpper»Frame_«index»''')
 		this.queryName = queryName
 		this.patternName = patternName
 		this.matchingFrame = matchingFrame
+		this.index = index
 	}
 
 	override initialize() {

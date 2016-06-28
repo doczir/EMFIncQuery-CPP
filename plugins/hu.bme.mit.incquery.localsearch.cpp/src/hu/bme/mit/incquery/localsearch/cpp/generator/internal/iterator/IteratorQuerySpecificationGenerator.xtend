@@ -11,7 +11,7 @@ class IteratorQuerySpecificationGenerator extends QuerySpecificationGenerator {
 		super(queryName, patternGroup)
 	}
 	
-	override generatePlan(PatternStub pattern, PatternBodyStub patternBody, int bodyNum) ''''''
+	override generatePlan(PatternStub pattern, PatternBodyStub patternBody) ''''''
 	
 		
 }

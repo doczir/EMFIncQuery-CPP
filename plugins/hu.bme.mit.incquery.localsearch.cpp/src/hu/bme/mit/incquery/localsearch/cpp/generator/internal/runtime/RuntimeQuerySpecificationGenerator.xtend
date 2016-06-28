@@ -8,12 +8,11 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import java.util.List
 import java.util.Map
 import java.util.Set
-import java.util.Collection
 
 class RuntimeQuerySpecificationGenerator extends QuerySpecificationGenerator {
 	
 	val Map<PatternStub, Map<PatternBodyStub, List<RuntimeSearchOperationGenerator>>> searchOperations
-	val Collection<MatchingFrameGenerator> frameGenerators
+	val Map<PatternBodyStub, MatchingFrameGenerator> frameGenerators
 	
 	new(String queryName, Set<PatternStub> patternGroup, Map<PatternBodyStub, MatchingFrameGenerator> frameGenerators) {
 		super(queryName, patternGroup)
@@ -25,15 +24,16 @@ class RuntimeQuerySpecificationGenerator extends QuerySpecificationGenerator {
 				]
 			]
 		]
-		this.frameGenerators = frameGenerators.values
+		this.frameGenerators = frameGenerators
 	}
 	
 	override initialize() {
 		super.initialize
-		includes += frameGenerators.map[include]
+		includes += frameGenerators.values.map[include]
 	}
 	
-	override generatePlan(PatternStub pattern, PatternBodyStub patternBody, int bodyNum) '''
+	override generatePlan(PatternStub pattern, PatternBodyStub patternBody) '''
+		«val bodyNum = frameGenerators.get(patternBody).index»
 		static ::Viatra::Query::Plan::SearchPlan<«patternName»Frame_«bodyNum»> get_plan_«NameUtils::getPlanName(pattern)»__«bodyNum»(const ModelRoot* model) {
 			using namespace ::Viatra::Query::Operations::Check;
 			using namespace ::Viatra::Query::Operations::Extend;
