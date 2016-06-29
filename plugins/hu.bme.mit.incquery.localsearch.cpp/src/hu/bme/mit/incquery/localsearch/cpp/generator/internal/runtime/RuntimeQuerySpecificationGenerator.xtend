@@ -20,7 +20,7 @@ class RuntimeQuerySpecificationGenerator extends QuerySpecificationGenerator {
 		this.searchOperations = Maps::asMap(patternGroup)[pattern |
 			Maps::asMap(pattern.patternBodies) [patternBody|
 				patternBody.searchOperations.map[op |
-					new RuntimeSearchOperationGenerator(op, frameGenerators.get(patternBody))
+					new RuntimeSearchOperationGenerator(queryName, op, frameGenerators.get(patternBody))
 				]
 			]
 		]
@@ -33,15 +33,22 @@ class RuntimeQuerySpecificationGenerator extends QuerySpecificationGenerator {
 	}
 	
 	override generatePlan(PatternStub pattern, PatternBodyStub patternBody) '''
-		«val bodyNum = frameGenerators.get(patternBody).index»
-		static ::Viatra::Query::Plan::SearchPlan<«patternName»Frame_«bodyNum»> get_plan_«NameUtils::getPlanName(pattern)»__«bodyNum»(const ModelRoot* model) {
+		«val bodyNum = patternBody.index»
+		«val frame = frameGenerators.get(patternBody)»
+		static ::Viatra::Query::Plan::SearchPlan<«frame.frameName»> get_plan_«NameUtils::getPlanName(pattern)»__«bodyNum»(const ModelRoot* model) {
 			using namespace ::Viatra::Query::Operations::Check;
 			using namespace ::Viatra::Query::Operations::Extend;
 		
-			::Viatra::Query::Plan::SearchPlan<«patternName»Frame_«bodyNum»> sp;
-			«FOR op : searchOperations.get(pattern).get(patternBody)»
-				sp.add_operation(«op.compile»);
+			::Viatra::Query::Plan::SearchPlan<«frame.frameName»> sp;
+			«val setupCode = new StringBuilder»
+			«val opCodes = searchOperations.get(pattern).get(patternBody).map[compile(setupCode)]»
+			
+			«setupCode.toString»
+			
+			«FOR op : opCodes»
+				sp.add_operation(«op»);
 			«ENDFOR»
+			
 			return sp;
 		}
 	'''
