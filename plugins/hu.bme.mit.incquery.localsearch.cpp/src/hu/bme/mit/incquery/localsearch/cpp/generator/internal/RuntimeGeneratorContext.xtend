@@ -19,8 +19,8 @@ class RuntimeGeneratorContext extends LocalsearchGeneratorOutputProvider {
 			val frameGenMap = newHashMap
 			val patternName = CaseFormat::LOWER_CAMEL.to(CaseFormat::UPPER_CAMEL, name)
 			patterns.forEach[
-				patternBodies.forEach[ patternBody, idx |
-					val matchingFrameGenerator = new MatchingFrameGenerator(query.name, patternName, idx, patternBody.matchingFrame)
+				patternBodies.forEach[ patternBody |
+					val matchingFrameGenerator = new MatchingFrameGenerator(query.name, patternName, patternBody.index, patternBody.matchingFrame)
 					frameGenMap.put(patternBody, matchingFrameGenerator)
 					generators += matchingFrameGenerator
 				]
