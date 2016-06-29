@@ -10,7 +10,6 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendMultiNavigation
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendSingleNavigationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternBodyStub
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.SearchOperationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.TypeInfo
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.VariableInfo
 import hu.bme.mit.incquery.localsearch.cpp.generator.planner.util.CompilerHelper
@@ -30,6 +29,7 @@ import org.eclipse.viatra.query.runtime.matchers.psystem.PConstraint
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.viatra.query.runtime.matchers.psystem.basicdeferred.ExportedParameter
 import org.eclipse.viatra.query.runtime.matchers.psystem.basicenumerables.TypeConstraint
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.ISearchOperationStub
 
 class POperationCompiler {
 
@@ -53,7 +53,7 @@ class POperationCompiler {
 			.map[compile]
 			.flatten
 			.toList
-		return new PatternBodyStub(pBody, matchingFrame, searchOperations)
+		return new PatternBodyStub(pBody, 0, matchingFrame, searchOperations)
 	}
 	
 	private def getMatchingFrame(PBody pBody) {
@@ -91,7 +91,7 @@ class POperationCompiler {
 	}
 
 	def dispatch createCheck(TypeConstraint constraint) {
-		val operations = <SearchOperationStub>newArrayList
+		val operations = <ISearchOperationStub>newArrayList
 		val inputKey = constraint.supplierKey
 
 		switch (inputKey) {
@@ -131,7 +131,7 @@ class POperationCompiler {
 	}
 
 	def dispatch createExtend(TypeConstraint constraint) {
-		val operations = <SearchOperationStub>newArrayList
+		val operations = <ISearchOperationStub>newArrayList
 		val inputKey = constraint.supplierKey
 
 		// TODO : this is wasteful

@@ -1,16 +1,17 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.model
 
+import java.util.List
 import java.util.Set
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Data
 
-interface SearchOperationStub {
+interface ISearchOperationStub {
 }
 
 @Data
-abstract class AbstractSearchOperationStub implements SearchOperationStub{
+abstract class AbstractSearchOperationStub implements ISearchOperationStub{
 	
 	val MatchingFrameStub matchingFrame
 	
@@ -59,6 +60,15 @@ abstract class AbstractSearchOperationStub implements SearchOperationStub{
 @Data class CheckMultiNavigationStub extends MultiNavigationStub {
 	
 	public static val String NAME = "MultiAssociationCheck"
+	
+}
+
+@Data class CheckNACOperationStub extends MultiNavigationStub {
+	
+	public static val String NAME = "NACOperation"
+	
+	val CharSequence matcher
+	val List<PVariable> bindings
 	
 }
 
