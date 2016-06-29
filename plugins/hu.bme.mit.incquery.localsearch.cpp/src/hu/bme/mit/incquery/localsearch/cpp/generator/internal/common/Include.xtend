@@ -1,13 +1,13 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.common
 
 import hu.bme.mit.cpp.util.util.CppHelper
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.IGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.BaseGenerator
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.Data
 
 @Data
-class Include implements IGenerator {
+class Include extends BaseGenerator {
 	
 	@Accessors(PUBLIC_GETTER)
 	val boolean isExternal;
