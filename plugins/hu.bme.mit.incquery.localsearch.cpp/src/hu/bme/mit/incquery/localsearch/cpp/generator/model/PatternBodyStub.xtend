@@ -10,7 +10,8 @@ class PatternBodyStub {
 	
 	@Accessors val PBody pBody
 	@Accessors val MatchingFrameStub matchingFrame
-	val List<SearchOperationStub> searchOperations
+	val List<ISearchOperationStub> searchOperations
+	@Accessors val int index
 	
 	
 //	new(PBody pBody) {
@@ -20,15 +21,16 @@ class PatternBodyStub {
 //		this.searchOperations = newArrayList
 //	}
 	
-	new(PBody pBody, MatchingFrameStub matchingFrame, List<SearchOperationStub> searchOperations) {
+	new(PBody pBody, int index, MatchingFrameStub matchingFrame, List<ISearchOperationStub> searchOperations) {
 		checkNotNull(pBody)
 		
 		this.pBody = pBody
 		this.matchingFrame = matchingFrame
 		this.searchOperations = searchOperations
+		this.index = index
 	}
 	
-	def void addSearchOperation(SearchOperationStub searchOperation) {
+	def void addSearchOperation(ISearchOperationStub searchOperation) {
 		checkNotNull(searchOperation)
 		
 		searchOperations += searchOperation
