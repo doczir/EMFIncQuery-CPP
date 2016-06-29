@@ -73,6 +73,27 @@ class POperationCompilerExperimental {
 		}
 	}
 
+	def dispatch createCheck(NegativePatternCall negativePatternCall, ISearchOperationAcceptor acceptor) {
+		val bindings = variableBindings.get(negativePatternCall)
+		val adornment = negativePatternCall.actualParametersTuple.elements.filter(PVariable).filter[
+			bindings.contains(variableMapping.get(it))
+		].toSet
+		
+		val keySize = negativePatternCall.actualParametersTuple.size
+		
+		val params = negativePatternCall.referredQuery.parameters
+		val boundParams = newHashSet
+		
+		for(i : 0..<keySize) {
+			val pVariable = negativePatternCall.actualParametersTuple.get(i) as PVariable
+			if(bindings.contains(variableMapping.get(pVariable))) {
+				boundParams += params.get(i)
+			}	
+		}
+		
+		acceptor.acceptNACOperation(negativePatternCall.referredQuery, adornment, boundParams)
+	}
+
 //	def dispatch createCheck(CheckPConstraint constraint, Map<PVariable, Integer> variableMapping, String patternName) {
 //		pattern.addSearchOperation(new CheckExpressionStub(matchingFrame, constraint.affectedVariables, constraint.expression))
 //	}
@@ -121,7 +142,7 @@ class POperationCompilerExperimental {
 	}
 
 	def dispatch createExtend(NegativePatternCall negativePatternCall, ISearchOperationAcceptor acceptor) {
-		
+		throw new UnsupportedOperationException("Cannot extend through a negative pattern call");
 	}
 
 	def dispatch createExtend(ExportedParameter constraint, ISearchOperationAcceptor acceptor) {
@@ -133,8 +154,13 @@ class POperationCompilerExperimental {
 	}
 
 	private def allBound(PConstraint pConstraint) {
-		return variableBindings.get(pConstraint).containsAll(pConstraint.affectedVariables.map [
-					variableMapping.get(it)
-				].toSet)
+		switch (pConstraint) {
+			NegativePatternCall: return true
+			default: return variableBindings.get(pConstraint).containsAll(
+										pConstraint.affectedVariables.map [
+											variableMapping.get(it)
+										].toSet
+									) 
+		}
 	}
 }

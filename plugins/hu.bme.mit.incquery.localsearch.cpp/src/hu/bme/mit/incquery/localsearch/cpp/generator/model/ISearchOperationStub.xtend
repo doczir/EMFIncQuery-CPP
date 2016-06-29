@@ -1,6 +1,5 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.model
 
-import java.util.List
 import java.util.Set
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EStructuralFeature
@@ -63,12 +62,12 @@ abstract class AbstractSearchOperationStub implements ISearchOperationStub{
 	
 }
 
-@Data class CheckNACOperationStub extends MultiNavigationStub {
+@Data class NACOperationStub extends AbstractSearchOperationStub {
 	
 	public static val String NAME = "NACOperation"
 	
 	val CharSequence matcher
-	val List<PVariable> bindings
+	val Set<PVariable> bindings
 	
 }
 

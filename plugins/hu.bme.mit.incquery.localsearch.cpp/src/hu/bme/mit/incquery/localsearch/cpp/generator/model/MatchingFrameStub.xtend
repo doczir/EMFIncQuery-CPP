@@ -59,7 +59,7 @@ class MatchingFrameStub {
 	}
 	
 	def getAllTypes() {
-		ImmutableList::copyOf(variableInfoMap.values.map[type])
+		ImmutableList::copyOf(variableInfoMap.values.map[type].filterNull)
 	}
 }
 

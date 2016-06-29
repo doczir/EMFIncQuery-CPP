@@ -8,13 +8,13 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckSingleNavigation
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendInstanceOfStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendMultiNavigationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendSingleNavigationStub
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.ISearchOperationStub
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.NACOperationStub
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.ISearchOperationStub
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckNACOperationStub
 
 class RuntimeSearchOperationGenerator extends BaseGenerator {
 
@@ -51,9 +51,9 @@ class RuntimeSearchOperationGenerator extends BaseGenerator {
 		return '''create_«CheckMultiNavigationStub::NAME»(«operation.source.toGetter», «operation.target.toGetter», «sourceType.toNavigator(operation.key.toRelationName)»)'''
 	}
 	
-	private dispatch def compileOperation(CheckNACOperationStub operation, StringBuilder setupCode) {
+	private dispatch def compileOperation(NACOperationStub operation, StringBuilder setupCode) {
 		setupCode.append('''«operation.matcher» matcher_«operation.hashCode»(model,  «queryName»QueryGroup::instance()->context())''')
-		return '''create_«CheckNACOperationStub::NAME»<«frameGenerator.frameName»>(matcher_«operation.hashCode», «operation.bindings.join(", ")»)'''
+		return '''create_«NACOperationStub::NAME»<«frameGenerator.frameName»>(matcher_«operation.hashCode», «operation.bindings.join(", ")»)'''
 	}
 
 	private dispatch def compileOperation(ExtendInstanceOfStub operation, StringBuilder setupCode) {

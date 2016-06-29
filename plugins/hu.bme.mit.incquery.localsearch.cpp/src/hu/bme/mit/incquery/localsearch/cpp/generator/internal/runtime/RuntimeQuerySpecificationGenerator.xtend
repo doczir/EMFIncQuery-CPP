@@ -42,6 +42,8 @@ class RuntimeQuerySpecificationGenerator extends QuerySpecificationGenerator {
 			::Viatra::Query::Plan::SearchPlan<«frame.frameName»> sp;
 			«val setupCode = new StringBuilder»
 			«val opCodes = searchOperations.get(pattern).get(patternBody).map[compile(setupCode)]»
+			««« evaluate so setup code gets calculated 
+			«opCodes.forEach[]»
 			
 			«setupCode.toString»
 			
