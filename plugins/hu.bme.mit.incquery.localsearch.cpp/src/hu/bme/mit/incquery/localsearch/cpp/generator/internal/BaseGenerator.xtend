@@ -7,7 +7,6 @@ import hu.bme.mit.cpp.util.util.CppHelper
 import hu.bme.mit.cpp.util.util.GuardHelper
 import hu.bme.mit.cpp.util.util.NamespaceHelper
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
-import java.util.Comparator
 import java.util.Set
 import org.eclipse.xtend.lib.annotations.Accessors
 
@@ -16,7 +15,10 @@ class BaseGenerator implements IGenerator{
 	override initialize() {
 	}
 	
-	override compile() {
+	override compile() {		
+	}
+	
+	override compile(StringBuilder setupCode) {
 	}
 	
 	override getFileName() {
@@ -90,7 +92,7 @@ class ViatraQueryHeaderGenerator extends BaseGenerator {
 	'''
 	
 	def compileInner() ''''''
-	def compileOuter() ''''''	
+	def compileOuter() ''''''
 	
 	def getInclude() {
 		new Include('''«implementationNamespace.toString('/')»/«fileName»''')
