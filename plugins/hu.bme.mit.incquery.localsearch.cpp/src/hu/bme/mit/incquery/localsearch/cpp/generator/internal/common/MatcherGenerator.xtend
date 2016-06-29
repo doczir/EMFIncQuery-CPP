@@ -62,20 +62,18 @@ abstract class MatcherGenerator extends ViatraQueryHeaderGenerator {
 		
 			std::unordered_set<«name»Match> matches;
 		
-			«var bodyNum = 0»
 			«FOR patternBody : pattern.patternBodies»
 				{
-					«compilePlanExecution(pattern, patternBody, bodyNum)»
+					«compilePlanExecution(pattern, patternBody)»
 				}
 				
-				«val youShallNotPrint = bodyNum++»
 			«ENDFOR»
 		
 			return matches;
 		}
 	'''
 	
-	protected abstract def String compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody, int bodyNum)
+	protected abstract def String compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody)
 	
 	protected def fillMatch(MatchingFrameStub matchingFrame) '''
 		«FOR parameter : matchingFrame.parameters»

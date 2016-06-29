@@ -28,14 +28,16 @@ class RuntimeMatcherGenerator extends MatcherGenerator {
 	}
 	
 
-	override protected compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody, int bodyNum) '''
+	override protected compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody) '''
+		«val frame = frameGenerators.get(patternBody)»
+		«val bodyNum = frame.index»
 		auto sp = «name»QuerySpecification<ModelRoot>::get_plan_«NameUtils::getPlanName(pattern)»__«bodyNum»(_model);
 		«IF pattern.bound»
 			«initializeFrame(frameGenerators.get(patternBody), pattern.boundParameters.map[toPVariable(patternBody.matchingFrame)].toSet, bodyNum)»
 			
-			auto exec = SearchPlanExecutor<«name»Frame_«bodyNum»>(sp, *_context).prepare(frame);
+			auto exec = SearchPlanExecutor<«frame.frameName»>(sp, *_context).prepare(frame);
 		«ELSE»							
-			auto exec = SearchPlanExecutor<«name»Frame_«bodyNum»>(sp, *_context);
+			auto exec = SearchPlanExecutor<«frame.frameName»>(sp, *_context);
 		«ENDIF»
 		
 		

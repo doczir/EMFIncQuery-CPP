@@ -24,7 +24,7 @@ class IteratorMatcherGenerator extends MatcherGenerator {
 		]
 	}
 	
-	override protected compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody, int bodyNum) '''
+	override protected compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody) '''
 		auto _classHelper = &_context->get_class_helper();
 		«val sog = searchOperations.get(pattern).get(patternBody)»
 		«sog.matchFoundHandler = ['''matches.insert(«it»);''']»
