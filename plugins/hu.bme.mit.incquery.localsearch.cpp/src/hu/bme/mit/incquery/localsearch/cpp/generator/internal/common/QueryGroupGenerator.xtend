@@ -23,9 +23,6 @@ class QueryGroupGenerator extends ViatraQueryHeaderGenerator {
 	}
 	
 	override compileInner() '''
-		template<class ModelRoot>
-		class «query.name»Matcher;
-		
 		class «unitName»{
 		public:
 			static «unitName»* instance() {
