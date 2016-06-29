@@ -13,14 +13,6 @@ class PatternBodyStub {
 	val List<ISearchOperationStub> searchOperations
 	@Accessors val int index
 	
-	
-//	new(PBody pBody) {
-//		checkNotNull(pBody)
-//		
-//		this.pBody = pBody
-//		this.searchOperations = newArrayList
-//	}
-	
 	new(PBody pBody, int index, MatchingFrameStub matchingFrame, List<ISearchOperationStub> searchOperations) {
 		checkNotNull(pBody)
 		

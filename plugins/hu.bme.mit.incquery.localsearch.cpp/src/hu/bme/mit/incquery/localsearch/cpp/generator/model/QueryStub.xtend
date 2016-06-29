@@ -12,34 +12,12 @@ class QueryStub {
 	val Set<PatternStub> patterns
 	val Set<EClass> classes
 
-	new(String name) {
-		this.name = name
-
-		this.patterns = newHashSet
-		this.classes = newHashSet
-	}
-	
 	new(String name, Set<PatternStub> patterns, Set<EClass> classes) {
 		this.name = name
 
 		this.patterns = patterns
 		this.classes = classes
 	}
-
-//	def addPattern(PQuery pQuery) {
-//		addPattern(pQuery, #{})
-//	}
-//
-//	def addPattern(PQuery pQuery, Set<PParameter> boundVariables) {
-//		checkNotNull(pQuery)
-//		val p = new PatternStub(pQuery, boundVariables)
-//		patterns += p
-//		return p
-//	}
-//
-//	def addClasses(Set<EClass> classes) {
-//		this.classes += classes
-//	}
 
 	def getPatterns() {
 		patterns.groupBy[it.name].unmodifiableView

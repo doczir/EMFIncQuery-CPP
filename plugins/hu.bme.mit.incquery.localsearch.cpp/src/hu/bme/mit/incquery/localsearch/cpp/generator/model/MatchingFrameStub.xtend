@@ -17,32 +17,12 @@ class MatchingFrameStub {
 	val Map<PVariable, VariableInfo> variableInfoMap
 	val Map<String, PVariable> parameterNameToVariableMap 
 
-//	new() {
-//		this.parameterNameMap = newHashMap
-//		this.parameterNameToVariableMap = HashBiMap::create
-//		this.variableTypeMap = newTreeMap(Ordering.natural.onResultOf[name])
-//		this.variablePositionMap = newTreeMap(Ordering.natural.onResultOf[name])
-//		this.keyVariables = newArrayList
-//	}
-
 	new(List<VariableInfo> paramTypes) {
 		variableInfoMap = Maps::uniqueIndex(paramTypes) [variable]
 		parameterNameToVariableMap = Maps::newHashMap
 		paramTypes.filter[parameter.present].forEach[parameterNameToVariableMap.put(parameter.get.name, variable)]
 	}
 
-//	def mapParameterToVariable(PParameter param, PVariable variable) {
-//		parameterNameToVariableMap.put(param.name, variable)
-//		parameterNameMap.put(param.name, param)		
-//	}
-//
-//	def addVariable(PVariable variable, TypeMap type, int position) {
-//		checkNotNull(variable)
-//		checkNotNull(type)
-//		variableTypeMap.put(variable, type)
-//		variablePositionMap.put(variable, position)
-//	}
-	
 	def getVariableStrictType(PVariable variable) {
 		checkNotNull(variable)
 		variableInfoMap.get(variable).type.strictType
@@ -67,11 +47,6 @@ class MatchingFrameStub {
 		checkNotNull(variable)
 		variableInfoMap.get(variable).parameter		
 	}
-	
-//	def setVariableKey(PVariable variable) {
-//		checkNotNull(variable)
-//		keyVariables += variable
-//	}
 	
 	def getAllVariables() {
 		// copy it to evaluate

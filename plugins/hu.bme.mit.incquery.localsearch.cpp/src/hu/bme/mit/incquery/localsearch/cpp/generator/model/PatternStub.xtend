@@ -17,14 +17,6 @@ class PatternStub {
 		this(query, bodies, #{})
 	}
 	
-//	new(PQuery query, Set<PParameter> boundParameters) {
-//		checkNotNull(query)
-//		this.query = query
-//
-//		this.bodies = newLinkedHashSet
-//		this.boundParameters = boundParameters
-//	}
-	
 	new(PQuery query, Set<PatternBodyStub> bodies, Set<PParameter> boundParameters) {
 		checkNotNull(query)
 		checkNotNull(bodies)
@@ -36,12 +28,6 @@ class PatternStub {
 		this.bodies = bodies
 		this.boundParameters = boundParameters
 	}
-
-//	def addPatternBody(PBody pBody) {
-//		val body = new PatternBodyStub(pBody)
-//		bodies += body
-//		return body
-//	}
 
 	def getPatternBodies() {
 		bodies.unmodifiableView
