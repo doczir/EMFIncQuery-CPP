@@ -10,7 +10,6 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckSingleNavigation
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendInstanceOfStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendMultiNavigationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendSingleNavigationStub
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.SearchOperationStub
 import java.util.Collection
 import java.util.LinkedList
 import java.util.Map
@@ -22,21 +21,22 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.NameUtils
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.ISearchOperationStub
 
 class IteratorSearchOperationGenerator extends BaseGenerator {
 
-	val Collection<SearchOperationStub> operations;
+	val Collection<ISearchOperationStub> operations;
 	val MatchGenerator matchGenerator
 
 	@Accessors(PUBLIC_SETTER)
 	Function<CharSequence, CharSequence> matchFoundHandler
 
-	val LinkedList<SearchOperationStub> operationsQueue
+	val LinkedList<ISearchOperationStub> operationsQueue
 	val Map<String, String> variablePurgedNameCache
 	val Map<String, String> variableNameCache
 	val Map<String, Integer> variableNameCounter
 
-	new(Collection<SearchOperationStub> operations, MatchGenerator matchGenerator) {
+	new(Collection<ISearchOperationStub> operations, MatchGenerator matchGenerator) {
 		this.operations = operations;
 		this.matchGenerator = matchGenerator
 
@@ -121,7 +121,7 @@ class IteratorSearchOperationGenerator extends BaseGenerator {
 		}
 	'''
 
-	def dispatch compileOperation(SearchOperationStub operation) '''
+	def dispatch compileOperation(ISearchOperationStub operation) '''
 		//NYI {
 			«compileNext»
 		}
