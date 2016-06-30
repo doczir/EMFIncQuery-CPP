@@ -1,15 +1,16 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.iterator
 
 import com.google.common.collect.Maps
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.MatchGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.MatcherGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.NameUtils
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.QuerySpecificationGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.DependentSearchOperationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternBodyStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import java.util.Map
 import java.util.Set
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.NameUtils
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
 
 class IteratorMatcherGenerator extends MatcherGenerator {
 	
@@ -30,6 +31,20 @@ class IteratorMatcherGenerator extends MatcherGenerator {
 		super.initialize
 		includes += new Include("Viatra/Query/Util/IsNull.h")
 		includes += new Include("type_traits", true)
+		
+		// TODO: this does not work with if there are multiple query files, somehow the related matcher generator needs to be accessed and its include path should be used
+		searchOperations.keySet
+			.map[it.patternBodies]
+			.flatten
+			.map[it.searchOperations]
+			.flatten
+			.filter(DependentSearchOperationStub)
+			.map[it.dependencies]
+			.flatten
+			.forEach[
+				val matcherName = '''«it.referredQuery.fullyQualifiedName.substring(it.referredQuery.fullyQualifiedName.lastIndexOf('.')+1).toFirstUpper»Matcher'''
+				includes += new Include('''«implementationNamespace.toString("/")»/«matcherName».h''')
+			]
 	}
 	
 	override protected compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody) '''
