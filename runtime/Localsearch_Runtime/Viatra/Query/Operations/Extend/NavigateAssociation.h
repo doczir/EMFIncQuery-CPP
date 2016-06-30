@@ -4,6 +4,7 @@
 #include <list>
 
 #include "ExtendOperation.h"
+#include "../../Util/IsNull.h"
 
 namespace Viatra {
 namespace Query {
@@ -69,34 +70,12 @@ inline NavigateSingleAssociation<SrcType, TrgType, Member, MatchingFrame>::Navig
         ExtendOperation<TrgType, std::list<TrgType>, MatchingFrame>(bindMember), _getSrc(getSrc), _navigate(navigate) {
 }
 
-/**
- * @brief Nullptr checker utility.
- *
- * This helper struct allows the checking for a nullptr regardless if the type is a pointer. Returns false for
- * non pointer values (as they can never be nullptr).
- *
- * @tparam T Type of the parameter.
- */
-template<class T>
-struct is_null {
-	static bool check(const T) {
-		return false;
-	}
-};
-
-template<class T>
-struct is_null<T*> {
-	static bool check(const T* val) {
-		return val == nullptr;
-	}
-};
-
 template<class SrcType, class TrgType, class Member, class MatchingFrame>
 inline void NavigateSingleAssociation<SrcType, TrgType, Member, MatchingFrame>::on_initialize(MatchingFrame& frame,
         const Matcher::ISearchContext&) {
     _objectHolder.clear();
 	auto target = static_cast<Member*>(frame.*_getSrc)->*_navigate;
-	if(!is_null<decltype(target)>::check(target))
+	if(!Util::IsNull<decltype(target)>::check(target))
 		_objectHolder.push_back(target);
     ExtendOperation<TrgType, std::list<TrgType>, MatchingFrame>::set_data(_objectHolder.begin(), _objectHolder.end());
 }
