@@ -31,23 +31,23 @@ abstract class MatcherGenerator extends ViatraQueryHeaderGenerator {
 		
 		includes += new Include("Viatra/Query/QueryEngine.h")
 		includes += new Include("unordered_set", true)
+		// TODO: this is only required for the using statement, however this should be moved from here as it is not generally necessary
+		includes += new Include("Viatra/Query/Plan/SearchPlanExecutor.h")
 	}
 	
 	override compileInner() '''
 		template<class ModelRoot>
 		class «unitName» {
 		public:
-			friend class ::Viatra::Query::QueryEngine<ModelRoot>;
-		
-			«FOR pattern : patternGroup»
-				«compileGetter(pattern)»
-			«ENDFOR»
-		
-		private:
 			«unitName»(const ModelRoot* model, const ::Viatra::Query::Matcher::ISearchContext* context) 
 				: _model(model), _context(context) {
 			}
 		
+			«FOR pattern : patternGroup»
+				«compileGetter(pattern)»
+			«ENDFOR»
+			
+		private:
 			const ModelRoot* _model;
 			const ::Viatra::Query::Matcher::ISearchContext* _context;
 		};
@@ -55,6 +55,7 @@ abstract class MatcherGenerator extends ViatraQueryHeaderGenerator {
 	
 	private def compileGetter(PatternStub pattern) '''
 		std::unordered_set<«name»Match> matches(«getParamList(pattern)») const {
+			««« TODO: Move using statements
 			using ::Viatra::Query::Matcher::ISearchContext;
 			using ::Viatra::Query::Plan::SearchPlan;
 			using ::Viatra::Query::Plan::SearchPlanExecutor;
@@ -87,19 +88,18 @@ abstract class MatcherGenerator extends ViatraQueryHeaderGenerator {
 		pattern.boundParameters.map[
 			val variable = it.toPVariable(matchingFrame);
 			'''«variable.type(matchingFrame)» «it.name»'''
-		].join(", ")		
+		].join(", ")
 	}
 	
 	private def toTypeName(EClassifier clazz) {
 		NameUtils::toTypeName(clazz)		
 	}
 	
-	private def type(PVariable variable, MatchingFrameStub matchingFrame) {
+	protected def type(PVariable variable, MatchingFrameStub matchingFrame) {
 		matchingFrame.getVariableStrictType(variable).toTypeName
 	}
 	
 	protected def toPVariable(PParameter pParameter, MatchingFrameStub matchingFrame) {
-		// TODO: soooo slow....
 		matchingFrame.getVariableFromParameter(pParameter)
 	}
 }

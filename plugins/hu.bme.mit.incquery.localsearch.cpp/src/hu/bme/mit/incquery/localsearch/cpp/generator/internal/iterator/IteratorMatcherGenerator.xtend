@@ -8,6 +8,8 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternBodyStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import java.util.Map
 import java.util.Set
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.NameUtils
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
 
 class IteratorMatcherGenerator extends MatcherGenerator {
 	
@@ -24,13 +26,38 @@ class IteratorMatcherGenerator extends MatcherGenerator {
 		]
 	}
 	
+	override initialize() {
+		super.initialize
+		includes += new Include("Viatra/Query/Util/IsNull.h")
+	}
+	
 	override protected compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody) '''
 		auto _classHelper = &_context->get_class_helper();
+		
+		«assignParamsToVariables(pattern)»
+		
 		«val sog = searchOperations.get(pattern).get(patternBody)»
 		«sog.matchFoundHandler = ['''matches.insert(«it»);''']»
 		
-		«sog.compile»
+		«val setupCode = new StringBuilder»
+		«val executionCode = sog.compile(setupCode)»
+		
+		«setupCode.toString»
+		
+		«executionCode»
 	'''
+	
+	def assignParamsToVariables(PatternStub pattern) {
+		val matchingFrame = pattern.patternBodies.head.matchingFrame
+		'''
+		«FOR param : pattern.boundParameters»
+		«val varName = NameUtils::getPurgedName(param.toPVariable(matchingFrame))»
+		«IF varName != param.name»
+			auto «NameUtils::getPurgedName(param.toPVariable(matchingFrame))» = «param.name»;
+		«ENDIF»
+		«ENDFOR»
+		'''
+	}
 	
 	
 	

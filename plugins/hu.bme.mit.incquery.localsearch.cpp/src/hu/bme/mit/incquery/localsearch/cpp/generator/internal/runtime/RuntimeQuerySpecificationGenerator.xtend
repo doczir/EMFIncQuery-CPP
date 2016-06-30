@@ -8,6 +8,8 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import java.util.List
 import java.util.Map
 import java.util.Set
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.DependentSearchOperationStub
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
 
 class RuntimeQuerySpecificationGenerator extends QuerySpecificationGenerator {
 	
@@ -30,6 +32,19 @@ class RuntimeQuerySpecificationGenerator extends QuerySpecificationGenerator {
 	override initialize() {
 		super.initialize
 		includes += frameGenerators.values.map[include]
+		// TODO: this does not work with if there are multiple query files, somehow the related matcher generator needs to be accessed and its include path should be used
+		searchOperations.keySet
+			.map[it.patternBodies]
+			.flatten
+			.map[it.searchOperations]
+			.flatten
+			.filter(DependentSearchOperationStub)
+			.map[it.dependencies]
+			.flatten
+			.forEach[
+				val matcherName = '''«it.referredQuery.fullyQualifiedName.substring(it.referredQuery.fullyQualifiedName.lastIndexOf('.')+1).toFirstUpper»Matcher'''
+				includes += new Include('''«implementationNamespace.toString("/")»/«matcherName».h''')
+			]
 	}
 	
 	override generatePlan(PatternStub pattern, PatternBodyStub patternBody) '''

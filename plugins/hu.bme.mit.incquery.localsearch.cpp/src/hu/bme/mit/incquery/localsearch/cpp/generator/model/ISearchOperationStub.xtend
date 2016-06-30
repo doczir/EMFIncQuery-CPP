@@ -1,9 +1,11 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.model
 
+import hu.bme.mit.incquery.localsearch.cpp.generator.planner.MatcherReference
 import java.util.Set
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
+import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.Data
 
 interface ISearchOperationStub {
@@ -62,13 +64,23 @@ abstract class AbstractSearchOperationStub implements ISearchOperationStub{
 	
 }
 
-@Data class NACOperationStub extends AbstractSearchOperationStub {
+@Data abstract class DependentSearchOperationStub extends AbstractSearchOperationStub {
+	
+	@Accessors(NONE) val Set<MatcherReference> dependencies
+	
+	def getDependencies() {
+		dependencies
+	}
+		
+}
+
+@Data class NACOperationStub extends DependentSearchOperationStub {
 	
 	public static val String NAME = "NACOperation"
 	
 	val CharSequence matcher
 	val Set<PVariable> bindings
-	
+		
 }
 
 @Data class ExtendInstanceOfStub extends InstanceOfStub {

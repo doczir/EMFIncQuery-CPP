@@ -52,8 +52,9 @@ class RuntimeSearchOperationGenerator extends BaseGenerator {
 	}
 	
 	private dispatch def compileOperation(NACOperationStub operation, StringBuilder setupCode) {
-		setupCode.append('''«operation.matcher» matcher_«operation.hashCode»(model,  «queryName»QueryGroup::instance()->context())''')
-		return '''create_«NACOperationStub::NAME»<«frameGenerator.frameName»>(matcher_«operation.hashCode», «operation.bindings.join(", ")»)'''
+		val matcherName = '''matcher_«Math.abs(operation.hashCode)»'''
+		setupCode.append('''«operation.matcher»<ModelRoot> «matcherName»(model,  «queryName.toFirstUpper»QueryGroup::instance()->context());''')
+		return '''create_«NACOperationStub::NAME»<«frameGenerator.frameName»>(«matcherName», «operation.bindings.map[toGetter].join(", ")»)'''
 	}
 
 	private dispatch def compileOperation(ExtendInstanceOfStub operation, StringBuilder setupCode) {

@@ -53,7 +53,7 @@ class RuntimeMatcherGenerator extends MatcherGenerator {
 	private def initializeFrame(MatchingFrameGenerator matchingFrameGen, Set<PVariable> boundVariables, int bodyNum) '''
 		«name»Frame_«bodyNum» frame;
 		«FOR boundVar : boundVariables»
-			frame.«matchingFrameGen.getVariableName(boundVar)» = «boundVar.name»;
+			frame.«matchingFrameGen.getVariableName(boundVar)» = «matchingFrameGen.matchingFrame.getParameterFromVariable(boundVar).get.name»;
 		«ENDFOR»
 	'''
 }

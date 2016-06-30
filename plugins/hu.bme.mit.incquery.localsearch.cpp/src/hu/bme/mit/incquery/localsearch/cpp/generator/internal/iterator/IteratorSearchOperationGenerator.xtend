@@ -3,6 +3,7 @@ package hu.bme.mit.incquery.localsearch.cpp.generator.internal.iterator
 import hu.bme.mit.cpp.util.util.CppHelper
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.BaseGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.MatchGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.NameUtils
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.AbstractSearchOperationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckInstanceOfStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckMultiNavigationStub
@@ -10,6 +11,8 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.model.CheckSingleNavigation
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendInstanceOfStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendMultiNavigationStub
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.ExtendSingleNavigationStub
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.ISearchOperationStub
+import hu.bme.mit.incquery.localsearch.cpp.generator.model.NACOperationStub
 import java.util.Collection
 import java.util.LinkedList
 import java.util.Map
@@ -20,8 +23,6 @@ import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.NameUtils
-import hu.bme.mit.incquery.localsearch.cpp.generator.model.ISearchOperationStub
 
 class IteratorSearchOperationGenerator extends BaseGenerator {
 
@@ -51,36 +52,44 @@ class IteratorSearchOperationGenerator extends BaseGenerator {
 		operationsQueue.addAll(operations)
 	}
 
-	override compile() {
+	override compile(StringBuilder setupCode) {
 		variableNameCache.clear
 		variableNameCounter.clear
-		compileNext
+		compileNext(setupCode)
 	}
 
-	def dispatch compileOperation(CheckInstanceOfStub operation) '''
+	def dispatch compileOperation(CheckInstanceOfStub operation, StringBuilder setupCode) '''
 		if(_classHelper->is_super_type(«operation.variable.cppName»->get_type_id(), «operation.key.type.typeName»::type_id)) {
 			«val typedVar = operation.variable.typedVariable(operation, operation.key)»
-			«operation.key.type.typeName»«IF operation.key.type instanceof EClass»*«ENDIF» «operation.variable.incrementName» = «typedVar»;
-			«compileNext»
+			auto «operation.variable.incrementName» = «typedVar»;
+			«compileNext(setupCode)»
 		}
 	'''
 
-	def dispatch compileOperation(CheckSingleNavigationStub operation) '''
+	def dispatch compileOperation(CheckSingleNavigationStub operation, StringBuilder setupCode) '''
 		«val tarName = operation.target.cppName»
 		«val srcName = operation.source.cppName»
 		«val relName = operation.key.name»
 		if(«srcName»->«relName» == «tarName») {
-			«compileNext»
+			«compileNext(setupCode)»
 		}
 	'''
 
-	def dispatch compileOperation(CheckMultiNavigationStub operation) '''
+	def dispatch compileOperation(CheckMultiNavigationStub operation, StringBuilder setupCode) '''
 		«val tarName = operation.target.cppName»
 		«val srcName = operation.source.cppName»
 		«val relName = operation.key.name»
 		auto& data = «srcName»->«relName»; 
 		if(std::find(data.begin(), data.end(), «tarName») != data.end()) {
-			«compileNext»
+			«compileNext(setupCode)»
+		}
+	'''
+	
+	def dispatch compileOperation(NACOperationStub operation, StringBuilder setupCode) '''
+		«val matcherName = '''matcher_«Math.abs(operation.hashCode)»'''»
+		«val youShallNotPrint = setupCode.append('''«operation.matcher»<ModelRoot> «matcherName»(_model,  _context);''')»
+		if(«matcherName».matches(«operation.bindings.map[cppName].join(", ")»).size() == 0) {
+			«compileNext(setupCode)»
 		}
 	'''
 
@@ -95,35 +104,37 @@ class IteratorSearchOperationGenerator extends BaseGenerator {
 		return expressionString
 	}
 
-	def dispatch compileOperation(ExtendInstanceOfStub operation) '''
+	def dispatch compileOperation(ExtendInstanceOfStub operation, StringBuilder setupCode) '''
 		«val type = operation.matchingFrame.getVariableStrictType(operation.variable)»
 		«val typeHelper = CppHelper::getTypeHelper(type)»
 		«val varName = operation.variable.cppName»
 		for(auto&& «varName» : («typeHelper.FQN»::_instances)) {
-			«compileNext»
+			«compileNext(setupCode)»
 		}
 	'''
 
-	def dispatch compileOperation(ExtendSingleNavigationStub operation) '''
+	def dispatch compileOperation(ExtendSingleNavigationStub operation, StringBuilder setupCode) '''
 		«val tarName = operation.target.cppName»
 		«val srcName = operation.source.cppName»
 		«val relName = operation.key.name»
-		auto «tarName» = «srcName»->«relName»;
-		«compileNext»
+		if(!::Viatra::Query::Util::IsNull<decltype(«srcName»->«relName»)>::check(«srcName»->«relName»)) {
+			auto «tarName» = «srcName»->«relName»;
+			«compileNext(setupCode)»
+		}
 	'''
 
-	def dispatch compileOperation(ExtendMultiNavigationStub operation) '''
+	def dispatch compileOperation(ExtendMultiNavigationStub operation, StringBuilder setupCode) '''
 		«val tarName = operation.target.cppName»
 		«val srcName = operation.source.cppName»
 		«val relName = operation.key.name»
 		for(auto&& «tarName» : «srcName»->«relName») {
-			«compileNext»
+			«compileNext(setupCode)»
 		}
 	'''
 
-	def dispatch compileOperation(ISearchOperationStub operation) '''
+	def dispatch compileOperation(ISearchOperationStub operation, StringBuilder setupCode) '''
 		//NYI {
-			«compileNext»
+			«compileNext(setupCode)»
 		}
 	'''
 
@@ -138,9 +149,9 @@ class IteratorSearchOperationGenerator extends BaseGenerator {
 		«matchFoundHandler.apply("match")»
 	'''
 
-	def CharSequence compileNext() {
+	def CharSequence compileNext(StringBuilder setupCode) {
 		if (!operationsQueue.isEmpty)
-			operationsQueue.poll.compileOperation
+			operationsQueue.poll.compileOperation(setupCode)
 		else
 			createMatch
 	}
@@ -158,6 +169,7 @@ class IteratorSearchOperationGenerator extends BaseGenerator {
 		]
 		val postfixedName = '''«name»_«count»'''
 		variableNameCache.put(variable.name, postfixedName)
+		variableNameCounter.put(variable.name, count + 1)
 		return postfixedName
 	}
 

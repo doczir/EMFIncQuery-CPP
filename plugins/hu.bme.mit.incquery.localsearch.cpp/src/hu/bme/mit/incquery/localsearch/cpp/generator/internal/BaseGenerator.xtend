@@ -32,7 +32,7 @@ class ViatraQueryHeaderGenerator extends BaseGenerator {
 	@Accessors(PROTECTED_GETTER) val Set<Include> includes
 	val GuardHelper guard
 	
-	val NamespaceHelper implementationNamespace
+	@Accessors(PROTECTED_GETTER) val NamespaceHelper implementationNamespace
 	protected val String unitName
 	
 	

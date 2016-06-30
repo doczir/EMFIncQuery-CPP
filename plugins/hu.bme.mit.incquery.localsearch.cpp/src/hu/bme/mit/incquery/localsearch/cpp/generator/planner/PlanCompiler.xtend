@@ -1,10 +1,12 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.planner
 
+import com.google.common.collect.HashBasedTable
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Iterables
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.PatternStub
 import java.util.List
 import java.util.Map
+import java.util.Optional
 import java.util.Set
 import java.util.concurrent.atomic.AtomicInteger
 import org.apache.log4j.Logger
@@ -22,23 +24,23 @@ class PlanCompiler {
 	
 	val PQueryFlattener flattener
 	val PBodyNormalizer normalizer
-	val Map<PQuery, Set<String>> alreadyCompiled
+	val Map<PQuery, List<PBody>> compiledBodies
 	val Set<MatcherReference> dependencies
 	val MatchingFrameRegistry frameRegistry
 	
 	extension val CPPLocalSearchRuntimeBasedStrategy strategy
-	extension val POperationCompilerExperimental compiler
+	extension val POperationCompiler compiler
 	
 	new () {
 		this.flattener = new PQueryFlattener(new DefaultFlattenCallPredicate)
 		this.normalizer = new PBodyNormalizer(null, false)
-		this.alreadyCompiled = newHashMap
+		this.compiledBodies = newHashMap
 		this.dependencies = newHashSet
 		this.frameRegistry = new MatchingFrameRegistry
 		
 		
 		this.strategy = new CPPLocalSearchRuntimeBasedStrategy(false)
-		this.compiler = new POperationCompilerExperimental
+		this.compiler = new POperationCompiler
 	}
 	
 	def compilePlan(PQuery pQuery) {
@@ -51,27 +53,26 @@ class PlanCompiler {
 			val boundParameters = getBoundParameters(binding, pQuery)
 
 			val bodies = normalizedBodies.compile(boundParameters, frameRegistry)
-			alreadyCompiled.put(pQuery, boundParameters.map[name].toSet)
 			return new PatternStub(pQuery, bodies, boundParameters)
 		]
 
 		val bodies = normalizedBodies.compile(#{}, frameRegistry)
 		val unboundPatternStub = new PatternStub(pQuery, bodies)
 		
-		val dependentPatternStubs = dependencies.filter[
-				// if not already compiled
-				!alreadyCompiled.get(it.referredQuery)?.equals(it.adornment.map[name].toSet)
-			].map[
-				val dependentNormalizedBodies = it.referredQuery.flattenAndNormalize
-				val dependentBodies = dependentNormalizedBodies.compile(it.adornment, frameRegistry)
-				return new PatternStub(it.referredQuery, dependentBodies, it.adornment)
-			]
-		
+		val dependentPatternStubs = dependencies.map[
+			val dependentNormalizedBodies = it.referredQuery.flattenAndNormalize
+			val dependentBodies = dependentNormalizedBodies.compile(it.adornment, frameRegistry)
+			return new PatternStub(it.referredQuery, dependentBodies, it.adornment)
+		]
+				
 		// copy to prevent lazy evaluation
 		return ImmutableSet::copyOf(Iterables::concat(#[unboundPatternStub], boundPatternStubs, dependentPatternStubs))
 	}
 	
 	private def flattenAndNormalize(PQuery pQuery) {
+		val cachedBody = compiledBodies.get(pQuery)
+		if(cachedBody != null)
+			return cachedBody
 		val flatDisjunction = flattener.rewrite(pQuery.disjunctBodies)
 		val normalizedDisjunction = normalizer.rewrite(flatDisjunction)
 		

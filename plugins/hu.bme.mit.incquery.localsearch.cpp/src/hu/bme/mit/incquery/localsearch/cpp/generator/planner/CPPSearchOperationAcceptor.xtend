@@ -101,11 +101,9 @@ class CPPSearchOperationAcceptor implements ISearchOperationAcceptor {
 	
 	override acceptNACOperation(PQuery calledPQuery, Set<PVariable> boundVariables, Set<PParameter> boundParameters) {
 		val matcherName = '''«calledPQuery.fullyQualifiedName.substring(calledPQuery.fullyQualifiedName.lastIndexOf('.')+1).toFirstUpper»Matcher'''
-		searchOperations += new NACOperationStub(matchingFrame, matcherName, boundVariables)
-		
-		
-		
-		dependencies += new MatcherReference(calledPQuery, boundParameters)
+		val dependency = new MatcherReference(calledPQuery, boundParameters)
+		dependencies += dependency
+		searchOperations += new NACOperationStub(matchingFrame, #{dependency}, matcherName, boundVariables)
 	}
 	
 	def getPatternBodyStub() {
