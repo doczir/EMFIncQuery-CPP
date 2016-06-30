@@ -2,7 +2,9 @@ package hu.bme.mit.incquery.localsearch.cpp.generator.internal
 
 import com.google.common.base.CaseFormat
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.MatchGenerator
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.iterator.QueryGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.QueryGroupGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.iterator.IteratorMatcherGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.iterator.IteratorQuerySpecificationGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.QueryStub
 import java.util.List
 
@@ -11,20 +13,24 @@ class IteratorGeneratorContext extends LocalsearchGeneratorOutputProvider {
 	override initializeGenerators(QueryStub query) {
 		val List<IGenerator> generators = newArrayList
 
-		val matchGenerators = newHashMap
+		query.patterns.forEach [name, patterns |
+			val patternName = CaseFormat::LOWER_CAMEL.to(CaseFormat::UPPER_CAMEL, name.substring(name.lastIndexOf('.')+1))
 
-		query.patterns.forEach [
-			val patternName = CaseFormat::LOWER_CAMEL.to(CaseFormat::UPPER_CAMEL, it.name.substring(it.name.lastIndexOf('.')+1))
-
-			val mg = new MatchGenerator(query.name, patternName, it.matchingFrame)
-			generators += mg
-			matchGenerators.put(it.matchingFrame, mg)
-			mg.initialize
+			// TODO: WARNING! Incredible Hack Inc! works, but ugly...
+			val matchGen = new MatchGenerator(query.name, patternName, patterns.head.patternBodies.head.matchingFrame)
+			generators += matchGen
+			
+			val querySpec = new IteratorQuerySpecificationGenerator(query.name, patterns.toSet)
+			generators += querySpec
+			
+			val matcherGen = new IteratorMatcherGenerator(query.name, patternName, patterns.toSet, matchGen, querySpec)
+			generators += matcherGen
 		]
 
-		val q = new QueryGenerator(query, matchGenerators)
-		generators += q
-		q.initialize
+		val queryGroupGenerator = new QueryGroupGenerator(query)
+		generators += queryGroupGenerator
+
+		generators.forEach[initialize]
 
 		return generators
 	}

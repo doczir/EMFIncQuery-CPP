@@ -3,7 +3,6 @@ package hu.bme.mit.incquery.localsearch.cpp.generator.planner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +32,12 @@ import org.eclipse.viatra.query.runtime.matchers.psystem.basicdeferred.ExportedP
 import org.eclipse.viatra.query.runtime.matchers.psystem.basicdeferred.PatternMatchCounter;
 import org.eclipse.viatra.query.runtime.matchers.psystem.basicenumerables.TypeConstraint;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
@@ -126,7 +127,12 @@ public class CPPLocalSearchRuntimeBasedStrategy {
 
 		// It is needed to start from a list that is ordered by the cost of the
 		// constraint application
-		Collections.sort(allMaskInfos, Comparator.comparing(PConstraintInfo::getCost));
+		Collections.sort(allMaskInfos, Ordering.natural().onResultOf(new Function<PConstraintInfo, Comparable<Float>>() {
+			@Override
+			public Comparable<Float> apply(PConstraintInfo input) {
+				return input.getCost();
+			}
+		}));
 
 		// Initial state creation, categorizes all operations; add present
 		// checks to operationsList

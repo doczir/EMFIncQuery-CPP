@@ -1,58 +1,42 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.runtime
 
 import hu.bme.mit.cpp.util.util.CppHelper
-import hu.bme.mit.cpp.util.util.NamespaceHelper
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.BaseGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.internal.common.Include
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
-import java.util.Set
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EDataType
 import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
 import org.eclipse.xtend.lib.annotations.Accessors
 
-class MatchingFrameGenerator extends BaseGenerator {
+class MatchingFrameGenerator extends ViatraQueryHeaderGenerator {
 
 	val String queryName
 	val String patternName
-	@Accessors(PUBLIC_GETTER) val MatchingFrameStub matchingFrame
-
-	@Accessors(PUBLIC_GETTER) val String frameName
-	val Set<Include> includes
+	@Accessors val MatchingFrameStub matchingFrame
+	@Accessors val int index
 	
 
-	new(String queryName, String patternName, MatchingFrameStub matchingFrame) {
+	new(String queryName, String patternName, int index, MatchingFrameStub matchingFrame) {
+		super(#{queryName}, '''«patternName.toFirstUpper»Frame_«index»''')
 		this.queryName = queryName
 		this.patternName = patternName
 		this.matchingFrame = matchingFrame
-
-		this.frameName = '''«patternName»Frame'''
-		this.includes = newHashSet
+		this.index = index
 	}
 
 	override initialize() {
-		matchingFrame.allTypes.forEach [
+		includes += matchingFrame.allTypes.map[looseType].map[
 			switch it {
-				EClass: includes += new Include(CppHelper::getIncludeHelper(it).toString)
-				EDataType: if(it.name.toLowerCase.contains("string")) includes += new Include("string", true)
+				EClass: Include::fromEClass(it)
+				EDataType: if(it.name.toLowerCase.contains("string")) new Include("string", true)
+				default: null
 			}
-		]
+		].filterNull
 	}
 
-	override compile() '''
-		«val guard = CppHelper::getGuardHelper(("LOCALSEARCH_" + queryName + "_" + frameName).toUpperCase)»
-		«guard.start»
-		
-		«FOR include : includes»
-			«include.compile»
-		«ENDFOR»
-		
-		«val implementationNamespace = NamespaceHelper::getCustomHelper(#["Localsearch", queryName])»
-		«FOR namespaceFragment : implementationNamespace»
-			namespace «namespaceFragment» {
-		«ENDFOR»
-		
-		struct «frameName» {
+	override compileInner() '''
+		struct «unitName» {
 			
 			«FOR param : matchingFrame.allVariables.sortBy[matchingFrame.getVariablePosition(it)]»
 				«val type = matchingFrame.getVariableLooseType(param)»
@@ -60,7 +44,7 @@ class MatchingFrameGenerator extends BaseGenerator {
 					«val typeFQN = CppHelper::getTypeHelper(type).FQN»
 					«val pos = matchingFrame.getVariablePosition(param)»
 					
-					«typeFQN»* «pos.paramName»;
+					«typeFQN»* «pos.variableName»;
 					
 «««					static «typeFQN»* «pos.getter»(«frameName»& frame) {
 «««						return frame.«pos.paramName»;
@@ -73,7 +57,7 @@ class MatchingFrameGenerator extends BaseGenerator {
 					«val typeFQN = CppHelper::getTypeHelper(type).FQN»
 					«val pos = matchingFrame.getVariablePosition(param)»
 					
-					«typeFQN» «pos.paramName»;
+					«typeFQN» «pos.variableName»;
 					
 «««					static «typeFQN»& «pos.getter»(«frameName»& frame) {
 «««						return frame.«pos.paramName»;
@@ -85,34 +69,16 @@ class MatchingFrameGenerator extends BaseGenerator {
 				«ENDIF»
 			«ENDFOR»
 		};
-		
-		«FOR namespaceFragment : implementationNamespace.toList.reverseView»
-			} /* namespace «namespaceFragment» */
-		«ENDFOR»	
-		
-		«guard.end»
 	'''
 
-	override getFileName() '''«frameName».h'''
-
-	def toGetter(PVariable variable) '''«frameName»::«matchingFrame.getVariablePosition(variable).getter»'''
-
-	def toSetter(PVariable variable) '''«frameName»::«matchingFrame.getVariablePosition(variable).setter»'''
-	
-	def getParamName(PVariable variable) {
-		getParamName(matchingFrame.getVariablePosition(variable))
-	}
-
-	def getParamName(int position) '''_«position»'''
-
-	private def getter(int position) '''get«position.paramName»'''
-
-	private def setter(int position) '''set«position.paramName»'''
-
-	def getInclude() {
-		new Include('''Localsearch/«queryName»/«fileName»''')
+	def getVariableName(PVariable variable) {
+		getVariableName(matchingFrame.getVariablePosition(variable))
 	}
 	
-	def getQualifiedName() '''::Localsearch::«queryName»::«frameName»'''
+	def getFrameName() {
+		unitName
+	}
+
+	private def getVariableName(int position) '''_«position»'''
 
 }

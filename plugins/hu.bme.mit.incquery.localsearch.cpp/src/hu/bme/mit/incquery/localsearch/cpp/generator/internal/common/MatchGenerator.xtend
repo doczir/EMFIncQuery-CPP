@@ -1,99 +1,68 @@
 package hu.bme.mit.incquery.localsearch.cpp.generator.internal.common
 
-import com.google.common.collect.ImmutableList
-import hu.bme.mit.cpp.util.util.CppHelper
-import hu.bme.mit.cpp.util.util.NamespaceHelper
-import hu.bme.mit.incquery.localsearch.cpp.generator.internal.IGenerator
+import hu.bme.mit.incquery.localsearch.cpp.generator.internal.ViatraQueryHeaderGenerator
 import hu.bme.mit.incquery.localsearch.cpp.generator.model.MatchingFrameStub
-import java.util.Set
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EDataType
-import org.eclipse.viatra.query.runtime.matchers.psystem.PVariable
+import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PParameter
 import org.eclipse.xtend.lib.annotations.Accessors
 
-class MatchGenerator implements IGenerator {
+class MatchGenerator extends ViatraQueryHeaderGenerator {
 
 	val String queryName
 	val String patternName
 	@Accessors(PUBLIC_GETTER) val MatchingFrameStub matchingFrame
 
-	@Accessors(PUBLIC_GETTER) val String matchName
-	val Set<Include> includes
-
 	new(String queryName, String patternName, MatchingFrameStub matchingFrame) {
+		super(#{queryName}, '''«patternName.toFirstUpper»Match''')
 		this.queryName = queryName
 		this.patternName = patternName
 		this.matchingFrame = matchingFrame
 
-		this.matchName = '''«patternName»Match'''
-		this.includes = newHashSet
-	}
-
-	override getFileName() {
-		'''«matchName».h'''
 	}
 
 	override initialize() {
-		matchingFrame.allTypes.forEach [
+		includes += matchingFrame.allTypes.map[strictType].map[
 			switch it {
-				EClass: includes += Include::fromEClass(it)
-				EDataType: if(it.name.toLowerCase.contains("string")) includes += new Include("string", true)
+				EClass: Include::fromEClass(it)
+				EDataType: if(it.name.toLowerCase.contains("string")) new Include("string", true)
+				default: null
 			}
-		]
-		includes += new Include("functional", true)
+		].filterNull
 	}
 
-	override compile() '''
-		«val guard = CppHelper::getGuardHelper(("LOCALSEARCH_" + queryName + "_" + matchName).toUpperCase)»
-		«guard.start»
-		
-		«FOR include : includes»
-			«include.compile()»
-		«ENDFOR»
-		
-		«val implementationNamespace = NamespaceHelper::getCustomHelper(#["Localsearch", queryName])»
-		«FOR namespaceFragment : implementationNamespace»
-			namespace «namespaceFragment» {
-		«ENDFOR»
-		
-		«val keyVariables = ImmutableList.copyOf(matchingFrame.keyVariables.sortBy[name])»
-		
-		struct «matchName» {
+	override compileInner() '''		
+		struct «unitName» {
 			
-			«fields(keyVariables)»
+			«fields(matchingFrame.parameters)»
 			
-			«equals(keyVariables)»
+			«equals(matchingFrame.parameters)»
 			
-		};
-		
-		«FOR namespaceFragment : implementationNamespace.toList.reverseView»
-			} /* namespace «namespaceFragment» */
-		«ENDFOR»
-		
-		«hash(keyVariables)»
-		
-		«guard.end»
+		};		
 	'''
 	
-	private def fields(Iterable<PVariable> variables) {
+	override compileOuter() '''
+		«hash(matchingFrame.parameters)»
+	'''
+	
+	def getMatchName() {
+		return unitName
+	}
+	
+	private def fields(Iterable<PParameter> parameters) {
 		'''
-		«FOR variable : variables»
-			«val type = matchingFrame.getVariableStrictType(variable)»
-			«val typeHelper = CppHelper::getTypeHelper(type)»
-			«IF type instanceof EClass»
-				«typeHelper.FQN»* «variable.name»;
-			«ELSEIF type instanceof EDataType»
-				«typeHelper.FQN» «variable.name»; 
-			«ENDIF»
+		«FOR parameter : parameters»
+			«val type = matchingFrame.getVariableStrictType(matchingFrame.getVariableFromParameter(parameter))»
+			«NameUtils::toTypeName(type)» «parameter.name»;
 		«ENDFOR»
 		'''
 	}
 	
-	private def equals(Iterable<PVariable> variables) {
+	private def equals(Iterable<PParameter> parameters) {
 		'''
-		bool operator==(const «matchName»& other) const {
+		bool operator==(const «unitName»& other) const {
 			return 
-				«FOR variable : variables SEPARATOR "&&"»
+				«FOR variable : parameters SEPARATOR "&&"»
 					«variable.toEquals»
 				«ENDFOR»
 			;
@@ -101,19 +70,19 @@ class MatchGenerator implements IGenerator {
 		'''
 	}
 	
-	private def toEquals(PVariable variable) {
+	private def toEquals(PParameter variable) {
 		'''«variable.name» == other.«variable.name»'''
 	}
 	
-	private def hash(Iterable<PVariable> variables) {
+	private def hash(Iterable<PParameter> parameters) {
 		'''
 		namespace std {
 		
 		template<> struct hash<«qualifiedName»> {
 			unsigned operator()(const «qualifiedName»& match) const {
 				return 
-					«FOR variable : variables SEPARATOR '^'»
-						«variable.toHash»
+					«FOR parameter : parameters SEPARATOR '^'»
+						«parameter.toHash»
 					«ENDFOR»
 				;
 			}
@@ -123,14 +92,8 @@ class MatchGenerator implements IGenerator {
 		'''
 	}
 	
-	private def toHash(PVariable variable) {
+	private def toHash(PParameter variable) {
 		'''std::hash<decltype(match.«variable.name»)>()(match.«variable.name»)'''
 	}
-
-	def getInclude() {
-		new Include('''Localsearch/«queryName»/«fileName»''')
-	}
-
-	def getQualifiedName() '''::Localsearch::«queryName»::«matchName»'''
 
 }

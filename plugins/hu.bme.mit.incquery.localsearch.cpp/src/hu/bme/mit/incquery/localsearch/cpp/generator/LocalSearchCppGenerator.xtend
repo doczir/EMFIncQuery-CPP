@@ -7,11 +7,9 @@ import hu.bme.mit.incquery.localsearch.cpp.generator.planner.PlanCompiler
 import java.util.List
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.viatra.query.runtime.emf.EMFScope
 import org.eclipse.viatra.query.runtime.matchers.psystem.queries.PQuery
 
 import static extension com.google.common.collect.Iterators.*
-import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine
 
 class LocalSearchCppGenerator {
 
@@ -23,15 +21,15 @@ class LocalSearchCppGenerator {
 
 	def IGeneratorOutputProvider generate(String queryFileName, ResourceSet resourceSet, List<PQuery> queries) {
 
-		val engine = ViatraQueryEngine.on(new EMFScope(resourceSet))
-
-		val query = new QueryStub(queryFileName)
-		query.addClasses(resourceSet.resources.map[allContents].concat.filter(EClass))
+		val classes = resourceSet.resources.map[allContents].concat.filter(EClass).filterNull.toSet
 
 		val planCompiler = new PlanCompiler
-		queries.forEach[planCompiler.compilePlan(it, engine, query)]
+		val patternStubs = queries.map[
+			planCompiler.compilePlan(it)
+		].flatten.toSet
 
-		generator.initialize(query)
+		val queryStub = new QueryStub(queryFileName, patternStubs, classes)
+		generator.initialize(queryStub)
 
 		return generator
 	}
