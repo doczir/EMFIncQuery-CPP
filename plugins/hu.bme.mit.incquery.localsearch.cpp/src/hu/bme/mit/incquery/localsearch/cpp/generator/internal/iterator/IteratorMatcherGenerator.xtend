@@ -29,6 +29,7 @@ class IteratorMatcherGenerator extends MatcherGenerator {
 	override initialize() {
 		super.initialize
 		includes += new Include("Viatra/Query/Util/IsNull.h")
+		includes += new Include("type_traits", true)
 	}
 	
 	override protected compilePlanExecution(PatternStub pattern, PatternBodyStub patternBody) '''

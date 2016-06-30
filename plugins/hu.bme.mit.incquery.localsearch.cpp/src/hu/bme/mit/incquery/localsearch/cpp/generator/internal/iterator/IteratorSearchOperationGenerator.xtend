@@ -108,7 +108,7 @@ class IteratorSearchOperationGenerator extends BaseGenerator {
 		«val type = operation.matchingFrame.getVariableStrictType(operation.variable)»
 		«val typeHelper = CppHelper::getTypeHelper(type)»
 		«val varName = operation.variable.cppName»
-		for(auto&& «varName» : («typeHelper.FQN»::_instances)) {
+		for(auto&& «varName» : (ModelIndex<std::remove_pointer<«typeHelper.FQN»>::type, ModelRoot>::instances(_model))) {
 			«compileNext(setupCode)»
 		}
 	'''
